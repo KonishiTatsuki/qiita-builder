@@ -8,8 +8,13 @@
     "preview": "nuxt preview",
     "postinstall": "nuxt prepare"
   },
-  "devDependencies": {
+  "dependencies": {
     "@types/node": "^18",
-    "nuxt": "^3.4.3"
+    "@vue/test-utils": "^2.3.2",
+    "jest": "^29.5.0",
+    "json-server": "^0.17.3",
+    "nuxt": "^3.4.3",
+    "nuxt-vue-multiselect": "^1.0.4",
+    "tailwindcss": "^3.3.2"
   }
 }
