@@ -1,3 +1,6 @@
 <template>
-  <p>あああ</p>
+  <div>
+    <!-- ボタン:
+    <button class="btn">ここをクリック</button> -->
+  </div>
 </template>
