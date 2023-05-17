@@ -2,7 +2,7 @@
   <div>
     <NuxtLayout>
       <!-- <NuxtWelcome /> -->
-    </NuxtLayout>
       <NuxtPage />
+    </NuxtLayout>
   </div>
 </template>
