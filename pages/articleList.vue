@@ -237,199 +237,156 @@
         </div>
       </div>
 
-      <!-- <div class="w-1/4 p-4">
-        <h2 class="text-lg font-bold mb-2">カテゴリ</h2>
-        <div class="mb-4">
-          <h3 class="text-sm font-semibold mb-1">プログラミング言語</h3>
-          <label class="inline-flex items-center">
-            <input
-              type="checkbox"
-              class="form-checkbox"
-              name="language"
-              value="php"
-            />
-            <span class="ml-2">PHP</span>
-          </label>
-          <label class="inline-flex items-center">
-            <input
-              type="checkbox"
-              class="form-checkbox"
-              name="language"
-              value="javascript"
-            />
-            <span class="ml-2">JavaScript</span>
-          </label>
-          <label class="inline-flex items-center">
-            <input
-              type="checkbox"
-              class="form-checkbox"
-              name="language"
-              value="python"
-            />
-            <span class="ml-2">Python</span>
-          </label>
+      <div>
+        <!-- アドベントカレンダーバナー -->
+        <div
+          class="bg-gradient-to-r from-purple-400 via-pink-500 to-red-500 p-4 rounded-lg shadow-lg flex items-center justify-between"
+        >
+          <!-- メッセージ -->
+          <div class="text-white font-bold text-xl">
+            <p class="ml-5">Qiita Builder Advent Calendar</p>
+            <p class="ml-5">開催中</p>
+          </div>
+          <!-- ビジュアル -->
+          <!-- サンプル画像 -->
+          <img
+            src="https://picsum.photos/200/150?random=2"
+            alt="朝焼けの線路"
+            width="200"
+            height="150"
+            class="rounded-lg"
+          />
         </div>
-        <div class="mb-4">
-          <h3 class="text-sm font-semibold mb-1">職種</h3>
-          <label class="inline-flex items-center">
-            <input
-              type="checkbox"
-              class="form-checkbox"
-              name="job"
-              value="engineer"
-            />
-            <span class="ml-2">エンジニア</span>
-          </label>
-          <label class="inline-flex items-center">
-            <input
-              type="checkbox"
-              class="form-checkbox"
-              name="job"
-              value="designer"
-            />
-            <span class="ml-2">デザイナー</span>
-          </label>
-          <label class="inline-flex items-center">
-            <input
-              type="checkbox"
-              class="form-checkbox"
-              name="job"
-              value="manager"
-            />
-            <span class="ml-2">マネージャー</span>
-          </label>
+        <!-- ソート機能 -->
+        <div class="flex justify-end">
+          <div class="inline-flex rounded-md shadow-sm pt-5 pb-3" role="group">
+            <button
+              type="button"
+              class="px-4 py-2 text-sm font-medium text-gray-900 bg-transparent border border-gray-200 rounded-l-lg hover:bg-gray-900 hover:text-white focus:z-10 focus:ring-2 focus:ring-gray-500 focus:bg-gray-900 focus:text-white dark:border-white dark:text-white dark:hover:text-white dark:hover:bg-gray-700 dark:focus:bg-gray-700"
+            >
+              新着順
+            </button>
+            <button
+              type="button"
+              class="px-4 py-2 text-sm font-medium text-gray-900 bg-transparent border-t border-b border-gray-200 hover:bg-gray-900 hover:text-white focus:z-10 focus:ring-2 focus:ring-gray-500 focus:bg-gray-900 focus:text-white dark:border-white dark:text-white dark:hover:text-white dark:hover:bg-gray-700 dark:focus:bg-gray-700"
+            >
+              投稿日順
+            </button>
+            <button
+              type="button"
+              class="px-4 py-2 text-sm font-medium text-gray-900 bg-transparent border border-gray-200 rounded-r-md hover:bg-gray-900 hover:text-white focus:z-10 focus:ring-2 focus:ring-gray-500 focus:bg-gray-900 focus:text-white dark:border-white dark:text-white dark:hover:text-white dark:hover:bg-gray-700 dark:focus:bg-gray-700"
+            >
+              いいね数
+            </button>
+          </div>
         </div>
-        <div class="">
-          <h3 class="text-sm font-semibold mb-1">サークル</h3>
-          <label class="inline-flex items-center">
-            <input
-              type="checkbox"
-              class="form-checkbox"
-              name="circle"
-              value="webdev"
-            />
-            <span class="ml-2">Web開発サークル</span>
-          </label>
-          <label class="inline-flex items-center">
-            <input
-              type="checkbox"
-              class="form-checkbox"
-              name="circle"
-              value="gamedev"
-            />
-            <span class="ml-2">ゲーム開発サークル</span>
-          </label>
-          <label class="inline-flex items-center">
-            <input
-              type="checkbox"
-              class="form-checkbox"
-              name="circle"
-              value="ai"
-            />
-            <span class="ml-2">AIサークル</span>
-          </label>
-        </div>
-      </div> -->
-
-      <section class="text-gray-600 body-font overflow-hidden">
-        <div class="container px-5 py-24 mx-auto">
-          <div class="-my-8 divide-y-2 divide-gray-100">
-            <div class="py-8 flex flex-wrap md:flex-nowrap">
-              <div class="md:w-64 md:mb-0 mb-6 flex-shrink-0 flex flex-col">
-                <span class="font-semibold title-font text-gray-700"
-                  >CATEGORY</span
-                >
-                <span class="mt-1 text-gray-500 text-sm">12 Jun 2019</span>
-              </div>
-              <div class="md:flex-grow">
-                <h2 class="text-2xl font-medium text-gray-900 title-font mb-2">
-                  見出し
-                </h2>
-                <p class="leading-relaxed">
-                  記事小見出し記事小見出し記事小見出し記事小見出し記事小見出し記事小見出し(どこまで表示するか制限必要)
-                </p>
-                <a class="text-indigo-500 inline-flex items-center mt-4"
-                  >記事詳細
-                  <svg
-                    class="w-4 h-4 ml-2"
-                    viewBox="0 0 24 24"
-                    stroke="currentColor"
-                    stroke-width="2"
-                    fill="none"
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
+        <!-- 記事一覧 -->
+        <section class="text-gray-600 body-font overflow-hidden">
+          <div class="container px-5 pb-24 mx-auto">
+            <div class="-my-8 divide-y-2 divide-gray-100">
+              <div class="py-8 flex flex-wrap md:flex-nowrap">
+                <div class="md:w-64 md:mb-0 mb-6 flex-shrink-0 flex flex-col">
+                  <span class="font-semibold title-font text-gray-700"
+                    >CATEGORY</span
                   >
-                    <path d="M5 12h14"></path>
-                    <path d="M12 5l7 7-7 7"></path>
-                  </svg>
-                </a>
-              </div>
-            </div>
-            <div class="py-8 flex flex-wrap md:flex-nowrap">
-              <div class="md:w-64 md:mb-0 mb-6 flex-shrink-0 flex flex-col">
-                <span class="font-semibold title-font text-gray-700"
-                  >CATEGORY</span
-                >
-                <span class="mt-1 text-gray-500 text-sm">12 Jun 2019</span>
-              </div>
-              <div class="md:flex-grow">
-                <h2 class="text-2xl font-medium text-gray-900 title-font mb-2">
-                  見出し
-                </h2>
-                <p class="leading-relaxed">
-                  記事小見出し記事小見出し記事小見出し記事小見出し記事小見出し記事小見出し(どこまで表示するか制限必要)
-                </p>
-                <a class="text-indigo-500 inline-flex items-center mt-4"
-                  >記事詳細
-                  <svg
-                    class="w-4 h-4 ml-2"
-                    viewBox="0 0 24 24"
-                    stroke="currentColor"
-                    stroke-width="2"
-                    fill="none"
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
+                  <span class="mt-1 text-gray-500 text-sm">12 Jun 2019</span>
+                </div>
+                <div class="md:flex-grow">
+                  <h2
+                    class="text-2xl font-medium text-gray-900 title-font mb-2"
                   >
-                    <path d="M5 12h14"></path>
-                    <path d="M12 5l7 7-7 7"></path>
-                  </svg>
-                </a>
+                    見出し
+                  </h2>
+                  <p class="leading-relaxed">
+                    記事小見出し記事小見出し記事小見出し記事小見出し記事小見出し記事小見出し(どこまで表示するか制限必要)
+                  </p>
+                  <a class="text-indigo-500 inline-flex items-center mt-4"
+                    >記事詳細
+                    <svg
+                      class="w-4 h-4 ml-2"
+                      viewBox="0 0 24 24"
+                      stroke="currentColor"
+                      stroke-width="2"
+                      fill="none"
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                    >
+                      <path d="M5 12h14"></path>
+                      <path d="M12 5l7 7-7 7"></path>
+                    </svg>
+                  </a>
+                </div>
               </div>
-            </div>
-            <div class="py-8 flex flex-wrap md:flex-nowrap">
-              <div class="md:w-64 md:mb-0 mb-6 flex-shrink-0 flex flex-col">
-                <span class="font-semibold title-font text-gray-700"
-                  >CATEGORY</span
-                >
-                <span class="text-sm text-gray-500">12 Jun 2019</span>
-              </div>
-              <div class="md:flex-grow">
-                <h2 class="text-2xl font-medium text-gray-900 title-font mb-2">
-                  見出し
-                </h2>
-                <p class="leading-relaxed">
-                  記事小見出し記事小見出し記事小見出し記事小見出し記事小見出し記事小見出し(どこまで表示するか制限必要)
-                </p>
-                <a class="text-indigo-500 inline-flex items-center mt-4"
-                  >記事詳細
-                  <svg
-                    class="w-4 h-4 ml-2"
-                    viewBox="0 0 24 24"
-                    stroke="currentColor"
-                    stroke-width="2"
-                    fill="none"
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
+              <div class="py-8 flex flex-wrap md:flex-nowrap">
+                <div class="md:w-64 md:mb-0 mb-6 flex-shrink-0 flex flex-col">
+                  <span class="font-semibold title-font text-gray-700"
+                    >CATEGORY</span
                   >
-                    <path d="M5 12h14"></path>
-                    <path d="M12 5l7 7-7 7"></path>
-                  </svg>
-                </a>
+                  <span class="mt-1 text-gray-500 text-sm">12 Jun 2019</span>
+                </div>
+                <div class="md:flex-grow">
+                  <h2
+                    class="text-2xl font-medium text-gray-900 title-font mb-2"
+                  >
+                    見出し
+                  </h2>
+                  <p class="leading-relaxed">
+                    記事小見出し記事小見出し記事小見出し記事小見出し記事小見出し記事小見出し(どこまで表示するか制限必要)
+                  </p>
+                  <a class="text-indigo-500 inline-flex items-center mt-4"
+                    >記事詳細
+                    <svg
+                      class="w-4 h-4 ml-2"
+                      viewBox="0 0 24 24"
+                      stroke="currentColor"
+                      stroke-width="2"
+                      fill="none"
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                    >
+                      <path d="M5 12h14"></path>
+                      <path d="M12 5l7 7-7 7"></path>
+                    </svg>
+                  </a>
+                </div>
+              </div>
+              <div class="py-8 flex flex-wrap md:flex-nowrap">
+                <div class="md:w-64 md:mb-0 mb-6 flex-shrink-0 flex flex-col">
+                  <span class="font-semibold title-font text-gray-700"
+                    >CATEGORY</span
+                  >
+                  <span class="text-sm text-gray-500">12 Jun 2019</span>
+                </div>
+                <div class="md:flex-grow">
+                  <h2
+                    class="text-2xl font-medium text-gray-900 title-font mb-2"
+                  >
+                    見出し
+                  </h2>
+                  <p class="leading-relaxed">
+                    記事小見出し記事小見出し記事小見出し記事小見出し記事小見出し記事小見出し(どこまで表示するか制限必要)
+                  </p>
+                  <a class="text-indigo-500 inline-flex items-center mt-4"
+                    >記事詳細
+                    <svg
+                      class="w-4 h-4 ml-2"
+                      viewBox="0 0 24 24"
+                      stroke="currentColor"
+                      stroke-width="2"
+                      fill="none"
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                    >
+                      <path d="M5 12h14"></path>
+                      <path d="M12 5l7 7-7 7"></path>
+                    </svg>
+                  </a>
+                </div>
               </div>
             </div>
           </div>
-        </div>
-      </section>
+        </section>
+      </div>
     </div>
   </div>
 </template>
