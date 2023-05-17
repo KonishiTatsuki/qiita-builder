@@ -1,14 +1,13 @@
 <template>
-  <div class="flex flex-col h-screen">
+  <div class="flex">
     <div class="flex-auto">
-      <div class="flex justify-center mt-20">
-        <div class="border">
+      <div class="flex justify-center">
+        <div class="w-9/12">
           <div class="my-16 text-center">
             <h1 class="title font-bold">ログイン</h1>
             <form action="/form/login" method="POST" class="mt-12">
-              <div></div>
               <div class="mb-3">
-                <label class="pr-5">メールアドレス</label>
+                メールアドレス
                 <input
                   type="email"
                   placeholder="you@rakus-partners.co.jp"
@@ -18,7 +17,7 @@
                 />
               </div>
               <div class="mb-5">
-                <label class="pr-5">パスワード</label>
+                パスワード
                 <input
                   type="password"
                   placeholder="パスワード"
