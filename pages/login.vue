@@ -1,3 +1,3 @@
 <template>
-  <p>あああ</p>
+  <div></div>
 </template>
