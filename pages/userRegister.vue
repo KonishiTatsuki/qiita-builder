@@ -1,8 +1,8 @@
 <template>
-  <div>
+  <div class="h-1/5">
     <form action="">
       <div>
-        <h1 class="title mb-2">新規登録</h1>
+        <h1 class="title">新規登録</h1>
         <div class="mb-2">
           ユーザ名
           <div>
@@ -40,38 +40,20 @@
       <div class="mb-2">
         職種
         <div class="flex">
-          <button type="button" class="rounded-xl border border-black w-11">
-            JAVA
-          </button>
-          <button type="button" class="rounded-xl border border-black w-11">
-            CL
-          </button>
-          <button type="button" class="rounded-xl border border-black w-11">
-            PHP
-          </button>
-          <button type="button" class="rounded-xl border border-black w-11">
-            FR
-          </button>
-          <button type="button" class="rounded-xl border border-black w-11">
-            ML
-          </button>
-          <button type="button" class="rounded-xl border border-black w-11">
-            QA
-          </button>
-          <button type="button" class="rounded-xl border border-black w-11">
-            営業
-          </button>
-          <button type="button" class="rounded-xl border border-black w-11">
-            内勤
-          </button>
-          <button type="button" class="rounded-xl border border-black w-11">
-            CS
+          <button
+            type="button"
+            class="rounded-xl border border-black w-11"
+            v-for="item in occupation"
+          >
+            {{ item }}
           </button>
         </div>
       </div>
       <div class="mb-2">
         アイコン画像
-        <div><button class="border-black border">ファイルを保存</button></div>
+        <div>
+          <input type="file" />
+        </div>
       </div>
       <div>
         自己紹介
@@ -87,10 +69,24 @@
         </div>
       </div>
 
-      <div class="flex">
+      <div class="flex mb-4">
         <button class="btn mr-3">登録してQiitaへ進む</button>
         <button class="btn">登録する</button>
       </div>
     </form>
   </div>
 </template>
+
+<script setup>
+const occupation = [
+  "JAVA",
+  "CL",
+  "PHP",
+  "FR",
+  "ML",
+  "QA",
+  "営業",
+  "内勤",
+  "CS",
+];
+</script>
