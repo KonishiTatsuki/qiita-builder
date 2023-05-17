@@ -2,18 +2,30 @@
   <div>
     <form action="">
       <div>
-        <p class="text-4xl mb-2">新規登録</p>
+        <h1 class="title mb-2">新規登録</h1>
+        <div class="mb-2">
+          ユーザ名
+          <div>
+            <input type="text" class="border border-black" maxlength="30" />
+          </div>
+        </div>
         <div class="mb-2">
           メールアドレス
-          <div><input type="text" class="border border-black" /></div>
+          <div>
+            <input type="text" class="border border-black" maxlength="255" />
+          </div>
         </div>
         <div class="mb-2">
           パスワード
-          <div><input type="text" class="border border-black" /></div>
+          <div>
+            <input type="text" class="border border-black" maxlength="30" />
+          </div>
         </div>
         <div class="mb-2">
           パスワード確認用
-          <div><input type="text" class="border border-black" /></div>
+          <div>
+            <input type="text" class="border border-black" maxlength="30" />
+          </div>
         </div>
       </div>
       <div class="mb-2">
@@ -70,12 +82,14 @@
             cols="30"
             rows="5"
             class="border border-black"
+            maxlength="255"
           ></textarea>
         </div>
       </div>
 
       <div class="flex">
-        <button>登録してQiitaへ進む</button> <button>登録する</button>
+        <button class="btn mr-3">登録してQiitaへ進む</button>
+        <button class="btn">登録する</button>
       </div>
     </form>
   </div>
