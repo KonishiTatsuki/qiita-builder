@@ -73,6 +73,10 @@
           ></textarea>
         </div>
       </div>
+
+      <div class="flex">
+        <button>登録してQiitaへ進む</button> <button>登録する</button>
+      </div>
     </form>
   </div>
 </template>
