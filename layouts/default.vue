@@ -32,7 +32,7 @@
     </div>
   </header>
   <!-- output the page content -->
-  <div class="p-4">
+  <div class="body">
     <slot />
   </div>
 
