@@ -240,10 +240,10 @@
       <div>
         <!-- アドベントカレンダーバナー -->
         <div
-          class="bg-gradient-to-r from-purple-400 via-pink-500 to-red-500 p-4 rounded-lg shadow-lg flex items-center justify-between"
+          class="bg-gradient-to-r from-purple-400 via-pink-500 to-red-500 p-4 rounded-lg shadow-lg flex items-center justify-between mt-3"
         >
           <!-- メッセージ -->
-          <div class="text-white font-bold text-xl">
+          <div class="text-white font-bold title">
             <p class="ml-5">Qiita Builder Advent Calendar</p>
             <p class="ml-5">開催中</p>
           </div>
@@ -292,9 +292,7 @@
                   <span class="mt-1 text-gray-500 text-sm">12 Jun 2019</span>
                 </div>
                 <div class="md:flex-grow">
-                  <h2
-                    class="text-2xl font-medium text-gray-900 title-font mb-2"
-                  >
+                  <h2 class="title font-medium text-gray-900 title-font mb-2">
                     見出し
                   </h2>
                   <p class="leading-relaxed">
@@ -325,9 +323,7 @@
                   <span class="mt-1 text-gray-500 text-sm">12 Jun 2019</span>
                 </div>
                 <div class="md:flex-grow">
-                  <h2
-                    class="text-2xl font-medium text-gray-900 title-font mb-2"
-                  >
+                  <h2 class="title font-medium text-gray-900 title-font mb-2">
                     見出し
                   </h2>
                   <p class="leading-relaxed">
@@ -358,9 +354,7 @@
                   <span class="text-sm text-gray-500">12 Jun 2019</span>
                 </div>
                 <div class="md:flex-grow">
-                  <h2
-                    class="text-2xl font-medium text-gray-900 title-font mb-2"
-                  >
+                  <h2 class="title font-medium text-gray-900 title-font mb-2">
                     見出し
                   </h2>
                   <p class="leading-relaxed">
