@@ -21,7 +21,9 @@
     <div>
       <input type="file" accept="image/*" />
     </div>
-    <button>登録</button>
+    <div class="flex justify-end">
+      <button class="btn">編集完了</button>
+    </div>
   </div>
 </template>
 
