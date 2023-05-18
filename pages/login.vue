@@ -23,9 +23,9 @@
                     パスワード
                     <div>
                       <input
-                        type="email"
+                        type="password"
                         maxlength="30"
-                        placeholder="パスワード"
+                        placeholder="password"
                         class="border rounded border-black"
                       />
                     </div>

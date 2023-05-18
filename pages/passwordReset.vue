@@ -12,7 +12,7 @@
                     新パスワード
                     <div>
                       <input
-                        type="email"
+                        type="password"
                         maxlength="30"
                         placeholder="password"
                         class="border rounded border-black"
@@ -23,7 +23,7 @@
                     確認用パスワード
                     <div>
                       <input
-                        type="email"
+                        type="password"
                         maxlength="30"
                         placeholder="password"
                         class="border rounded border-black"
