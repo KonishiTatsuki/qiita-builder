@@ -52,7 +52,7 @@
       <div class="mb-2">
         アイコン画像
         <div>
-          <input type="file" />
+          <input type="file" accept="image/*" />
         </div>
       </div>
       <div>
