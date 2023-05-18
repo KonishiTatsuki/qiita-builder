@@ -5,7 +5,7 @@
         <h1 class="title">ユーザ情報</h1>
         <div class="flex">
           ユーザー名:
-          <p>やっぴー</p>
+          <p>やっぴー--</p>
           <input
             type="text"
             class="border-black border"
