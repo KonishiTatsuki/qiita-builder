@@ -1,5 +1,8 @@
 <template>
-  <div class="my-20">
+  <div class="my-20 text-right">
+    <div>
+        <button type="submit" class="btn mb-4">記事を削除</button>
+    </div>
     <div>
         <input type="text" class="border" style="width: 100%; height: 50px;" placeholder="タイトル">
     </div>
@@ -30,7 +33,7 @@
         </div>
       <div>
         <span class="mr-4">
-            <button type="submit" class="btn text-right">投稿する</button>
+            <button type="submit" class="btn">編集完了</button>
         </span>
         <span>
             <button type="submit" class="border py-2 px-2 rounded-md">下書き保存</button>
