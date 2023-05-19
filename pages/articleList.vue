@@ -298,21 +298,28 @@
                   <p class="leading-relaxed">
                     記事小見出し記事小見出し記事小見出し記事小見出し記事小見出し記事小見出し(どこまで表示するか制限必要)
                   </p>
-                  <a class="text-indigo-500 inline-flex items-center mt-4"
-                    >記事詳細
-                    <svg
-                      class="w-4 h-4 ml-2"
-                      viewBox="0 0 24 24"
-                      stroke="currentColor"
-                      stroke-width="2"
-                      fill="none"
-                      stroke-linecap="round"
-                      stroke-linejoin="round"
+                  <div class="flex justify-between items-center mt-4">
+                    <a class="text-indigo-500 inline-flex items-center"
+                      >記事詳細
+                      <svg
+                        class="w-4 h-4 ml-2"
+                        viewBox="0 0 24 24"
+                        stroke="currentColor"
+                        stroke-width="2"
+                        fill="none"
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                      >
+                        <path d="M5 12h14"></path>
+                        <path d="M12 5l7 7-7 7"></path>
+                      </svg>
+                    </a>
+                    <button
+                      class="bg-[#1D8EB9] text-white px-3 py-1 rounded hover:bg-[#1a7fa6]"
                     >
-                      <path d="M5 12h14"></path>
-                      <path d="M12 5l7 7-7 7"></path>
-                    </svg>
-                  </a>
+                      削除(管理者のみ表示)
+                    </button>
+                  </div>
                 </div>
               </div>
               <div class="py-8 flex flex-wrap md:flex-nowrap">
@@ -329,21 +336,28 @@
                   <p class="leading-relaxed">
                     記事小見出し記事小見出し記事小見出し記事小見出し記事小見出し記事小見出し(どこまで表示するか制限必要)
                   </p>
-                  <a class="text-indigo-500 inline-flex items-center mt-4"
-                    >記事詳細
-                    <svg
-                      class="w-4 h-4 ml-2"
-                      viewBox="0 0 24 24"
-                      stroke="currentColor"
-                      stroke-width="2"
-                      fill="none"
-                      stroke-linecap="round"
-                      stroke-linejoin="round"
+                  <div class="flex justify-between items-center mt-4">
+                    <a class="text-indigo-500 inline-flex items-center"
+                      >記事詳細
+                      <svg
+                        class="w-4 h-4 ml-2"
+                        viewBox="0 0 24 24"
+                        stroke="currentColor"
+                        stroke-width="2"
+                        fill="none"
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                      >
+                        <path d="M5 12h14"></path>
+                        <path d="M12 5l7 7-7 7"></path>
+                      </svg>
+                    </a>
+                    <button
+                      class="bg-[#1D8EB9] text-white px-3 py-1 rounded hover:bg-[#1a7fa6]"
                     >
-                      <path d="M5 12h14"></path>
-                      <path d="M12 5l7 7-7 7"></path>
-                    </svg>
-                  </a>
+                      削除(管理者のみ表示)
+                    </button>
+                  </div>
                 </div>
               </div>
               <div class="py-8 flex flex-wrap md:flex-nowrap">
@@ -360,21 +374,28 @@
                   <p class="leading-relaxed">
                     記事小見出し記事小見出し記事小見出し記事小見出し記事小見出し記事小見出し(どこまで表示するか制限必要)
                   </p>
-                  <a class="text-indigo-500 inline-flex items-center mt-4"
-                    >記事詳細
-                    <svg
-                      class="w-4 h-4 ml-2"
-                      viewBox="0 0 24 24"
-                      stroke="currentColor"
-                      stroke-width="2"
-                      fill="none"
-                      stroke-linecap="round"
-                      stroke-linejoin="round"
+                  <div class="flex justify-between items-center mt-4">
+                    <a class="text-indigo-500 inline-flex items-center"
+                      >記事詳細
+                      <svg
+                        class="w-4 h-4 ml-2"
+                        viewBox="0 0 24 24"
+                        stroke="currentColor"
+                        stroke-width="2"
+                        fill="none"
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                      >
+                        <path d="M5 12h14"></path>
+                        <path d="M12 5l7 7-7 7"></path>
+                      </svg>
+                    </a>
+                    <button
+                      class="bg-[#1D8EB9] text-white px-3 py-1 rounded hover:bg-[#1a7fa6]"
                     >
-                      <path d="M5 12h14"></path>
-                      <path d="M12 5l7 7-7 7"></path>
-                    </svg>
-                  </a>
+                      削除(管理者のみ表示)
+                    </button>
+                  </div>
                 </div>
               </div>
             </div>
