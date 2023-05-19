@@ -72,7 +72,9 @@
     <div>管理者権限:</div>
     <p>管理者権限を与えたい社員のメールアドレスを入力してください</p>
     <div class="flex items-center">
-      <div><input type="text" class="border border-black" /></div>
+      <div>
+        <input type="text" class="border border-black" maxlength="255" />
+      </div>
       <div><button class="btn ml-2">保存</button></div>
     </div>
   </div>
