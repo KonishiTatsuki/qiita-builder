@@ -19,13 +19,21 @@
           <div class="mb-2">
             パスワード
             <div>
-              <input type="text" class="border border-black" maxlength="30" />
+              <input
+                type="password"
+                class="border border-black"
+                maxlength="30"
+              />
             </div>
           </div>
           <div class="mb-2">
             パスワード確認用
             <div>
-              <input type="text" class="border border-black" maxlength="30" />
+              <input
+                type="password"
+                class="border border-black"
+                maxlength="30"
+              />
             </div>
           </div>
         </div>
