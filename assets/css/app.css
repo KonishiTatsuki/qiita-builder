@@ -10,9 +10,9 @@
     @apply px-28;
   }
   .title {
-    @apply text-4xl pt-10 pb-10;
+    @apply text-4xl mt-10 mb-10;
   }
   .subtitle {
-    @apply text-2xl pt-10 pb-7;
+    @apply text-2xl mt-10 mb-7;
   }
 }
