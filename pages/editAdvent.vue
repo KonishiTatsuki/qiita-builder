@@ -1,6 +1,6 @@
 <template>
   <div>
-    <h1 class="title">アドベントカレンダー新規作成</h1>
+    <h1 class="title">アドベントカレンダー編集</h1>
     <h2 class="subtitle">アドベントカレンダーの題名</h2>
     <input
       maxlength="30"
