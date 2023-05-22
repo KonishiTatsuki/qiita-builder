@@ -5,7 +5,7 @@
         <div class="text-center">
           <h1 class="title">ログイン</h1>
           <div class="flex justify-center">
-            <div>
+            <form>
               <div class="mb-2 text-left">
                 メールアドレス
                 <div>
@@ -14,6 +14,7 @@
                     maxlength="255"
                     placeholder="you@rakus-partners.co.jp"
                     class="border rounded border-black"
+                    v-model="email"
                   />
                 </div>
               </div>
@@ -25,23 +26,40 @@
                     maxlength="30"
                     placeholder="password"
                     class="border rounded border-black"
+                    v-model="password"
                   />
                 </div>
               </div>
-            </div>
+            </form>
           </div>
           <button
             type="submit"
             class="px-5 py-2 rounded-md text-base border hover:bg-[#1D8EB9] hover:text-white hover:border-indigo-700 mr-5"
           >
-            新規登録
+            <NuxtLink to="/userRegister">新規登録</NuxtLink>
           </button>
-          <button type="submit" class="btn">ログイン</button>
+          <button
+            type="button"
+            class="btn"
+            @click="signIn({ email: email, password: password })"
+          >
+            ログイン
+          </button>
         </div>
       </div>
     </div>
   </div>
 </template>
+
+<script setup>
+const email = ref("");
+const password = ref("");
+
+const signIn = function (e) {
+  email.value = "";
+  password.value = "";
+};
+</script>
 
 <style scoped>
 .main {
