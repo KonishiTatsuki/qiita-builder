@@ -103,6 +103,20 @@
         <button type="submit" class="btn">送信</button>
       </div>
     </form>
+    <!-- コメントがある場合のみ表示 -->
+    <div v-show="result">
+      <h2 class="text-xl font-bold mb-2">投稿済みのコメント</h2>
+      <!-- 過去のコメントを表示するループ -->
+      <div class="bg-gray-200 p-2 rounded my-3">
+        <span class="font-semibold">{{ result[1][0].userName }}</span>
+        <span class="text-gray-600 float-right"
+          >{{ result[1][0].date }}&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+          <button class="text-gray-600">削除</button>
+        </span>
+        <p class="text-gray-600">{{ result[1][0].comment }}</p>
+      </div>
+      <!-- 過去のコメントを表示するループ終了 -->
+    </div>
   </div>
 </template>
 
@@ -227,6 +241,49 @@ const recommend = [
     articleId: 2,
   },
 ];
+
+const comment = [
+  {
+    id: 1,
+    userID: 1,
+    date: "2023-05-19T12:34:56Z",
+    comment: "commentId1のcomment",
+    articleId: 1,
+  },
+  {
+    id: 2,
+    userID: 2,
+    date: "2023-05-20T12:34:56Z",
+    comment: "commentId2のcomment",
+    articleId: 2,
+  },
+];
+
+const commentData = {};
+
+// コメントデータをarticleId毎にグループ化
+comment.forEach((c) => {
+  if (!commentData[c.articleId]) {
+    commentData[c.articleId] = [];
+  }
+  commentData[c.articleId].push(c);
+});
+
+// articleId毎にユーザー名、コメント内容、コメントの日付をまとめたデータを生成
+const result = {};
+Object.keys(commentData).forEach((articleId) => {
+  const comments = commentData[articleId];
+  result[articleId] = comments.map((c) => {
+    const userObject = user.find((u) => u.id === c.userID);
+    return {
+      userName: userObject.userName,
+      comment: c.comment,
+      date: c.date,
+    };
+  });
+});
+
+console.log(result);
 
 // いいねの件数をカウントする関数
 const countLikes = (likes) => {
