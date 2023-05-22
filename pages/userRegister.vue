@@ -141,7 +141,7 @@
       </div>
 
       <div class="flex mb-4">
-        <button class="btn mr-3">登録してQiitaへ進む</button>
+        <!-- <button class="btn mr-3">登録してQiitaへ進む</button> -->
         <!-- <button class="btn">登録する</button> -->
       </div>
     </div>
@@ -162,7 +162,18 @@ const occupation = [
   "内勤",
   "CS",
 ];
-const submitHandler = (credentials) => {
+const submitHandler = async (credentials) => {
   console.log(credentials);
+  const { data } = useFetch("/api/register", {
+    method: "POST",
+    body: credentials,
+  });
+  console.log(data);
+  // const client = useSupabaseClient();
+  // await client.auth.signUp({
+  //   email: credentials.email,
+  //   password: credentials.password,
+  // });
+  console.log("完了");
 };
 </script>
