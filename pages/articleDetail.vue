@@ -10,25 +10,25 @@
           class="w-8 h-8 rounded-full mr-2"
         />
         <!-- ユーザ名 -->
-        <span class="text-gray-600 text-sm">ユーザ名</span>
+        <span class="text-gray-600 text-sm">{{ user[0].userName }}</span>
         <span class="text-gray-400 text-sm mx-2">・</span>
         <!-- 投稿日 -->
-        <span class="text-gray-600 text-sm">投稿日</span>
+        <span class="text-gray-600 text-sm">{{ article[0].date }}</span>
       </div>
       <!-- 記事タイトル -->
-      <h1 class="text-4xl font-bold mb-2">記事タイトル</h1>
+      <h1 class="text-4xl font-bold mb-2">{{ article[0].title }}</h1>
       <hr class="border-t-2 border-gray-200" />
       <!-- カテゴリタグ -->
       <div class="flex space-x-2 m-4">
-        <span class="bg-blue-100 text-blue-600 px-2 py-1 rounded"
-          >カテゴリタグ</span
-        >
-        <span class="bg-green-100 text-green-600 px-2 py-1 rounded"
-          >カテゴリタグ</span
-        >
+        <span class="bg-blue-100 text-blue-600 px-2 py-1 rounded">{{
+          tag[0].name
+        }}</span>
+        <span class="bg-blue-100 text-blue-600 px-2 py-1 rounded">{{
+          tag[1].name
+        }}</span>
       </div>
       <p class="text-gray-800 mb-4">
-        記事内容
+        {{ article[0].body }}
         <br />
         <br />
         <br />
@@ -37,12 +37,12 @@
       </p>
       <div class="flex justify-end space-x-4">
         <button
-          class="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600"
+          class="bg-red-500 border-indigo-700 px-4 py-2 rounded-md text-base text-white border hover:text-gray-900"
         >
           いいね！
         </button>
         <button
-          class="bg-[#1D8EB9] text-white px-4 py-2 rounded hover:bg-[#1a7fa6]"
+          class="bg-[#1D8EB9] border-indigo-700 px-4 py-2 rounded-md text-base text-white border hover:text-gray-900"
         >
           Qiitaオススメ
         </button>
@@ -56,7 +56,7 @@
           現在の「いいね！」
         </p>
         <p class="text-red-500 text-4xl font-bold flex justify-center m-4">
-          123
+          {{ likeCount }}
           <span class="text-lg text-gray-600 align-text-bottom pt-3">件</span>
         </p>
       </div>
@@ -65,8 +65,12 @@
           >目標まで残り</span
         >
         <p class="text-red-500 text-4xl font-bold flex justify-center m-4">
-          77
-          <span class="text-lg text-gray-600 align-text-bottom pt-3">件</span>
+          {{ goalLike }}
+          <span
+            class="text-lg text-gray-600 align-text-bottom pt-3"
+            v-show="goalLike !== '達成'"
+            >件</span
+          >
         </p>
       </div>
       <div class="mb-4">
@@ -74,7 +78,7 @@
           >Qiitaオススメ</span
         >
         <p class="text-[#1D8EB9] text-4xl font-bold flex justify-center m-4">
-          45
+          {{ recommendCount }}
           <span class="text-lg text-gray-600 align-text-bottom pt-3">人</span>
         </p>
       </div>
@@ -96,13 +100,164 @@
       ></textarea>
       <div class="flex mt-3">
         <div id="charCount" class="mt-4 mr-2">0/255</div>
-        <button
-          type="submit"
-          class="bg-[#1D8EB9] text-white px-4 py-2 rounded hover:bg-[#1a7fa6]"
-        >
-          送信
-        </button>
+        <button type="submit" class="btn">送信</button>
       </div>
     </form>
   </div>
 </template>
+
+<script setup>
+import { ref, onMounted } from "vue";
+
+const article = [
+  {
+    id: 1,
+    userId: 1,
+    date: "2023-05-19T12:34:56Z",
+    title: "articleId1のtitle",
+    clubTagId: 1,
+    occupationTagId: 1,
+    body: "articleId1のbody",
+    goalLIke: 1,
+    qiitaPost: true,
+    publishDate: "2023-05-19T12:34:56Z",
+    publish: true,
+    bannerId: 1,
+    delete: true,
+  },
+  {
+    id: 2,
+    userId: 2,
+    date: "2023-05-20T12:34:56Z",
+    title: "articleId2のtitle",
+    clubTagId: 2,
+    occupationTagId: 2,
+    body: "articleId2のbody",
+    goalLIke: 2,
+    qiitaPost: false,
+    publishDate: "2023-05-20T12:34:56Z",
+    publish: false,
+    bannerId: 2,
+    delete: false,
+  },
+];
+
+const tagging = [
+  {
+    id: 1,
+    articleId: 1,
+    tagId: 1,
+  },
+  {
+    id: 2,
+    articleId: 2,
+    tagId: 2,
+  },
+];
+
+const tag = [
+  {
+    id: 1,
+    name: "tagId1のname",
+    code: "tagId1のcode",
+  },
+  {
+    id: 2,
+    name: "tagId2のname",
+    code: "tagId2のcode",
+  },
+];
+
+const user = [
+  {
+    id: 1,
+    userName: "userName1",
+    email: "userName1@userName1.com",
+    password: "userName1",
+    clubId: 1,
+    addClubId: 1,
+    occupationId: 1,
+    detail: "userName1の自己紹介文自己紹介文自己紹介文自己紹介文",
+    qiitaToken: "userName1",
+    authority: true,
+    image: "https://randomuser.me/api/portraits/men/32.jpg",
+  },
+  {
+    id: 2,
+    userName: "userName2",
+    email: "userName2@userName2.com",
+    password: "userName2",
+    clubId: 2,
+    addClubId: 2,
+    occupationId: 2,
+    detail: "userName2の自己紹介文自己紹介文自己紹介文自己紹介文",
+    qiitaToken: "userName2",
+    authority: false,
+    image: "https://randomuser.me/api/portraits/men/32.jpg",
+  },
+];
+
+const like = [
+  {
+    id: 1,
+    userId: 1,
+    articleId: 1,
+  },
+  {
+    id: 2,
+    userId: 2,
+    articleId: 2,
+  },
+  {
+    id: 3,
+    userId: 2,
+    articleId: 1,
+  },
+];
+
+const recommend = [
+  {
+    id: 1,
+    userId: 1,
+    articleId: 1,
+  },
+  {
+    id: 2,
+    userId: 2,
+    articleId: 2,
+  },
+];
+
+// いいねの件数をカウントする関数
+const countLikes = (likes) => {
+  const uniqueUserIds = [...new Set(likes.map((like) => like.userId))];
+  return uniqueUserIds.length;
+};
+
+// Qiitaオススメの件数をカウントする関数
+const countRecommend = (recommends) => {
+  const uniqueUserIds = [
+    ...new Set(recommends.map((recommend) => recommend.userId)),
+  ];
+  return uniqueUserIds.length;
+};
+
+// いいねの件数を表示するためのリアクティブな変数
+const likeCount = ref(0);
+
+// Qiitaオススメの件数を表示するためのリアクティブな変数
+const recommendCount = ref(0);
+
+// コンポーネントがマウントされた時にいいねの件数を計算する
+onMounted(() => {
+  likeCount.value = countLikes(like);
+  recommendCount.value = countRecommend(recommend);
+});
+
+//目標いいねに到達してたら「達成」。それ以外は残り件数表示する
+const goalLike = ref(null);
+goalLike.value =
+  article[0].goalLike - likeCount >= 0
+    ? article[0].goalLike - likeCount
+    : "達成";
+</script>
