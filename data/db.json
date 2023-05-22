@@ -28,20 +28,69 @@
     }
   ],
   "like": [
-    { "id": 1, "userId": 1, "articleId": 1 },
-    { "id": 2, "userId": 2, "articleId": 2 }
+    {
+      "id": 1,
+      "userId": 1,
+      "articleId": 1
+    },
+    {
+      "id": 2,
+      "userId": 2,
+      "articleId": 2
+    },
+    {
+      "id": 3
+    },
+    {
+      "id": 4
+    },
+    {
+      "userId": "5",
+      "articleId": "5",
+      "id": 6
+    },
+    {
+      "id": 7
+    },
+    {
+      "userId": 7,
+      "articleId": 7,
+      "id": 8
+    }
   ],
   "recommend": [
-    { "id": 1, "userId": 1, "articleId": 1 },
-    { "id": 2, "userId": 2, "articleId": 2 }
+    {
+      "id": 1,
+      "userId": 1,
+      "articleId": 1
+    },
+    {
+      "id": 2,
+      "userId": 2,
+      "articleId": 2
+    }
   ],
   "club": [
-    { "id": 1, "clubName": "フットサル", "display": true },
-    { "id": 2, "clubName": "サウナ", "display": false }
+    {
+      "id": 1,
+      "clubName": "フットサル",
+      "display": true
+    },
+    {
+      "id": 2,
+      "clubName": "サウナ",
+      "display": false
+    }
   ],
   "occupation": [
-    { "id": 1, "occupationName": "FR"},
-    { "id": 2, "occupationName": "PHP" }
+    {
+      "id": 1,
+      "occupationName": "FR"
+    },
+    {
+      "id": 2,
+      "occupationName": "PHP"
+    }
   ],
   "article": [
     {
@@ -53,60 +102,88 @@
       "occupationTagId": 1,
       "body": "articleId1のbody",
       "goalLIke": 1,
-      "qiitaPost": true,    
+      "qiitaPost": true,
       "publishDate": "2023-05-19T12:34:56Z",
       "publish": true,
       "bannerId": 1,
       "delete": true
     },
     {
-        "id": 2,
-        "userId": 2,
-        "date": "2023-05-20T12:34:56Z",
-        "title": "articleId2のtitle",
-        "clubTagId": 2,
-        "occupationTagId": 2,
-        "body": "articleId2のbody",
-        "goalLIke": 2,
-        "qiitaPost": false,    
-        "publishDate": "2023-05-20T12:34:56Z",
-        "publish": false,
-        "bannerId": 2,
-        "delete": false
-      }
+      "id": 2,
+      "userId": 2,
+      "date": "2023-05-20T12:34:56Z",
+      "title": "articleId2のtitle",
+      "clubTagId": 2,
+      "occupationTagId": 2,
+      "body": "articleId2のbody",
+      "goalLIke": 2,
+      "qiitaPost": false,
+      "publishDate": "2023-05-20T12:34:56Z",
+      "publish": false,
+      "bannerId": 2,
+      "delete": false
+    }
   ],
   "banner": [
     {
       "id": 1,
       "adventName": "bannerId1のadventName",
       "description": "bannerId1のdescription",
-      "startDate": "2023-05-19T12:34:56Z", 
+      "startDate": "2023-05-19T12:34:56Z",
       "endDate": "2023-05-19T12:34:56Z",
       "display": true,
-      "image": "https://randomuser.me/api/portraits/men/32.jpg",  
+      "image": "https://randomuser.me/api/portraits/men/32.jpg",
       "userId": 1
     },
     {
-        "id": 2,
-        "adventName": "bannerId2のadventName",
-        "description": "bannerId2のdescription",
-        "startDate": "2023-05-20T12:34:56Z", 
-        "endDate": "2023-05-20T12:34:56Z",
-        "display": false,
-        "image": "https://randomuser.me/api/portraits/men/32.jpg",  
-        "userId": 2
-      }
+      "id": 2,
+      "adventName": "bannerId2のadventName",
+      "description": "bannerId2のdescription",
+      "startDate": "2023-05-20T12:34:56Z",
+      "endDate": "2023-05-20T12:34:56Z",
+      "display": false,
+      "image": "https://randomuser.me/api/portraits/men/32.jpg",
+      "userId": 2
+    }
   ],
   "tagging": [
-    { "id": 1, "articleId": 1, "tagId": 1 },
-    { "id": 2, "articleId": 2, "tagId": 2}
+    {
+      "id": 1,
+      "articleId": 1,
+      "tagId": 1
+    },
+    {
+      "id": 2,
+      "articleId": 2,
+      "tagId": 2
+    }
   ],
   "tag": [
-    { "id": 1, "name": "tagId1のname", "code": "tagId1のcode" },
-    { "id": 2, "name": "tagId2のname", "code": "tagId2のcode"}
+    {
+      "id": 1,
+      "name": "tagId1のname",
+      "code": "tagId1のcode"
+    },
+    {
+      "id": 2,
+      "name": "tagId2のname",
+      "code": "tagId2のcode"
+    }
   ],
   "comment": [
-    { "id": 1, "userID": 1, "date": "2023-05-19T12:34:56Z","comment": "commentId1のcomment", "articleId": 1 },
-    { "id": 2, "userID": 2, "date": "2023-05-20T12:34:56Z","comment": "commentId2のcomment", "articleId": 2 }
+    {
+      "id": 1,
+      "userID": 1,
+      "date": "2023-05-19T12:34:56Z",
+      "comment": "commentId1のcomment",
+      "articleId": 1
+    },
+    {
+      "id": 2,
+      "userID": 2,
+      "date": "2023-05-20T12:34:56Z",
+      "comment": "commentId2のcomment",
+      "articleId": 2
+    }
   ]
 }
