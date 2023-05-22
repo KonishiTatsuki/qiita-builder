@@ -35,7 +35,7 @@
           <button
             type="submit"
             class="btn"
-            @click="resetPass({ email: email, password: password })"
+            @click="resetPass({ password: password })"
           >
             登録
           </button>
@@ -49,7 +49,15 @@
 const password = ref("");
 const confirmationPassword = ref("");
 
-const resetPass = function (e) {
+const resetPass = async function (e) {
+  const { data, error } = await supabase.auth.updateUser({
+    password: password,
+  });
+  if (error) {
+    throw error;
+  }
+
+  console.log("パスワードを変更しました。");
   email.value = "";
   password.value = "";
 };
