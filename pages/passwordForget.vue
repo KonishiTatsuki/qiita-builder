@@ -43,7 +43,6 @@ const supabase = useSupabaseClient();
 const email = ref("");
 
 const submit = async (submit) => {
-  console.log(submit.email);
   await supabase.auth.resetPasswordForEmail(
     "tatsuki.konishi@rakus-partners.co.jp",
     {
