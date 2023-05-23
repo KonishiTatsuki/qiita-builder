@@ -17,9 +17,11 @@
       </select>
     </div>
     <div class="flex justify-end">
-      <button class="btn m-3">投稿</button>
-      <button class="btn m-3">編集</button>
-      <button class="btn m-3">削除</button>
+      <div>
+        <button class="btn m-3 block">投稿</button>
+        <button class="btn m-3 block">編集</button>
+        <button class="btn m-3 block">削除</button>
+      </div>
     </div>
   </div>
 </template>
