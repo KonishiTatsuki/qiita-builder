@@ -6,7 +6,7 @@
           <h1 class="title">ログイン</h1>
           <div class="flex justify-center">
             <FormKit type="form" @submit="submit" submit-label="ログイン">
-              <div class="mb-2 text-left">
+              <div class="mb-2 text-center">
                 <FormKit
                   :classes="{
                     input: 'border border-black py-1 px-2 rounded-md',
@@ -23,7 +23,7 @@
                   }"
                 />
               </div>
-              <div class="mb-5 text-left">
+              <div class="mb-5 text-center">
                 <FormKit
                   :classes="{
                     input: 'border border-black py-1 px-2 rounded-md',
