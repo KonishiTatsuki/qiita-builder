@@ -50,7 +50,6 @@
 
 <script lang="ts" setup>
 import type EasyMDE from "easymde";
-import { ref, onMounted } from "vue"
 
 let mde: InstanceType<typeof EasyMDE> | null = null;
 

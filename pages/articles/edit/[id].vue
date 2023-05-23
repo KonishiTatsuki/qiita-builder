@@ -58,7 +58,6 @@ const { id } = route.params;
 const { data: article } = await useFetch(`http://localhost:8000/article/${id}`)
 
 import type EasyMDE from "easymde";
-import { ref, onMounted}  from "vue"
 
 let mde: InstanceType<typeof EasyMDE> | null = null;
 
