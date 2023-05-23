@@ -284,33 +284,40 @@
         <section class="text-gray-600 body-font overflow-hidden">
           <div class="container px-5 pb-24 mx-auto">
             <div class="-my-8 divide-y-2 divide-gray-100">
-              <div class="py-8 flex flex-wrap md:flex-nowrap">
+              <div
+                class="py-8 flex flex-wrap md:flex-nowrap"
+                v-for="article in combinedData"
+                :key="article.id"
+              >
                 <div class="md:w-64 md:mb-0 mb-6 flex-shrink-0 flex flex-col">
-                  <span class="font-semibold title-font text-gray-700"
-                    >CATEGORY</span
-                  >
-                  <span class="mt-1 text-gray-500 text-sm">12 Jun 2019</span>
+                  <span class="font-semibold title-font text-gray-700">{{
+                    article.tags[0].name
+                  }}</span>
+                  <span class="mt-1 text-gray-500 text-sm">{{
+                    article.date
+                  }}</span>
                 </div>
                 <div class="md:flex-grow">
                   <h2 class="title font-medium text-gray-900 title-font mb-2">
-                    見出し
+                    {{ article.title }}
                   </h2>
                   <p class="leading-relaxed">
-                    記事小見出し記事小見出し記事小見出し記事小見出し記事小見出し記事小見出し(どこまで表示するか制限必要)
+                    {{ article.body }}
                   </p>
                   <div class="flex justify-between items-center mt-4">
                     <a class="text-indigo-500 inline-flex items-center"
                       >記事詳細&nbsp;→
                     </a>
                     <button
-                      class="bg-[#1D8EB9] text-white px-3 py-1 rounded hover:bg-[#1a7fa6]"
+                      class="btn"
+                      @click="deleteArticle(article)"
                     >
                       削除(管理者のみ表示)
                     </button>
                   </div>
                 </div>
               </div>
-              <div class="py-8 flex flex-wrap md:flex-nowrap">
+              <!-- <div class="py-8 flex flex-wrap md:flex-nowrap">
                 <div class="md:w-64 md:mb-0 mb-6 flex-shrink-0 flex flex-col">
                   <span class="font-semibold title-font text-gray-700"
                     >CATEGORY</span
@@ -361,7 +368,7 @@
                     </button>
                   </div>
                 </div>
-              </div>
+              </div> -->
             </div>
           </div>
         </section>
@@ -369,3 +376,89 @@
     </div>
   </div>
 </template>
+
+<script setup>
+const deleteArticle = (article) => {
+  console.log("deleteArticleボタン発火");
+  console.log(article);
+};
+
+const article = [
+  {
+    id: 1,
+    userId: 1,
+    date: "2023-05-19T12:34:56Z",
+    title: "articleId1のtitle",
+    clubTagId: 1,
+    occupationTagId: 1,
+    body: "articleId1のbody",
+    goalLIke: 1,
+    qiitaPost: true,
+    publishDate: "2023-05-19T12:34:56Z",
+    publish: true,
+    bannerId: 1,
+    delete: true,
+  },
+  {
+    id: 2,
+    userId: 2,
+    date: "2023-05-20T12:34:56Z",
+    title: "articleId2のtitle",
+    clubTagId: 2,
+    occupationTagId: 2,
+    body: "articleId2のbody",
+    goalLIke: 2,
+    qiitaPost: false,
+    publishDate: "2023-05-20T12:34:56Z",
+    publish: false,
+    bannerId: 2,
+    delete: false,
+  },
+];
+
+const tagging = [
+  {
+    id: 1,
+    articleId: 1,
+    tagId: 1,
+  },
+  {
+    id: 2,
+    articleId: 2,
+    tagId: 2,
+  },
+];
+
+const tag = [
+  {
+    id: 1,
+    name: "tagId1のname",
+    code: "tagId1のcode",
+  },
+  {
+    id: 2,
+    name: "tagId2のname",
+    code: "tagId2のcode",
+  },
+];
+
+const combinedData = article.map((item) => {
+  const tags = tagging
+    .filter((tagItem) => tagItem.articleId === item.id)
+    .map((tagItem) => {
+      const matchedTag = tag.find((t) => t.id === tagItem.tagId);
+      return {
+        id: matchedTag.id,
+        name: matchedTag.name,
+        code: matchedTag.code,
+      };
+    });
+
+  return {
+    ...item,
+    tags: tags,
+  };
+});
+
+console.log(combinedData);
+</script>
