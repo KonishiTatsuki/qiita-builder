@@ -43,12 +43,9 @@ const supabase = useSupabaseClient();
 const email = ref("");
 
 const submit = async (submit) => {
-  await supabase.auth.resetPasswordForEmail(
-    "tatsuki.konishi@rakus-partners.co.jp",
-    {
-      redirectTo: "http://localhost:3000/passwordReset",
-    }
-  );
+  await supabase.auth.resetPasswordForEmail(submit.email, {
+    redirectTo: "http://localhost:3000/passwordReset",
+  });
 };
 </script>
 
