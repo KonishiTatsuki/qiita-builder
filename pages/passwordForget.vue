@@ -8,7 +8,7 @@
             <FormKit
               type="form"
               @submit="submit"
-              submit-label="パスワードを忘れた場合"
+              submit-label="パスワード再設定用メール送付"
             >
               <div class="mb-5 text-center">
                 <FormKit
