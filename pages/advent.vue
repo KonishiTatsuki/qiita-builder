@@ -5,9 +5,19 @@
       <h2 class="subtitle">説明文。。。。。。。。。。</h2>
     </div>
     <p>管理者名</p>
+    <Calendar />
   </div>
 </template>
 
-<script setup></script>
+<script>
+import Calendar from "~/components/Calendar.vue";
+
+export default {
+  name: "App",
+  components: {
+    Calendar,
+  },
+};
+</script>
 
 <style lang="scss" scoped></style>
