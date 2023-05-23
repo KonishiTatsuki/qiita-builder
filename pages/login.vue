@@ -1,50 +1,39 @@
+<script setup>
+const supabase = useSupabaseClient()
+
+const loading = ref(false)
+const email = ref('')
+
+const handleLogin = async () => {
+  try {
+    loading.value = true
+    const { error } = await supabase.auth.signInWithOtp({ email: email.value })
+    if (error) throw error
+    alert('Check your email for the login link!')
+  } catch (error) {
+    alert(error.error_description || error.message)
+  } finally {
+    loading.value = false
+  }
+}
+</script>
+
 <template>
-  <div class="flex main">
-    <div class="flex-auto my-auto">
-      <div class="flex justify-center">
-        <div class="text-center">
-          <h1 class="title">ログイン</h1>
-          <div class="flex justify-center">
-            <div>
-              <div class="mb-2 text-left">
-                メールアドレス
-                <div>
-                  <input
-                    type="email"
-                    maxlength="255"
-                    placeholder="you@rakus-partners.co.jp"
-                    class="border rounded border-black"
-                  />
-                </div>
-              </div>
-              <div class="mb-5 text-left">
-                パスワード
-                <div>
-                  <input
-                    type="password"
-                    maxlength="30"
-                    placeholder="password"
-                    class="border rounded border-black"
-                  />
-                </div>
-              </div>
-            </div>
-          </div>
-          <button
-            type="submit"
-            class="px-5 py-2 rounded-md text-base border hover:bg-[#1D8EB9] hover:text-white hover:border-indigo-700 mr-5"
-          >
-            新規登録
-          </button>
-          <button type="submit" class="btn">ログイン</button>
-        </div>
+  <form class="row flex-center flex" @submit.prevent="handleLogin">
+    <div class="col-6 form-widget">
+      <h1 class="header">Supabase + Nuxt 3</h1>
+      <p class="description">Sign in via magic link with your email below</p>
+      <div>
+        <input class="inputField" type="email" placeholder="Your email" v-model="email" />
+      </div>
+      <div>
+        <input
+          type="submit"
+          class="button block"
+          :value="loading ? 'Loading' : 'Send magic link'"
+          :disabled="loading"
+        />
       </div>
     </div>
-  </div>
+  </form>
 </template>
-
-<style scoped>
-.main {
-  min-height: calc(100vh - 168px);
-}
-</style>
