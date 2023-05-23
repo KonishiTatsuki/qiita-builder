@@ -1,15 +1,11 @@
 <template>
-  <!-- <div class="flex main">
+  <div class="flex main">
     <div class="flex-auto my-auto">
       <div class="flex justify-center">
         <div class="text-center">
           <h1 class="title">ログイン</h1>
           <div class="flex justify-center">
-            <FormKit
-              type="form"
-              @submit="signInWithEmail"
-              submit-label="ログイン"
-            >
+            <FormKit type="form" @submit="submit" submit-label="ログイン">
               <div class="mb-2 text-left">
                 <FormKit
                   :classes="{
@@ -49,24 +45,11 @@
                   }"
                 />
               </div>
-              <button
-                type="submit"
-                class="px-5 py-2 rounded-md text-base border hover:bg-[#1D8EB9] hover:text-white hover:border-indigo-700 mr-5"
-              >
-                <NuxtLink to="/userRegister">新規登録</NuxtLink>
-              </button>
             </FormKit>
           </div>
         </div>
       </div>
     </div>
-  </div> -->
-  <div class="container">
-    <form @submit.prevent="submit">
-      <input type="email" v-model="email" />
-      <input type="password" v-model="password" />
-      <input type="submit" value="ログイン" />
-    </form>
   </div>
 </template>
 
@@ -77,11 +60,10 @@ const client = useSupabaseClient();
 const email = ref("");
 const password = ref("");
 
-const submit = async () => {
-  console.log(email.value, password.value);
-  const session = await client.auth.signIn({
-    email: email.value,
-    password: password.value,
+const submit = async (submit) => {
+  const session = await client.auth.signInWithPassword({
+    email: submit.email,
+    password: submit.password,
   });
   if (session) {
     location.href = "/";
