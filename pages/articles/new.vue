@@ -113,7 +113,6 @@ onMounted(async () => {
       content.value = mde.value();
     }
   });
-  console.log("onMount", content)
 })
 
 

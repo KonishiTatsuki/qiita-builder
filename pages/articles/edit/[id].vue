@@ -1,5 +1,8 @@
 <template>
   <div class="my-20">
+      <div class="text-right">
+        <button type="submit" class="btn mb-4">記事を削除</button>
+    </div>
     <div>
         <input type="text" class="border" style="width: 100%; height: 50px;" placeholder="タイトル" v-model="title">
     </div>
@@ -54,7 +57,6 @@ const route = useRoute();
 const { id } = route.params;
 const { data: article } = await useFetch(`http://localhost:8000/article/${id}`)
 
-console.log("value", (article.value.id))
 import type EasyMDE from "easymde";
 import { ref, onMounted}  from "vue"
 
@@ -119,7 +121,6 @@ onMounted(async () => {
       content.value = mde.value();
     }
   });
-  console.log("onMount", content)
 })
 
 
