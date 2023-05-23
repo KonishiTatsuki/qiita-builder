@@ -1,5 +1,8 @@
 <template>
   <div class="my-20">
+      <div class="text-right">
+        <button type="submit" class="btn mb-4">記事を削除</button>
+    </div>
     <div>
         <input type="text" class="border" style="width: 100%; height: 50px;" placeholder="タイトル" v-model="title">
     </div>
@@ -38,7 +41,7 @@
         </div>
       <div>
         <span class="mr-4">
-            <button type="submit" class="btn text-right" @click="handleSubmit">投稿する</button>
+            <button type="submit" class="btn text-right" @click="handleSubmit">編集を完了する</button>
         </span>
         <span>
             <button type="submit" class="border py-2 px-2 rounded-md" @click="draftSubmit">下書き保存</button>
@@ -49,15 +52,20 @@
 </template>
 
 <script lang="ts" setup>
+const route = useRoute();
+// パスパラメータよりid取得
+const { id } = route.params;
+const { data: article } = await useFetch(`http://localhost:8000/article/${id}`)
+
 import type EasyMDE from "easymde";
 
 let mde: InstanceType<typeof EasyMDE> | null = null;
 
-const content = ref('');
+const content = ref(article.value.body);
 const contentArea = ref();
-const title = ref('')
-const goalLike = ref('')
-const publishDate = ref('')
+const title = ref(article.value.title)
+const goalLike = ref(article.value.goalLike)
+const publishDate = ref(article.value.publishDate)
 const router = useRouter()
 
 const handleSubmit= async () => {
@@ -75,8 +83,8 @@ const handleSubmit= async () => {
         publishDate: publishDate,
         publish: true,
     }
-  await useFetch('http://localhost:8000/article', {
-  method: 'POST',
+  await useFetch(`http://localhost:8000/article/${id}`, {
+  method: 'PATCH',
   body: postData,
 });
     router.push('/')
@@ -96,8 +104,8 @@ const draftSubmit= async () => {
         publishDate: publishDate,
         publish: false
     }
-  await useFetch('http://localhost:8000/article', {
-  method: 'POST',
+  await useFetch(`http://localhost:8000/article/${id}`, {
+  method: 'PATCH',
   body: postData,
 })
     router.push('/')
