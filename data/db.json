@@ -37,25 +37,6 @@
       "id": 2,
       "userId": 2,
       "articleId": 2
-    },
-    {
-      "id": 3
-    },
-    {
-      "id": 4
-    },
-    {
-      "userId": "5",
-      "articleId": "5",
-      "id": 6
-    },
-    {
-      "id": 7
-    },
-    {
-      "userId": 7,
-      "articleId": 7,
-      "id": 8
     }
   ],
   "recommend": [

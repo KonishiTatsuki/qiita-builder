@@ -37,11 +37,13 @@
       </p>
       <div class="flex justify-end space-x-4">
         <button
+          @click="countLike"
           class="bg-red-500 border-indigo-700 px-4 py-2 rounded-md text-base text-white border hover:text-gray-900"
         >
           いいね！
         </button>
         <button
+          @click="countRecommend"
           class="bg-[#1D8EB9] border-indigo-700 px-4 py-2 rounded-md text-base text-white border hover:text-gray-900"
         >
           Qiitaオススメ
@@ -122,6 +124,8 @@
 
 <script setup>
 import { ref, onMounted } from "vue";
+
+const supabase = useSupabaseClient();
 
 const article = [
   {
@@ -259,9 +263,28 @@ const comment = [
   },
 ];
 
-const commentData = {};
+// いいね!した人のuserIdと、いいね！した記事のarticleIdの保存
+let userId = user[0].id;
+let articleId = article[0].id;
+
+const countLike = async () => {
+  let { data, error } = await supabase
+    .from("like")
+    .insert({ userId, articleId });
+  console.log("likeのinsert完了");
+};
+
+// Qiitaオススメした人のuserIdと、Qiitaオススメした記事のarticleIdの保存
+const countRecommend = async () => {
+  let { data, error } = await supabase
+    .from("recommend")
+    .insert({ userId, articleId });
+  console.log("recommendのinsert完了");
+  console.log(error);
+};
 
 // コメントデータをarticleId毎にグループ化
+const commentData = {};
 comment.forEach((c) => {
   if (!commentData[c.articleId]) {
     commentData[c.articleId] = [];
@@ -286,13 +309,21 @@ Object.keys(commentData).forEach((articleId) => {
 console.log(result);
 
 // いいねの件数をカウントする関数
+// (async () => {
+//   let { data, error } = await supabase
+//     .from("like")
+//     .select("*")
+//     .eq("articleId", `${this.id}`);;
+//   console.log("データ取得完了");
+// })();
+
 const countLikes = (likes) => {
   const uniqueUserIds = [...new Set(likes.map((like) => like.userId))];
   return uniqueUserIds.length;
 };
 
 // Qiitaオススメの件数をカウントする関数
-const countRecommend = (recommends) => {
+const countRecommends = (recommends) => {
   const uniqueUserIds = [
     ...new Set(recommends.map((recommend) => recommend.userId)),
   ];
@@ -308,7 +339,7 @@ const recommendCount = ref(0);
 // コンポーネントがマウントされた時にいいねの件数を計算する
 onMounted(() => {
   likeCount.value = countLikes(like);
-  recommendCount.value = countRecommend(recommend);
+  recommendCount.value = countRecommends(recommend);
 });
 
 //目標いいねに到達してたら「達成」。それ以外は残り件数表示する
