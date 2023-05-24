@@ -92,13 +92,14 @@
     <h2 class="text-xl font-bold mb-2">コメント</h2>
     <form class="flex flex-col items-end">
       <textarea
-        name="comment"
+        name="commentContent"
         id="comment"
         rows="5"
         placeholder="コメントを入力してください"
         class="w-full border border-gray-200 p-2 rounded"
         maxlength="255"
         oninput="document.getElementById('charCount').textContent = this.value.length + '/255'"
+
       ></textarea>
       <div class="flex mt-3">
         <div id="charCount" class="mt-4 mr-2">0/255</div>
@@ -292,7 +293,7 @@ comment.forEach((c) => {
   commentData[c.articleId].push(c);
 });
 
-console.log(commentData)
+console.log(commentData);
 
 // articleId毎にユーザー名、コメント内容、コメントの日付をまとめたデータを生成
 const result = {};
@@ -350,4 +351,10 @@ goalLike.value =
   article[0].goalLike - likeCount >= 0
     ? article[0].goalLike - likeCount
     : "達成";
+
+
+
+//コメント投稿機能
+const commentContent = ref("");
+
 </script>
