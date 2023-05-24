@@ -27,6 +27,9 @@
           <div class="calendar-day">
             {{ day.date }}
           </div>
+          <div>
+            <button class="button-entry">参加する</button>
+          </div>
         </div>
       </div>
     </div>
@@ -112,6 +115,21 @@ export default {
   padding: 4px 8px;
   margin-right: 8px;
 }
+.button-entry {
+  padding: 4px 8px;
+  background-color: #4c61ae6b;
+  margin-top: 1rem;
+  margin-bottom: auto;
+  border-radius: 10px;
+}
+.button:hover {
+  cursor: pointer;
+  font-weight: bold;
+}
+.button-entry:hover {
+  cursor: pointer;
+  font-weight: bold;
+}
 .calendar {
   max-width: 900px;
   border-top: 1px solid #4c61ae;
@@ -128,11 +146,13 @@ export default {
   border-right: 1px solid #4c61ae;
   border-bottom: 1px solid #4c61ae;
   margin-right: -1px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
 }
 .calendar-day {
   /* 日付 */
   text-align: center;
-  background-color: white;
 }
 .calendar-youbi {
   flex: 1;
