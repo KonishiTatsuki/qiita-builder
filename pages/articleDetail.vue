@@ -90,16 +90,16 @@
   <!-- コメントフォーム -->
   <div class="p-4 bg-gray-100">
     <h2 class="text-xl font-bold mb-2">コメント</h2>
-    <form class="flex flex-col items-end">
+    <form class="flex flex-col items-end" @submit.prevent="submit">
       <textarea
-        name="commentContent"
+        v-model="commentContent"
+        name="comment"
         id="comment"
         rows="5"
         placeholder="コメントを入力してください"
         class="w-full border border-gray-200 p-2 rounded"
         maxlength="255"
         oninput="document.getElementById('charCount').textContent = this.value.length + '/255'"
-
       ></textarea>
       <div class="flex mt-3">
         <div id="charCount" class="mt-4 mr-2">0/255</div>
@@ -352,9 +352,10 @@ goalLike.value =
     ? article[0].goalLike - likeCount
     : "達成";
 
-
-
 //コメント投稿機能
 const commentContent = ref("");
 
+const submit = async () => {
+  console.log("commentContent", commentContent.value);
+};
 </script>
