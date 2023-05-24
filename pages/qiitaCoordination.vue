@@ -35,19 +35,14 @@ const router = useRouter();
 const supabase = useSupabaseClient();
 const text = ref("");
 
-const data = await supabase.auth.getSession();
-if (data.data.session) {
-  console.log("ログイン済み");
-} else {
-  console.log("未ログイン");
-}
-
 const submit = async () => {
-  console.log(text.value);
-  const { error } = await supabase
-    .from("profiles")
-    .update({ qiitaToken: text.value })
-    .eq("id", "445a6d2e-5cc3-47c6-b5fe-2c6179b229da");
+  const data = await supabase.auth.getSession();
+  if (data) {
+    const { error } = await supabase
+      .from("profiles")
+      .update({ qiitaToken: text.value })
+      .eq("id", data.data.session.user.id);
+  }
 };
 </script>
 
