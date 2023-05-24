@@ -2,7 +2,7 @@
   <div class="flex main">
     <div class="flex-auto my-auto">
       <div class="flex justify-center">
-        <div class="text-center">
+        <form @submit.prevent="submit" class="text-center">
           <h1 class="title">Qiita連携</h1>
           <div class="flex justify-center">
             <div class="pb-[30px] text-left">
@@ -12,6 +12,7 @@
                   type="text"
                   maxlength="40"
                   class="border rounded border-black w-[300px]"
+                  v-model="text"
                 />
               </div>
             </div>
@@ -23,11 +24,32 @@
             ← 戻る
           </button>
           <button type="submit" class="btn">ログイン</button>
-        </div>
+        </form>
       </div>
     </div>
   </div>
 </template>
+
+<script setup>
+const router = useRouter();
+const supabase = useSupabaseClient();
+const text = ref("");
+
+const data = await supabase.auth.getSession();
+if (data.data.session) {
+  console.log("ログイン済み");
+} else {
+  console.log("未ログイン");
+}
+
+const submit = async () => {
+  console.log(text.value);
+  const { error } = await supabase
+    .from("profiles")
+    .update({ qiitaToken: text.value })
+    .eq("id", "445a6d2e-5cc3-47c6-b5fe-2c6179b229da");
+};
+</script>
 
 <style scoped>
 .main {
