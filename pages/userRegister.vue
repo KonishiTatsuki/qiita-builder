@@ -168,7 +168,7 @@
 </template>
 
 <script setup>
-const club = [];
+const club = [{ label: "その他(右フォームに記入)", value: "others" }];
 const occupation = [];
 const { data: clubb } = await useFetch("/api/club/get");
 const { data: occupationn } = await useFetch("/api/occupation/get");
@@ -184,24 +184,24 @@ const submitHandler = async (credentials) => {
   console.log(credentials);
   const client = useSupabaseClient();
 
-  //追加クラブをdisplay:falseで登録
-  const { error } = await client.from("club").insert({
-    clubName: credentials.addClub,
-  });
-
   //追加クラブがないときはブルダウンのクラブをpostするための変数
   let clubid = credentials.club;
-  // 追加クラブの採番されたIDを取得;
+
+  // 追加クラブの登録と取得
   if (credentials.addClub) {
-    const { data: clubid } = await client
+    //追加クラブをdisplay:falseで登録
+    const { error } = await client.from("club").insert({
+      clubName: credentials.addClub,
+    });
+    const { data } = await client
       .from("club")
       .select("id")
       .eq("clubName", credentials.addClub);
-    console.log(clubid);
+
+    clubid = data[0].id;
   }
 
   //新規会員登録
-  console.log("club", clubid);
   // authに登録;
   await client.auth.signUp({
     email: credentials.email,
