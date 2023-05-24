@@ -5,37 +5,70 @@
         <div class="text-center">
           <h1 class="title">パスワード再設定</h1>
           <div class="flex justify-center">
-            <div>
-              <div class="mb-5 text-left">
-                新パスワード
-                <div>
-                  <input
-                    type="password"
-                    maxlength="30"
-                    placeholder="password"
-                    class="border rounded border-black"
-                  />
-                </div>
+            <FormKit type="form" @submit="submit" submit-label="登録">
+              <div class="mb-5 text-center">
+                <FormKit
+                  :classes="{
+                    input: 'border border-black py-1 px-2 rounded-md',
+                  }"
+                  type="password"
+                  label="新パスワード"
+                  name="password"
+                  validation="required|length:8,30|contains_numeric|contains_lowercase|contains_uppercase"
+                  autocomplete="off"
+                  :validation-messages="{
+                    required: 'パスワードを入力してください',
+                    length: '8文字以上30文字以内で入力してください',
+                    contains_numeric:
+                      '半角英小文字・大文字・数字をそれぞれ1種類以上含んでください',
+                    contains_lowercase:
+                      '半角英小文字・大文字・数字をそれぞれ1種類以上含んでください',
+                    contains_uppercase:
+                      '半角英小文字・大文字・数字をそれぞれ1種類以上含んでください',
+                  }"
+                />
               </div>
-              <div class="mb-5 text-left">
-                確認用パスワード
-                <div>
-                  <input
-                    type="password"
-                    maxlength="30"
-                    placeholder="password"
-                    class="border rounded border-black"
-                  />
-                </div>
+              <div class="mb-5 text-center">
+                <FormKit
+                  :classes="{
+                    input: 'border border-black py-1 px-2 rounded-md',
+                  }"
+                  type="password"
+                  label="確認用パスワード"
+                  name="confirmPassword"
+                  validation="required|length:8,30|contains_numeric|contains_lowercase|contains_uppercase"
+                  autocomplete="off"
+                  :validation-messages="{
+                    required: 'パスワードを入力してください',
+                    length: '8文字以上30文字以内で入力してください',
+                    contains_numeric:
+                      '半角英小文字・大文字・数字をそれぞれ1種類以上含んでください',
+                    contains_lowercase:
+                      '半角英小文字・大文字・数字をそれぞれ1種類以上含んでください',
+                    contains_uppercase:
+                      '半角英小文字・大文字・数字をそれぞれ1種類以上含んでください',
+                  }"
+                />
               </div>
-            </div>
+            </FormKit>
           </div>
-          <button type="submit" class="btn">登録</button>
         </div>
       </div>
     </div>
   </div>
 </template>
+
+<script setup>
+const router = useRouter();
+const supabase = useSupabaseClient();
+
+const email = ref("");
+const password = ref("");
+
+const submit = async (submit) => {
+  await supabase.auth.updateUser({ password: submit.password });
+};
+</script>
 
 <style scoped>
 .main {
