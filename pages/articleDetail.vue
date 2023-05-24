@@ -292,6 +292,8 @@ comment.forEach((c) => {
   commentData[c.articleId].push(c);
 });
 
+console.log(commentData)
+
 // articleId毎にユーザー名、コメント内容、コメントの日付をまとめたデータを生成
 const result = {};
 Object.keys(commentData).forEach((articleId) => {
