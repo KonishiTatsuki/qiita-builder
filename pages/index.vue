@@ -2,9 +2,9 @@
   <div class="max-w-screen-xl mx-auto">
     <div class="flex">
       <!-- カテゴリ検索欄 -->
-      <!-- プログラミング言語 -->
       <div class="flex flex-col">
-        <div class="pt-24 mr-5">
+        <!-- プログラミング言語 -->
+        <div class="pt-12 mr-5">
           <h3 class="mb-4 font-semibold text-gray-900 dark:text-white">
             プログラミング言語
           </h3>
@@ -12,6 +12,9 @@
             class="w-48 text-sm font-medium text-gray-900 bg-white border border-gray-200 rounded-lg dark:bg-gray-700 dark:border-gray-600 dark:text-white"
           >
             <li
+              v-for="(tag, index) in tagName"
+              :key="index"
+              v-show="index < visibleTagItems"
               class="w-full border-b border-gray-200 rounded-t-lg dark:border-gray-600"
             >
               <div class="flex items-center pl-3">
@@ -24,62 +27,19 @@
                 <label
                   for="vue-checkbox"
                   class="w-full py-3 ml-2 text-sm font-medium text-gray-900 dark:text-gray-300"
-                  >Vue JS</label
-                >
-              </div>
-            </li>
-            <li
-              class="w-full border-b border-gray-200 rounded-t-lg dark:border-gray-600"
-            >
-              <div class="flex items-center pl-3">
-                <input
-                  id="react-checkbox"
-                  type="checkbox"
-                  value=""
-                  class="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-700 dark:focus:ring-offset-gray-700 focus:ring-2 dark:bg-gray-600 dark:border-gray-500"
-                />
-                <label
-                  for="react-checkbox"
-                  class="w-full py-3 ml-2 text-sm font-medium text-gray-900 dark:text-gray-300"
-                  >React</label
-                >
-              </div>
-            </li>
-            <li
-              class="w-full border-b border-gray-200 rounded-t-lg dark:border-gray-600"
-            >
-              <div class="flex items-center pl-3">
-                <input
-                  id="angular-checkbox"
-                  type="checkbox"
-                  value=""
-                  class="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-700 dark:focus:ring-offset-gray-700 focus:ring-2 dark:bg-gray-600 dark:border-gray-500"
-                />
-                <label
-                  for="angular-checkbox"
-                  class="w-full py-3 ml-2 text-sm font-medium text-gray-900 dark:text-gray-300"
-                  >Angular</label
-                >
-              </div>
-            </li>
-            <li
-              class="w-full border-b border-gray-200 rounded-t-lg dark:border-gray-600"
-            >
-              <div class="flex items-center pl-3">
-                <input
-                  id="laravel-checkbox"
-                  type="checkbox"
-                  value=""
-                  class="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-700 dark:focus:ring-offset-gray-700 focus:ring-2 dark:bg-gray-600 dark:border-gray-500"
-                />
-                <label
-                  for="laravel-checkbox"
-                  class="w-full py-3 ml-2 text-sm font-medium text-gray-900 dark:text-gray-300"
-                  >Laravel</label
+                  >{{ tag.name }}</label
                 >
               </div>
             </li>
           </ul>
+          <div v-if="tagName.length > 10" class="text-right">
+            <button
+              class="text-blue-600 text-sm font-medium"
+              @click="toggleShowAllTagItems"
+            >
+              {{ showAllTagItems ? "閉じる" : "もっと見る" }}
+            </button>
+          </div>
         </div>
         <!-- 職種 -->
         <div class="pt-12 mr-5">
@@ -88,6 +48,8 @@
             class="w-48 text-sm font-medium text-gray-900 bg-white border border-gray-200 rounded-lg dark:bg-gray-700 dark:border-gray-600 dark:text-white"
           >
             <li
+              v-for="(occupation, index) in occupationName"
+              :key="index"
               class="w-full border-b border-gray-200 rounded-t-lg dark:border-gray-600"
             >
               <div class="flex items-center pl-3">
@@ -100,58 +62,7 @@
                 <label
                   for="vue-checkbox"
                   class="w-full py-3 ml-2 text-sm font-medium text-gray-900 dark:text-gray-300"
-                  >FR</label
-                >
-              </div>
-            </li>
-            <li
-              class="w-full border-b border-gray-200 rounded-t-lg dark:border-gray-600"
-            >
-              <div class="flex items-center pl-3">
-                <input
-                  id="react-checkbox"
-                  type="checkbox"
-                  value=""
-                  class="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-700 dark:focus:ring-offset-gray-700 focus:ring-2 dark:bg-gray-600 dark:border-gray-500"
-                />
-                <label
-                  for="react-checkbox"
-                  class="w-full py-3 ml-2 text-sm font-medium text-gray-900 dark:text-gray-300"
-                  >ML</label
-                >
-              </div>
-            </li>
-            <li
-              class="w-full border-b border-gray-200 rounded-t-lg dark:border-gray-600"
-            >
-              <div class="flex items-center pl-3">
-                <input
-                  id="angular-checkbox"
-                  type="checkbox"
-                  value=""
-                  class="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-700 dark:focus:ring-offset-gray-700 focus:ring-2 dark:bg-gray-600 dark:border-gray-500"
-                />
-                <label
-                  for="angular-checkbox"
-                  class="w-full py-3 ml-2 text-sm font-medium text-gray-900 dark:text-gray-300"
-                  >Java</label
-                >
-              </div>
-            </li>
-            <li
-              class="w-full border-b border-gray-200 rounded-t-lg dark:border-gray-600"
-            >
-              <div class="flex items-center pl-3">
-                <input
-                  id="laravel-checkbox"
-                  type="checkbox"
-                  value=""
-                  class="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-700 dark:focus:ring-offset-gray-700 focus:ring-2 dark:bg-gray-600 dark:border-gray-500"
-                />
-                <label
-                  for="laravel-checkbox"
-                  class="w-full py-3 ml-2 text-sm font-medium text-gray-900 dark:text-gray-300"
-                  >PHP</label
+                  >{{ occupation.occupationName }}</label
                 >
               </div>
             </li>
@@ -166,6 +77,9 @@
             class="w-48 text-sm font-medium text-gray-900 bg-white border border-gray-200 rounded-lg dark:bg-gray-700 dark:border-gray-600 dark:text-white"
           >
             <li
+              v-for="(club, index) in clubName"
+              :key="index"
+              v-show="index < visibleClubItems"
               class="w-full border-b border-gray-200 rounded-t-lg dark:border-gray-600"
             >
               <div class="flex items-center pl-3">
@@ -178,62 +92,19 @@
                 <label
                   for="vue-checkbox"
                   class="w-full py-3 ml-2 text-sm font-medium text-gray-900 dark:text-gray-300"
-                  >サークル名</label
-                >
-              </div>
-            </li>
-            <li
-              class="w-full border-b border-gray-200 rounded-t-lg dark:border-gray-600"
-            >
-              <div class="flex items-center pl-3">
-                <input
-                  id="react-checkbox"
-                  type="checkbox"
-                  value=""
-                  class="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-700 dark:focus:ring-offset-gray-700 focus:ring-2 dark:bg-gray-600 dark:border-gray-500"
-                />
-                <label
-                  for="react-checkbox"
-                  class="w-full py-3 ml-2 text-sm font-medium text-gray-900 dark:text-gray-300"
-                  >サークル名</label
-                >
-              </div>
-            </li>
-            <li
-              class="w-full border-b border-gray-200 rounded-t-lg dark:border-gray-600"
-            >
-              <div class="flex items-center pl-3">
-                <input
-                  id="angular-checkbox"
-                  type="checkbox"
-                  value=""
-                  class="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-700 dark:focus:ring-offset-gray-700 focus:ring-2 dark:bg-gray-600 dark:border-gray-500"
-                />
-                <label
-                  for="angular-checkbox"
-                  class="w-full py-3 ml-2 text-sm font-medium text-gray-900 dark:text-gray-300"
-                  >サークル名</label
-                >
-              </div>
-            </li>
-            <li
-              class="w-full border-b border-gray-200 rounded-t-lg dark:border-gray-600"
-            >
-              <div class="flex items-center pl-3">
-                <input
-                  id="laravel-checkbox"
-                  type="checkbox"
-                  value=""
-                  class="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-700 dark:focus:ring-offset-gray-700 focus:ring-2 dark:bg-gray-600 dark:border-gray-500"
-                />
-                <label
-                  for="laravel-checkbox"
-                  class="w-full py-3 ml-2 text-sm font-medium text-gray-900 dark:text-gray-300"
-                  >サークル名</label
+                  >{{ club.clubName }}</label
                 >
               </div>
             </li>
           </ul>
+          <div v-if="clubName.length > 10" class="text-right">
+            <button
+              class="text-blue-600 text-sm font-medium"
+              @click="toggleShowAllClubItems"
+            >
+              {{ showAllClubItems ? "閉じる" : "もっと見る" }}
+            </button>
+          </div>
         </div>
       </div>
 
@@ -308,67 +179,12 @@
                     <a class="text-indigo-500 inline-flex items-center"
                       >記事詳細&nbsp;→
                     </a>
-                    <button
-                      class="btn"
-                      @click="deleteArticle(article)"
-                    >
+                    <button class="btn" @click="deleteArticle(article)">
                       削除(管理者のみ表示)
                     </button>
                   </div>
                 </div>
               </div>
-              <!-- <div class="py-8 flex flex-wrap md:flex-nowrap">
-                <div class="md:w-64 md:mb-0 mb-6 flex-shrink-0 flex flex-col">
-                  <span class="font-semibold title-font text-gray-700"
-                    >CATEGORY</span
-                  >
-                  <span class="mt-1 text-gray-500 text-sm">12 Jun 2019</span>
-                </div>
-                <div class="md:flex-grow">
-                  <h2 class="title font-medium text-gray-900 title-font mb-2">
-                    見出し
-                  </h2>
-                  <p class="leading-relaxed">
-                    記事小見出し記事小見出し記事小見出し記事小見出し記事小見出し記事小見出し(どこまで表示するか制限必要)
-                  </p>
-                  <div class="flex justify-between items-center mt-4">
-                    <a class="text-indigo-500 inline-flex items-center"
-                      >記事詳細&nbsp;→
-                    </a>
-                    <button
-                      class="bg-[#1D8EB9] text-white px-3 py-1 rounded hover:bg-[#1a7fa6]"
-                    >
-                      削除(管理者のみ表示)
-                    </button>
-                  </div>
-                </div>
-              </div>
-              <div class="py-8 flex flex-wrap md:flex-nowrap">
-                <div class="md:w-64 md:mb-0 mb-6 flex-shrink-0 flex flex-col">
-                  <span class="font-semibold title-font text-gray-700"
-                    >CATEGORY</span
-                  >
-                  <span class="text-sm text-gray-500">12 Jun 2019</span>
-                </div>
-                <div class="md:flex-grow">
-                  <h2 class="title font-medium text-gray-900 title-font mb-2">
-                    見出し
-                  </h2>
-                  <p class="leading-relaxed">
-                    記事小見出し記事小見出し記事小見出し記事小見出し記事小見出し記事小見出し(どこまで表示するか制限必要)
-                  </p>
-                  <div class="flex justify-between items-center mt-4">
-                    <a class="text-indigo-500 inline-flex items-center"
-                      >記事詳細&nbsp;→
-                    </a>
-                    <button
-                      class="bg-[#1D8EB9] text-white px-3 py-1 rounded hover:bg-[#1a7fa6]"
-                    >
-                      削除(管理者のみ表示)
-                    </button>
-                  </div>
-                </div>
-              </div> -->
             </div>
           </div>
         </section>
@@ -378,6 +194,65 @@
 </template>
 
 <script setup>
+import { ref, onMounted } from "vue";
+
+const supabase = useSupabaseClient();
+
+// Supabaseからプログラミング言語名(display:trueのみ)を取得
+let tagName = ref("");
+let visibleTagItems = ref(10);
+let showAllTagItems = ref(false);
+
+(async function () {
+  let { data: name, error } = await supabase
+    .from("tag")
+    .select("name")
+    .eq("display", "true");
+  tagName.value = name;
+})();
+
+const toggleShowAllTagItems = () => {
+  if (showAllTagItems.value) {
+    visibleTagItems.value = 10;
+    showAllTagItems.value = false;
+  } else {
+    visibleTagItems.value = tagName.value.length;
+    showAllTagItems.value = true;
+  }
+};
+
+// Supabaseから職種データの職種名を取得
+let occupationName = ref("");
+(async function () {
+  let { data: occupation, error } = await supabase
+    .from("occupation")
+    .select("occupationName");
+  occupationName.value = occupation;
+})();
+
+// Supabaseからサークルデータの職種名を取得
+let clubName = ref("");
+let visibleClubItems = ref(10);
+let showAllClubItems = ref(false);
+
+(async function () {
+  let { data: club, error } = await supabase
+    .from("club")
+    .select("clubName")
+    .eq("display", "true");
+  clubName.value = club;
+})();
+
+const toggleShowAllClubItems = () => {
+  if (showAllClubItems.value) {
+    visibleClubItems.value = 10;
+    showAllClubItems.value = false;
+  } else {
+    visibleClubItems.value = clubName.value.length;
+    showAllClubItems.value = true;
+  }
+};
+
 const deleteArticle = (article) => {
   console.log("deleteArticleボタン発火");
   console.log(article);
