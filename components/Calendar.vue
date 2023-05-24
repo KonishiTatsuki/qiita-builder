@@ -1,6 +1,11 @@
 <template>
   <div class="content">
-    <h2>カレンダー{{ displayMonth }}</h2>
+    <div>
+      <h1 class="title">アドベントカレンダーの名前</h1>
+      <h2 class="subtitle">説明文。。。。。。。。。。</h2>
+    </div>
+    <h2 class="subtitle">カレンダー{{ displayMonth }}</h2>
+    <p>管理者名</p>
     <div class="button-area">
       <button @click="prevMonth" class="button">前の月</button>
       <button @click="nextMonth" class="button">次の月</button>
