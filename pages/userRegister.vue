@@ -18,7 +18,7 @@
                   }"
                   type="text"
                   label=" ユーザ名"
-                  name="username"
+                  name="userName"
                   validation="required|length:0,30|matches:/"
                   autocomplete="off"
                   :validation-messages="{
@@ -90,7 +90,7 @@
               </div>
             </div>
           </div>
-          <div class="mb-2">
+          <div class="mb-2 flex">
             <FormKit
               :classes="{
                 input: 'border border-black py-1 px-2 rounded-md',
@@ -98,52 +98,69 @@
               type="select"
               label="サークル名"
               name="club"
-              placeholder="Choose a food"
+              placeholder="サークル選択"
               validation="required"
-              :options="['Pizza', 'Ice Cream', 'Burger']"
+              :options="club"
+            />
+            <FormKit
+              :classes="{
+                input: 'border border-black  py-1 px-2 rounded-md',
+              }"
+              type="text"
+              label="追加サークル"
+              placeholder="その他"
+              name="addClub"
+              autocomplete="off"
             />
           </div>
           <div class="mb-2">
-            職種
             <div class="flex">
-              <button
-                type="button"
-                class="rounded-xl border border-black w-11 m-1"
-                v-for="item in occupation"
-              >
-                {{ item }}
-              </button>
+              <FormKit
+                :classes="{
+                  wrapper: 'flex',
+                  options: 'flex ',
+                  option: 'pr-2',
+                  decorator: 'none',
+                }"
+                type="radio"
+                label="職種"
+                :options="occupation"
+                name="occupation"
+              />
             </div>
           </div>
           <div class="mb-2">
-            アイコン画像
-            <div>
-              <input type="file" accept="image/*" />
-            </div>
+            <FormKit
+              type="file"
+              label="アイコン画像"
+              accept=".png,.jpeg,.jpg"
+              validation="required"
+              :validation-messages="画像を選択してください"
+            />
           </div>
           <div>
-            自己紹介
             <div>
-              <textarea
-                name=""
-                id=""
-                cols="30"
-                rows="5"
-                class="border border-black"
-                maxlength="255"
-              ></textarea>
+              <FormKit
+                :classes="{
+                  input: 'border border-black  py-1 px-2 rounded-md',
+                }"
+                type="textarea"
+                name="detail"
+                label="自己紹介"
+                rows="10"
+                cols="40"
+                validation="required"
+                :validation-messages="{
+                  required: '自己紹介を入力してください',
+                }"
+              />
             </div>
           </div>
         </div>
-        <div>
-          <img src="" alt="" />
-        </div>
+        <div></div>
       </div>
 
-      <div class="flex mb-4">
-        <!-- <button class="btn mr-3">登録してQiitaへ進む</button> -->
-        <!-- <button class="btn">登録する</button> -->
-      </div>
+      <div class="flex mb-4"></div>
     </div>
 
     <pre wrap>{{ value }}</pre>
@@ -151,29 +168,70 @@
 </template>
 
 <script setup>
-const occupation = [
-  "JAVA",
-  "CL",
-  "PHP",
-  "FR",
-  "ML",
-  "QA",
-  "営業",
-  "内勤",
-  "CS",
-];
+const club = [];
+const occupation = [];
+const { data: clubb } = await useFetch("/api/club/get");
+const { data: occupationn } = await useFetch("/api/occupation/get");
+// console.log(occupation);
+occupationn.value.map((c) => {
+  occupation.push({ label: c.occupationName, value: c.id });
+});
+clubb.value.map((c) => {
+  club.push({ label: c.clubName, value: c.id });
+});
+
 const submitHandler = async (credentials) => {
   console.log(credentials);
-  const { data } = useFetch("/api/register", {
-    method: "POST",
-    body: credentials,
+  const client = useSupabaseClient();
+
+  //追加クラブをdisplay:falseで登録
+  const { error } = await client.from("club").insert({
+    clubName: credentials.addClub,
   });
-  console.log(data);
-  // const client = useSupabaseClient();
-  // await client.auth.signUp({
-  //   email: credentials.email,
-  //   password: credentials.password,
+
+  //追加クラブがないときはブルダウンのクラブをpostするための変数
+  let clubid = credentials.club;
+  // 追加クラブの採番されたIDを取得;
+  if (credentials.addClub) {
+    const { data: clubid } = await client
+      .from("club")
+      .select("id")
+      .eq("clubName", credentials.addClub);
+    console.log(clubid);
+  }
+
+  //新規会員登録
+  console.log("club", clubid);
+  // authに登録;
+  await client.auth.signUp({
+    email: credentials.email,
+    password: credentials.password,
+    options: {
+      data: {
+        username: credentials.userName,
+        detail: credentials.detail,
+        clubid: clubid,
+        email: credentials.email,
+        occupation: credentials.occupation,
+      },
+    },
+  });
+
+  //authに登録
+  // const { data } = useFetch("/api/user/register", {
+  //   method: "POST",
+  //   body: credentials,
   // });
+
   console.log("完了");
 };
 </script>
+
+<!-- await client.auth.signUp({
+  email: credentials.email,
+    password: credentials.password,
+   });
+   await client.auth.signInWithPassword({
+    email: "madoka.kato@rakus-partners.co.jp",
+     password: "Maka7816",
+   }); -->
