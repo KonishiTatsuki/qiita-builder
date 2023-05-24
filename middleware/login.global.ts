@@ -4,8 +4,13 @@ export default defineNuxtRouteMiddleware(async (to, from) => {
   let data = await supabase.auth.getSession();
   if (data.data.session) {
     console.log("ログイン");
+    // return;
   } else {
-    console.log("未ログイン");
-    // return redirect("/login");
+    const path = "/login";
+    // return { path };
+    if (to.path !== path) {
+      console.log("未ログイン");
+      return { path };
+    }
   }
 });
