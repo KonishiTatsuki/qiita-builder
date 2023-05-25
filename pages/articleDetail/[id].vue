@@ -15,9 +15,9 @@
         }}</span>
         <span class="text-gray-400 text-sm mx-2">&nbsp;&nbsp;&nbsp;</span>
         <!-- 投稿日 -->
-        <span v-if="formattedDate" class="text-gray-600 text-sm">投稿：{{
-          formattedDate
-        }}</span>
+        <span v-if="formattedDate" class="text-gray-600 text-sm"
+          >投稿：{{ formattedDate }}</span
+        >
       </div>
       <!-- 記事タイトル -->
       <h1 v-if="articleData" class="text-4xl font-bold mb-2">
@@ -70,7 +70,10 @@
         <span class="text-gray-600 text-lg flex justify-center"
           >目標まで残り</span
         >
-        <p v-if="articleData" class="text-red-500 text-4xl font-bold flex justify-center m-4">
+        <p
+          v-if="articleData"
+          class="text-red-500 text-4xl font-bold flex justify-center m-4"
+        >
           {{ articleData[0].goalLike }}
           <span
             class="text-lg text-gray-600 align-text-bottom pt-3"
@@ -113,7 +116,7 @@
     <!-- コメントがある場合のみ表示
     <div v-show="result">
       <h2 class="text-xl font-bold mb-2">投稿済みのコメント</h2>
-      過去のコメントを表示するループ
+      過去のFコメントを表示するループ
       <div class="bg-gray-200 p-2 rounded my-3">
         <span class="font-semibold">{{ result[1][0].userName }}</span>
         <span class="text-gray-600 float-right"
@@ -137,24 +140,24 @@ const supabase = useSupabaseClient();
 let sessionUserId = ref("");
 let userInfo = ref();
 
+const userss = useSupabaseUser();
+const userid = userss.value?.id;
+console.log("userid",userid);
+
 // ユーザセッションid取得
 (async () => {
   let data = await supabase.auth.getSession();
-  console.log(data);
   sessionUserId = data.data.session.user.id;
-  console.log(data.data.session.user.id);
+  console.log("sessionUserId", sessionUserId.value);
 
   if (sessionUserId) {
     let { data, error } = await supabase
       .from("profiles")
       .select("*")
       .eq("id", sessionUserId);
-    console.log(data);
     userInfo.value = await data[0];
-    console.log(userInfo);
   }
 })();
-
 
 // 記事情報を取得[始まり]
 let articleData = ref();
@@ -181,10 +184,8 @@ const options = {
     .select("*")
     .eq("id", dynamicPageId);
   articleData.value = await data;
-  console.log(articleData.value);
 
   htmlText.value = await marked.parse(articleData.value[0].body);
-  console.log(htmlText.value);
 
   const dateObject = await new Date(articleData.value[0].date);
   // フォーマットを適用
@@ -397,8 +398,6 @@ goalLike.value =
     ? article[0].goalLike - likeCount
     : "達成";
 
-
-
 //コメント投稿機能
 const users = useSupabaseUser();
 //投稿日
@@ -410,8 +409,8 @@ date = `${year}/${month}/${day}`;
 const comment = ref("");
 const userDataId = users.value?.id;
 
-console.log(date)
-console.log(comment.value)
+console.log(date);
+console.log(comment.value);
 
 // const submit = async () => {
 //   let { data, error } = await supabase
@@ -420,7 +419,6 @@ console.log(comment.value)
 //   console.log("recommendのinsert完了");
 //   console.log(error);
 // };
-
 
 // //コメントを削除
 // const deleteComment = async (id) => {
