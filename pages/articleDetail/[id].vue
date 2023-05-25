@@ -123,8 +123,46 @@
 <script setup>
 import { ref, onMounted } from "vue";
 import { marked } from "marked";
+const route = useRoute();
 
 const supabase = useSupabaseClient();
+
+let sessionUserId = ref("");
+(async () => {
+  let data = await supabase.auth.getSession();
+  console.log(data);
+  console.log(data.data.session.user.id);
+  sessionUserId = data.data.session.user.id;
+  // if (data) {
+  //   const { error } = await supabase
+  //     .from("profiles")
+  //     .update({ qiitaToken: text.value })
+  //     .eq("id", data.data.session.user.id);
+  // }
+})();
+
+let articleData = ref();
+let htmlText = ref();
+
+(async () => {
+  //記事ID取得
+  let dynamicPageId = await route.params.id;
+
+  let { data, error } = await supabase
+    .from("article")
+    .select("*")
+    .eq("id", dynamicPageId);
+  articleData.value = await data;
+  console.log(articleData.value);
+
+  htmlText.value = await marked.parse(articleData.value[0].body);
+  console.log(htmlText.value);
+})();
+
+// onMounted(async () => {
+//   htmlText.value = await marked.parse(articleData.value[0].body);
+//   console.log(htmlText.value);
+// })
 
 const article = [
   {
@@ -142,26 +180,11 @@ const article = [
     bannerId: 1,
     delete: true,
     goalLike: "5",
-  },
-  {
-    id: 2,
-    userId: 2,
-    date: "2023-05-20T12:34:56Z",
-    title: "articleId2のtitle",
-    clubTagId: 2,
-    occupationTagId: 2,
-    body: "articleId2のbody",
-    goalLIke: 2,
-    qiitaPost: false,
-    publishDate: "2023-05-20T12:34:56Z",
-    publish: false,
-    bannerId: 2,
-    delete: false,
-  },
+  }
 ];
 
-let htmlText = marked.parse(article[0].body);
-console.log(htmlText);
+// let htmlText = marked.parse(article[0].body);
+// console.log(htmlText);
 
 const tagging = [
   {
