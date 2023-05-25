@@ -27,35 +27,12 @@
           tag[1].name
         }}</span>
       </div>
-      <p class="text-gray-800 mb-4"></p>
-      <strong><blockquote>articleId1のbody</blockquote></strong><br />
-      <em><blockquote>fff</blockquote></em><br />
-      <h3><blockquote>fff</blockquote></h3>
-      <br />
-      <blockquote>fff</blockquote>
-      <br />
-      <ul>
-        <br />
-        <ol>
-          <br />
-          <li>fff</li>
-          <br />
-        </ol>
-        <br />
-      </ul>
-      <br />
-      <ol>
-        <br />
-        <li>fff</li>
-        <br />
-      </ol>
-      <br />
-      <ol>
-        <br />
-        <li>fff</li>
-        <br />
-      </ol>
-      <br />
+
+      <div class="text-gray-800 mb-4">
+        <!-- tailwindcssのスタイルを無効化するcustom-proseクラス -->
+        <span class="custom-prose" v-html="htmlText"></span>
+      </div>
+
       <div class="flex justify-end space-x-4">
         <button
           @click="countLike"
@@ -145,60 +122,9 @@
 
 <script setup>
 import { ref, onMounted } from "vue";
+import { marked } from "marked";
 
 const supabase = useSupabaseClient();
-
-//マークダウンをHTMLに変更する関数
-function markdownToHTML(markdownText) {
-  // 強調（**...**）
-  markdownText = markdownText.replace(/\*\*(.*?)\*\*/g, "<strong>$1</strong>");
-
-  // 斜体（*...*）
-  markdownText = markdownText.replace(/\*(.*?)\*/g, "<em>$1</em>");
-
-  // 見出し（### ...）
-  markdownText = markdownText.replace(/### (.*?)\n/g, "<h3>$1</h3>\n");
-
-  // 引用（> ...）
-  markdownText = markdownText.replace(
-    />(.*?)\n/g,
-    "<blockquote>$1</blockquote>\n"
-  );
-
-  // 箇条書きリスト（* ...）
-  markdownText = markdownText.replace(/^\* (.*?)\n/gm, "<li>$1</li>\n");
-  markdownText = markdownText.replace(
-    /<li>(.*?)<\/li>/gm,
-    "<ul>\n<li>$1</li>\n</ul>"
-  );
-
-  // 番号付きリスト（1. ...）
-  markdownText = markdownText.replace(/^\d+\. (.*?)\n/gm, "<li>$1</li>\n");
-  markdownText = markdownText.replace(
-    /<li>(.*?)<\/li>/gm,
-    "<ol>\n<li>$1</li>\n</ol>"
-  );
-
-  // リンク（[text](url)）
-  markdownText = markdownText.replace(
-    /\[(.*?)\]\((.*?)\)/g,
-    '<a href="$2">$1</a>'
-  );
-
-  // 画像（![alt](url)）
-  markdownText = markdownText.replace(
-    /!\[(.*?)\]\((.*?)\)/g,
-    '<img src="$2" alt="$1">'
-  );
-
-  // 改行（単一の改行を<br>に変換）
-  markdownText = markdownText.replace(
-    /([^>\r\n]?)(\r\n|\n\r|\r|\n)/g,
-    "$1<br>$2"
-  );
-
-  return markdownText;
-}
 
 const article = [
   {
@@ -208,7 +134,7 @@ const article = [
     title: "articleId1のtitle",
     clubTagId: 1,
     occupationTagId: 1,
-    body: "**articleId1のbody**\n*fff*\n### fff\n> fff\n* fff\n1. fff\n2. fff\n[fff](https://)\n![fff](https://)\n",
+    body: "**articleId1のbody**\n*fff*\n# fff\n> fff\n* fff\n1. fff\n2. fff\n[fff](https://)\n![fff](https://)\n",
     goalLIke: 1,
     qiitaPost: true,
     publishDate: "2023-05-25",
@@ -234,7 +160,7 @@ const article = [
   },
 ];
 
-const htmlText = markdownToHTML(article[0].body);
+let htmlText = marked.parse(article[0].body);
 console.log(htmlText);
 
 const tagging = [
@@ -428,3 +354,13 @@ goalLike.value =
     ? article[0].goalLike - likeCount
     : "達成";
 </script>
+
+<style>
+/* .custom-prose :is(h1, h2, h3, h4, h5, h6, ul, ol, li) {
+  all: revert;
+} */
+
+.custom-prose * {
+  all: revert;
+}
+</style>
