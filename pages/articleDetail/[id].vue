@@ -116,7 +116,7 @@
     <!-- コメントがある場合のみ表示
     <div v-show="result">
       <h2 class="text-xl font-bold mb-2">投稿済みのコメント</h2>
-      過去のFコメントを表示するループ
+      過去のコメントを表示するループ
       <div class="bg-gray-200 p-2 rounded my-3">
         <span class="font-semibold">{{ result[1][0].userName }}</span>
         <span class="text-gray-600 float-right"
@@ -136,22 +136,18 @@ import { marked } from "marked";
 
 const route = useRoute();
 const supabase = useSupabaseClient();
-const userss = useSupabaseUser();
-const userId = userss.value?.id;
+const users = useSupabaseUser();
 
+const userId = users.value?.id;
 let userInfo = ref();
 
 // ユーザセッションid取得
 (async () => {
-  let data = await supabase.auth.getSession();
-  sessionUserId = data.data.session.user.id;
-  console.log("sessionUserId", sessionUserId.value);
-
-  if (sessionUserId) {
+  if (userId) {
     let { data, error } = await supabase
       .from("profiles")
       .select("*")
-      .eq("id", sessionUserId);
+      .eq("id", userId);
     userInfo.value = await data[0];
   }
 })();
@@ -181,7 +177,6 @@ const options = {
     .select("*")
     .eq("id", dynamicPageId);
   articleData.value = await data;
-
   htmlText.value = await marked.parse(articleData.value[0].body);
 
   const dateObject = await new Date(articleData.value[0].date);
@@ -295,30 +290,11 @@ const recommend = [
   },
 ];
 
-// const comment = [
-//   {
-//     id: 1,
-//     userID: 1,
-//     date: "2023-05-19T12:34:56Z",
-//     comment: "commentId1のcomment",
-//     articleId: 1,
-//   },
-//   {
-//     id: 2,
-//     userID: 2,
-//     date: "2023-05-20T12:34:56Z",
-//     comment: "commentId2のcomment",
-//     articleId: 2,
-//   },
-// ];
-
 //likeテーブルにインサートする時に使う
 let articleId = route.params.id;
 
 // いいね!した人のuserIdと、いいね！した記事のarticleIdの保存
 const countLike = async () => {
-  console.log(userId);
-  console.log(articleId);
   let { data, error } = await supabase
     .from("like")
     .insert({ userId, articleId });
@@ -331,18 +307,7 @@ const countRecommend = async () => {
     .insert({ userId, articleId });
 };
 
-// コメントデータをarticleId毎にグループ化
-// const commentData = {};
-// comment.forEach((c) => {
-//   if (!commentData[c.articleId]) {
-//     commentData[c.articleId] = [];
-//   }
-//   commentData[c.articleId].push(c);
-// });
-
-// console.log(commentData);
-
-// articleId毎にユーザー名、コメント内容、コメントの日付をまとめたデータを生成
+// // articleId毎にユーザー名、コメント内容、コメントの日付をまとめたデータを生成
 // const result = {};
 // Object.keys(commentData).forEach((articleId) => {
 //   const comments = commentData[articleId];
@@ -355,6 +320,8 @@ const countRecommend = async () => {
 //     };
 //   });
 // });
+
+// console.log(result);
 
 // いいねの件数をカウントする関数
 // (async () => {
@@ -398,26 +365,23 @@ goalLike.value =
     : "達成";
 
 //コメント投稿機能
-const users = useSupabaseUser();
-//投稿日
 let date = new Date();
 const year = date.getFullYear();
 const month = date.getMonth() + 1;
 const day = date.getDate();
+//投稿日
 date = `${year}/${month}/${day}`;
-const comment = ref("");
-const userDataId = users.value?.id;
+//コメント
+let comment = ref("");
+comment = comment.value
 
-console.log(date);
-console.log(comment.value);
-
-// const submit = async () => {
-//   let { data, error } = await supabase
-//     .from("comment")
-//     .insert({ date, userId, comment, articleId });
-//   console.log("recommendのinsert完了");
-//   console.log(error);
-// };
+const submit = async () => {
+  let { data, error } = await supabase
+    .from("comment")
+    .insert({ date, userId, comment, articleId });
+  console.log("完了");
+  console.log(error);
+};
 
 // //コメントを削除
 // const deleteComment = async (id) => {
