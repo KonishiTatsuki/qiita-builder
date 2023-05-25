@@ -61,12 +61,15 @@ const email = ref("");
 const password = ref("");
 
 const submit = async (submit) => {
-  const session = await client.auth.signInWithPassword({
+  const { data } = await client.auth.signInWithPassword({
     email: submit.email,
     password: submit.password,
   });
-  if (session) {
+  console.log(data.session);
+  if (data.session) {
     location.href = "/";
+  } else {
+    console.log("失敗");
   }
 };
 </script>
