@@ -90,9 +90,9 @@
     <h2 class="text-xl font-bold mb-2">コメント</h2>
     <form class="flex flex-col items-end" @submit.prevent="submit">
       <textarea
-        v-model="commentContent"
-        name="commentContent"
-        id="commentContent"
+        v-model="comment"
+        name="comment"
+        id="comment"
         rows="5"
         placeholder="コメントを入力してください"
         class="w-full border border-gray-200 p-2 rounded"
@@ -104,10 +104,10 @@
         <button type="submit" class="btn">送信</button>
       </div>
     </form>
-    <!-- コメントがある場合のみ表示 -->
+    <!-- コメントがある場合のみ表示
     <div v-show="result">
       <h2 class="text-xl font-bold mb-2">投稿済みのコメント</h2>
-      <!-- 過去のコメントを表示するループ -->
+      過去のコメントを表示するループ
       <div class="bg-gray-200 p-2 rounded my-3">
         <span class="font-semibold">{{ result[1][0].userName }}</span>
         <span class="text-gray-600 float-right"
@@ -116,8 +116,8 @@
         </span>
         <p class="text-gray-600">{{ result[1][0].comment }}</p>
       </div>
-      <!-- 過去のコメントを表示するループ終了 -->
-    </div>
+      過去のコメントを表示するループ終了
+    </div> -->
   </div>
 </template>
 
@@ -273,22 +273,22 @@ const recommend = [
   },
 ];
 
-const comment = [
-  {
-    id: 1,
-    userID: 1,
-    date: "2023-05-19T12:34:56Z",
-    comment: "commentId1のcomment",
-    articleId: 1,
-  },
-  {
-    id: 2,
-    userID: 2,
-    date: "2023-05-20T12:34:56Z",
-    comment: "commentId2のcomment",
-    articleId: 2,
-  },
-];
+// const comment = [
+//   {
+//     id: 1,
+//     userID: 1,
+//     date: "2023-05-19T12:34:56Z",
+//     comment: "commentId1のcomment",
+//     articleId: 1,
+//   },
+//   {
+//     id: 2,
+//     userID: 2,
+//     date: "2023-05-20T12:34:56Z",
+//     comment: "commentId2のcomment",
+//     articleId: 2,
+//   },
+// ];
 
 // いいね!した人のuserIdと、いいね！した記事のarticleIdの保存
 let userId = user[0].id;
@@ -308,29 +308,29 @@ const countRecommend = async () => {
 };
 
 // コメントデータをarticleId毎にグループ化
-const commentData = {};
-comment.forEach((c) => {
-  if (!commentData[c.articleId]) {
-    commentData[c.articleId] = [];
-  }
-  commentData[c.articleId].push(c);
-});
+// const commentData = {};
+// comment.forEach((c) => {
+//   if (!commentData[c.articleId]) {
+//     commentData[c.articleId] = [];
+//   }
+//   commentData[c.articleId].push(c);
+// });
 
-console.log(commentData);
+// console.log(commentData);
 
 // articleId毎にユーザー名、コメント内容、コメントの日付をまとめたデータを生成
-const result = {};
-Object.keys(commentData).forEach((articleId) => {
-  const comments = commentData[articleId];
-  result[articleId] = comments.map((c) => {
-    const userObject = user.find((u) => u.id === c.userID);
-    return {
-      userName: userObject.userName,
-      comment: c.comment,
-      date: c.date,
-    };
-  });
-});
+// const result = {};
+// Object.keys(commentData).forEach((articleId) => {
+//   const comments = commentData[articleId];
+//   result[articleId] = comments.map((c) => {
+//     const userObject = user.find((u) => u.id === c.userID);
+//     return {
+//       userName: userObject.userName,
+//       comment: c.comment,
+//       date: c.date,
+//     };
+//   });
+// });
 
 // いいねの件数をカウントする関数
 // (async () => {
@@ -376,37 +376,37 @@ goalLike.value =
 
 
 //コメント投稿機能
+const users = useSupabaseUser();
 //投稿日
 let date = new Date();
 const year = date.getFullYear();
 const month = date.getMonth() + 1;
 const day = date.getDate();
 date = `${year}/${month}/${day}`;
-// const comment = ref("");
-const commentContent = ref("");
-const { data } = await supabase.auth.getSession();
-// const userId = data.session.user.id
-// const comment = ref("");
-const { id } = route.params;
-// const articleId = id;
-const submit = async () => {
-  let { data, error } = await supabase
-    .from("comment")
-    .insert({ date, userId, comment, articleId });
-  console.log("recommendのinsert完了");
-  console.log(error);
-};
+const comment = ref("");
+const userDataId = users.value?.id;
+
+console.log(date)
+console.log(comment.value)
+
+// const submit = async () => {
+//   let { data, error } = await supabase
+//     .from("comment")
+//     .insert({ date, userId, comment, articleId });
+//   console.log("recommendのinsert完了");
+//   console.log(error);
+// };
 
 
-//コメントを削除
-const deleteComment = async (id) => {
-  let { data, error } = await supabase
-    .from("comment")
-    .delete()
-    .match({ id: id });
-  console.log("commentのdelete完了");
-  console.log(error);
-};
+// //コメントを削除
+// const deleteComment = async (id) => {
+//   let { data, error } = await supabase
+//     .from("comment")
+//     .delete()
+//     .match({ id: id });
+//   console.log("commentのdelete完了");
+//   console.log(error);
+// };
 </script>
 
 <style>
