@@ -316,8 +316,6 @@ let articleId = route.params.id;
 
 // いいね!した人のuserIdと、いいね！した記事のarticleIdの保存
 const countLike = async () => {
-  console.log(userId);
-  console.log(articleId);
   let { data, error } = await supabase
     .from("like")
     .insert({ userId, articleId });
