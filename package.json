@@ -20,7 +20,7 @@
     "easymde": "^2.18.0",
     "jest": "^29.5.0",
     "json-server": "^0.17.3",
-    "marked": "^5.0.2",
+    "moment": "^2.29.4",
     "nuxt": "^3.4.3",
     "nuxt-vue-multiselect": "^1.0.4",
     "tailwindcss": "^3.3.2"
