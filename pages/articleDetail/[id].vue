@@ -15,9 +15,9 @@
         }}</span>
         <span class="text-gray-400 text-sm mx-2">&nbsp;&nbsp;&nbsp;</span>
         <!-- 投稿日 -->
-        <span v-if="formattedDate" class="text-gray-600 text-sm">投稿：{{
-          formattedDate
-        }}</span>
+        <span v-if="formattedDate" class="text-gray-600 text-sm"
+          >投稿：{{ formattedDate }}</span
+        >
       </div>
       <!-- 記事タイトル -->
       <h1 v-if="articleData" class="text-4xl font-bold mb-2">
@@ -70,7 +70,10 @@
         <span class="text-gray-600 text-lg flex justify-center"
           >目標まで残り</span
         >
-        <p v-if="articleData" class="text-red-500 text-4xl font-bold flex justify-center m-4">
+        <p
+          v-if="articleData"
+          class="text-red-500 text-4xl font-bold flex justify-center m-4"
+        >
           {{ articleData[0].goalLike }}
           <span
             class="text-lg text-gray-600 align-text-bottom pt-3"
@@ -129,31 +132,26 @@
 <script setup>
 import { ref, onMounted } from "vue";
 import { marked } from "marked";
+
 const route = useRoute();
-
 const supabase = useSupabaseClient();
+const userss = useSupabaseUser();
+const userId = userss.value?.id;
 
-let sessionUserId = ref("");
 let userInfo = ref();
 
 // ユーザセッションid取得
 (async () => {
-  let data = await supabase.auth.getSession();
-  console.log(data);
-  sessionUserId = data.data.session.user.id;
-  console.log(data.data.session.user.id);
-
-  if (sessionUserId) {
+  if (userId) {
     let { data, error } = await supabase
       .from("profiles")
       .select("*")
-      .eq("id", sessionUserId);
+      .eq("id", userId);
     console.log(data);
     userInfo.value = await data[0];
     console.log(userInfo);
   }
 })();
-
 
 // 記事情報を取得[始まり]
 let articleData = ref();
@@ -313,11 +311,13 @@ const comment = [
   },
 ];
 
-// いいね!した人のuserIdと、いいね！した記事のarticleIdの保存
-let userId = user[0].id;
-let articleId = article[0].id;
+//likeテーブルにインサートする時に使う
+let articleId = route.params.id;
 
+// いいね!した人のuserIdと、いいね！した記事のarticleIdの保存
 const countLike = async () => {
+  console.log(userId);
+  console.log(articleId);
   let { data, error } = await supabase
     .from("like")
     .insert({ userId, articleId });
