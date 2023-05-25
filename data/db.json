@@ -77,17 +77,18 @@
     {
       "id": 1,
       "userId": 1,
-      "date": "2023-05-19T12:34:56Z",
+      "date": "2023-05-24T02:26:27.716Z",
       "title": "articleId1のtitle",
       "clubTagId": 1,
       "occupationTagId": 1,
-      "body": "articleId1のbody",
+      "body": "**articleId1のbody**\n*fff*\n### fff\n> fff\n* fff\n1. fff\n2. fff\n[fff](https://)\n![fff](https://)\n",
       "goalLIke": 1,
       "qiitaPost": true,
-      "publishDate": "2023-05-19T12:34:56Z",
+      "publishDate": "2023-05-25",
       "publish": true,
       "bannerId": 1,
-      "delete": true
+      "delete": true,
+      "goalLike": "5"
     },
     {
       "id": 2,
