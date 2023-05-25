@@ -1,17 +1,16 @@
 import { serverSupabaseClient } from "#supabase/server";
 
 export default defineEventHandler(async (event) => {
-  const client = serverSupabaseClient(event);
   const supabase = serverSupabaseClient(event);
 
   const body = await readBody(event);
-  console.log(body);
+  console.log(body.addClub);
 
-  //新サークルを保存
-  // await supabase.from("club").insert({
-  //   clubName: body.addClub,
-  //   display: false,
-  // });
+  // 新サークルを保存
+  await supabase.from("club").insert({
+    clubName: body.addClub,
+    display: false,
+  });
 
   //authに登録
   // const { error } = await client.auth.signUp({
@@ -28,8 +27,6 @@ export default defineEventHandler(async (event) => {
   //     },
   //   },
   // });
-
-  // //userテーブルに保存
 
   // await client.from.('user').insert({
   //   userName: body.userName,
