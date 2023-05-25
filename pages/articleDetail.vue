@@ -93,8 +93,8 @@
     <form class="flex flex-col items-end" @submit.prevent="submit">
       <textarea
         v-model="commentContent"
-        name="comment"
-        id="comment"
+        name="commentContent"
+        id="commentContent"
         rows="5"
         placeholder="コメントを入力してください"
         class="w-full border border-gray-200 p-2 rounded"
@@ -272,7 +272,6 @@ const countLike = async () => {
   let { data, error } = await supabase
     .from("like")
     .insert({ userId, articleId });
-  console.log("likeのinsert完了");
 };
 
 // Qiitaオススメした人のuserIdと、Qiitaオススメした記事のarticleIdの保存
@@ -280,8 +279,6 @@ const countRecommend = async () => {
   let { data, error } = await supabase
     .from("recommend")
     .insert({ userId, articleId });
-  console.log("recommendのinsert完了");
-  console.log(error);
 };
 
 // コメントデータをarticleId毎にグループ化
@@ -292,8 +289,6 @@ comment.forEach((c) => {
   }
   commentData[c.articleId].push(c);
 });
-
-console.log(commentData);
 
 // articleId毎にユーザー名、コメント内容、コメントの日付をまとめたデータを生成
 const result = {};
@@ -308,8 +303,6 @@ Object.keys(commentData).forEach((articleId) => {
     };
   });
 });
-
-console.log(result);
 
 // いいねの件数をカウントする関数
 // (async () => {
@@ -352,10 +345,39 @@ goalLike.value =
     ? article[0].goalLike - likeCount
     : "達成";
 
-//コメント投稿機能
-const commentContent = ref("");
 
+
+//コメント投稿機能
+const route = useRoute();
+//投稿日
+let date = new Date();
+const year = date.getFullYear();
+const month = date.getMonth() + 1;
+const day = date.getDate();
+date = `${year}/${month}/${day}`;
+// const comment = ref("");
+const commentContent = ref("");
+const { data } = await supabase.auth.getSession();
+// const userId = data.session.user.id
+// const comment = ref("");
+const { id } = route.params;
+// const articleId = id;
 const submit = async () => {
-  console.log("commentContent", commentContent.value);
+  let { data, error } = await supabase
+    .from("comment")
+    .insert({ date, userId, comment, articleId });
+  console.log("recommendのinsert完了");
+  console.log(error);
+};
+
+
+//コメントを削除
+const deleteComment = async (id) => {
+  let { data, error } = await supabase
+    .from("comment")
+    .delete()
+    .match({ id: id });
+  console.log("commentのdelete完了");
+  console.log(error);
 };
 </script>
