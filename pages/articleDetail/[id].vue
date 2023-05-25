@@ -27,14 +27,12 @@
           tag[1].name
         }}</span>
       </div>
-      <p class="text-gray-800 mb-4">
-        {{ article[0].body }}
-        <br />
-        <br />
-        <br />
-        <br />
-        <br />
-      </p>
+
+      <div class="text-gray-800 mb-4">
+        <!-- tailwindcssのスタイルを無効化するcustom-proseクラス -->
+        <span class="custom-prose" v-html="htmlText"></span>
+      </div>
+
       <div class="flex justify-end space-x-4">
         <button
           @click="countLike"
@@ -125,41 +123,69 @@
 
 <script setup>
 import { ref, onMounted } from "vue";
+import { marked } from "marked";
+const route = useRoute();
 
 const supabase = useSupabaseClient();
+
+let sessionUserId = ref("");
+(async () => {
+  let data = await supabase.auth.getSession();
+  console.log(data);
+  console.log(data.data.session.user.id);
+  sessionUserId = data.data.session.user.id;
+  // if (data) {
+  //   const { error } = await supabase
+  //     .from("profiles")
+  //     .update({ qiitaToken: text.value })
+  //     .eq("id", data.data.session.user.id);
+  // }
+})();
+
+let articleData = ref();
+let htmlText = ref();
+
+(async () => {
+  //記事ID取得
+  let dynamicPageId = await route.params.id;
+
+  let { data, error } = await supabase
+    .from("article")
+    .select("*")
+    .eq("id", dynamicPageId);
+  articleData.value = await data;
+  console.log(articleData.value);
+
+  htmlText.value = await marked.parse(articleData.value[0].body);
+  console.log(htmlText.value);
+})();
+
+// onMounted(async () => {
+//   htmlText.value = await marked.parse(articleData.value[0].body);
+//   console.log(htmlText.value);
+// })
 
 const article = [
   {
     id: 1,
     userId: 1,
-    date: "2023-05-19T12:34:56Z",
+    date: "2023-05-24T02:26:27.716Z",
     title: "articleId1のtitle",
     clubTagId: 1,
     occupationTagId: 1,
-    body: "articleId1のbody",
+    body: "**articleId1のbody**\n*fff*\n# fff\n> fff\n* fff\n1. fff\n2. fff\n[fff](https://)\n![fff](https://)\n",
     goalLIke: 1,
     qiitaPost: true,
-    publishDate: "2023-05-19T12:34:56Z",
+    publishDate: "2023-05-25",
     publish: true,
     bannerId: 1,
     delete: true,
-  },
-  {
-    id: 2,
-    userId: 2,
-    date: "2023-05-20T12:34:56Z",
-    title: "articleId2のtitle",
-    clubTagId: 2,
-    occupationTagId: 2,
-    body: "articleId2のbody",
-    goalLIke: 2,
-    qiitaPost: false,
-    publishDate: "2023-05-20T12:34:56Z",
-    publish: false,
-    bannerId: 2,
-    delete: false,
-  },
+    goalLike: "5",
+  }
 ];
+
+// let htmlText = marked.parse(article[0].body);
+// console.log(htmlText);
 
 const tagging = [
   {
@@ -290,6 +316,8 @@ comment.forEach((c) => {
   commentData[c.articleId].push(c);
 });
 
+console.log(commentData);
+
 // articleId毎にユーザー名、コメント内容、コメントの日付をまとめたデータを生成
 const result = {};
 Object.keys(commentData).forEach((articleId) => {
@@ -348,7 +376,6 @@ goalLike.value =
 
 
 //コメント投稿機能
-const route = useRoute();
 //投稿日
 let date = new Date();
 const year = date.getFullYear();
@@ -381,3 +408,13 @@ const deleteComment = async (id) => {
   console.log(error);
 };
 </script>
+
+<style>
+/* .custom-prose :is(h1, h2, h3, h4, h5, h6, ul, ol, li) {
+  all: revert;
+} */
+
+.custom-prose * {
+  all: revert;
+}
+</style>
