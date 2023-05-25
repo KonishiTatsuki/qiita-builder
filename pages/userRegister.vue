@@ -237,12 +237,12 @@ const submitHandler = async (credentials) => {
   const { error: avatarerror } = await client.storage
     .from("avatars")
     .upload(filePath, file);
-  console.log("avatarerror", avatarerror);
+  // console.log("avatarerror", avatarerror);
   // 画像のURLを取得
   if (!avatarerror) {
     const { data } = client.storage.from("avatars").getPublicUrl(filePath);
     const imageUrl = data.publicUrl;
-    console.log("url", imageUrl);
+    // console.log("url", imageUrl);
 
     //新規会員登録
     // authに登録;
