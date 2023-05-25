@@ -6,15 +6,22 @@
     <input
       maxlength="30"
       type="text"
-      name="title"
+      v-model="title"
       class="border border-blue-500 w-96"
     />
+    <div>
+      <p>選択した日付: {{ selectedDate }}</p>
+      <p>入力したタイトル: {{ title }}</p>
+    </div>
     <h2 class="subtitle">記事の選択</h2>
 
     <div class="mb-2">
       <select name="" id="">
         <option value="">記事１</option>
       </select>
+      <div>
+        {{ user }}
+      </div>
     </div>
     <div class="flex justify-end">
       <div>
@@ -26,6 +33,27 @@
   </div>
 </template>
 
-<script setup></script>
+<script>
+import { ref } from "vue";
+import { useRouter } from "vue-router";
+
+export default {
+  setup() {
+    const router = useRouter();
+    const selectedDate = ref(null);
+    const title = ref("");
+    const user = useSupabaseUser();
+    console.log(user.value);
+    // 遷移前の日付を取得
+    if (router.currentRoute.value.query.date) {
+      selectedDate.value = router.currentRoute.value.query.date;
+    }
+    return {
+      selectedDate,
+      title,
+    };
+  },
+};
+</script>
 
 <style lang="scss" scoped></style>
