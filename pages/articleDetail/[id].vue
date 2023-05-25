@@ -133,16 +133,13 @@
 <script setup>
 import { ref, onMounted } from "vue";
 import { marked } from "marked";
+
 const route = useRoute();
-
 const supabase = useSupabaseClient();
-
-let sessionUserId = ref("");
-let userInfo = ref();
-
 const userss = useSupabaseUser();
-const userid = userss.value?.id;
-console.log("userid",userid);
+const userId = userss.value?.id;
+
+let userInfo = ref();
 
 // ユーザセッションid取得
 (async () => {
@@ -315,11 +312,13 @@ const recommend = [
 //   },
 // ];
 
-// いいね!した人のuserIdと、いいね！した記事のarticleIdの保存
-let userId = user[0].id;
-let articleId = article[0].id;
+//likeテーブルにインサートする時に使う
+let articleId = route.params.id;
 
+// いいね!した人のuserIdと、いいね！した記事のarticleIdの保存
 const countLike = async () => {
+  console.log(userId);
+  console.log(articleId);
   let { data, error } = await supabase
     .from("like")
     .insert({ userId, articleId });
