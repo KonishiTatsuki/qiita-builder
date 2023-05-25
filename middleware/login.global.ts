@@ -1,16 +1,14 @@
 export default defineNuxtRouteMiddleware(async (to, from) => {
-  console.log("common middleware");
-  const supabase = useSupabaseClient();
-  let data = await supabase.auth.getSession();
-  if (data.data.session) {
-    console.log("ログイン");
-    // return;
-  } else {
+  const user = useSupabaseUser();
+
+  console.log(user.value);
+
+  if (!user.value) {
     const path = "/login";
-    // return { path };
     if (to.path !== path) {
-      console.log("未ログイン");
-      return { path };
+      return navigateTo("/login");
     }
+  } else {
+    const userId = user.value?.id;
   }
 });
