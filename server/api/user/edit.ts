@@ -12,6 +12,6 @@ export default defineEventHandler(async (event) => {
     clubid: body.club,
     detail: body.detail,
   });
-
-  return "aaa";
+  console.log(data, error);
+  return error;
 });
