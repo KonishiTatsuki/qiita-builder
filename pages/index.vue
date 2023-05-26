@@ -113,11 +113,13 @@
         <div
           class="bg-gradient-to-r from-purple-400 via-pink-500 to-red-500 p-4 rounded-lg shadow-lg flex items-center justify-between mt-3"
         >
-          <!-- メッセージ -->
-          <div class="text-white font-bold title">
-            <p class="ml-5">Qiita Builder Advent Calendar</p>
-            <p class="ml-5">開催中</p>
-          </div>
+          <NuxtLink to="/advent">
+            <!-- メッセージ -->
+            <div class="text-white font-bold title">
+              <p class="ml-5">Qiita Builder Advent Calendar</p>
+              <p class="ml-5">開催中</p>
+            </div>
+          </NuxtLink>
           <!-- ビジュアル -->
           <!-- サンプル画像 -->
           <img
@@ -132,12 +134,14 @@
         <div class="flex justify-end">
           <div class="inline-flex rounded-md shadow-sm pt-5 pb-3" role="group">
             <button
+              @click="sortArticlesByDateDescending"
               type="button"
               class="px-4 py-2 text-sm font-medium text-gray-900 bg-transparent border border-gray-200 rounded-l-lg hover:bg-[#1D8EB9] hover:text-white focus:z-10 focus:ring-2 focus:ring-[#1D8EB9] focus:bg-[#1D8EB9] focus:text-white focus:border-[#1D8EB9] dark:border-white dark:text-white dark:hover:text-white dark:hover:bg-gray-700 dark:focus:bg-gray-700"
             >
               新着順
             </button>
             <button
+              @click="sortArticlesByDate"
               type="button"
               class="px-4 py-2 text-sm font-medium text-gray-900 bg-transparent border-t border-b border-gray-200 hover:bg-[#1D8EB9] hover:text-white focus:z-10 focus:ring-2 focus:ring-[#1D8EB9] focus:bg-[#1D8EB9] focus:text-white focus:border-[#1D8EB9] dark:border-white dark:text-white dark:hover:text-white dark:hover:bg-gray-700 dark:focus:bg-gray-700"
             >
@@ -157,15 +161,15 @@
             <div class="-my-8 divide-y-2 divide-gray-100">
               <div
                 class="py-8 flex flex-wrap md:flex-nowrap"
-                v-for="article in combinedData"
+                v-for="article in articleData"
                 :key="article.id"
               >
                 <div class="md:w-64 md:mb-0 mb-6 flex-shrink-0 flex flex-col">
                   <span class="font-semibold title-font text-gray-700">{{
-                    article.tags[0].name
+                    article.username
                   }}</span>
                   <span class="mt-1 text-gray-500 text-sm">{{
-                    article.date
+                    formatDateTime(article.date)
                   }}</span>
                 </div>
                 <div class="md:flex-grow">
@@ -197,12 +201,51 @@
 import { ref, onMounted } from "vue";
 
 const supabase = useSupabaseClient();
+// ここではユーザID不要
+// const userss = useSupabaseUser();
+// const userId = userss.value?.id;
 
 // Supabaseからプログラミング言語名(display:trueのみ)を取得
 let tagName = ref("");
 let visibleTagItems = ref(10);
 let showAllTagItems = ref(false);
+let articleData = ref([]);
 
+(async () => {
+  // 記事全件取得
+  let { data } = await supabase
+    .from("article")
+    .select("body, clubTagId, date, delete, id, occupationTagId, title, userId")
+    .eq("delete", false)
+    .order("date", { ascending: false });
+  console.log(data);
+
+  // userIdを取得してユーザ名を取得する連想配列を作成
+  const userIds = data
+    .filter((article) => article.userId !== null) // nullを除外
+    .map((article) => article.userId);
+  console.log(userIds);
+  const { data: users } = await supabase
+    .from("profiles")
+    .select("id, username")
+    .in("id", userIds);
+  const usernameMap = {};
+  for (const user of users) {
+    usernameMap[user.id] = user.username;
+  }
+
+  console.log(usernameMap);
+
+  // data配列にusernameを追加
+  articleData.value = data.map((article) => ({
+    ...article,
+    username: usernameMap[article.userId],
+  }));
+
+  console.log(articleData.value);
+})();
+
+// Supabaseからtagテーブルのtag名を取得
 (async function () {
   let { data: name, error } = await supabase
     .from("tag")
@@ -210,6 +253,35 @@ let showAllTagItems = ref(false);
     .eq("display", "true");
   tagName.value = name;
 })();
+
+// Supabaseから職種テーブルの職種名を取得
+let occupationName = ref("");
+(async function () {
+  let { data: occupation, error } = await supabase
+    .from("occupation")
+    .select("occupationName");
+  occupationName.value = occupation;
+})();
+
+// Supabaseからサークルテーブルのサークル名を取得
+let clubName = ref("");
+let visibleClubItems = ref(10);
+let showAllClubItems = ref(false);
+(async function () {
+  let { data: club, error } = await supabase
+    .from("club")
+    .select("clubName")
+    .eq("display", "true");
+  clubName.value = club;
+})();
+
+const sortArticlesByDate = () => {
+  articleData.value.sort((a, b) => new Date(a.date) - new Date(b.date));
+};
+
+const sortArticlesByDateDescending = () => {
+  articleData.value.sort((a, b) => new Date(b.date) - new Date(a.date));
+};
 
 const toggleShowAllTagItems = () => {
   if (showAllTagItems.value) {
@@ -221,28 +293,6 @@ const toggleShowAllTagItems = () => {
   }
 };
 
-// Supabaseから職種データの職種名を取得
-let occupationName = ref("");
-(async function () {
-  let { data: occupation, error } = await supabase
-    .from("occupation")
-    .select("occupationName");
-  occupationName.value = occupation;
-})();
-
-// Supabaseからサークルデータの職種名を取得
-let clubName = ref("");
-let visibleClubItems = ref(10);
-let showAllClubItems = ref(false);
-
-(async function () {
-  let { data: club, error } = await supabase
-    .from("club")
-    .select("clubName")
-    .eq("display", "true");
-  clubName.value = club;
-})();
-
 const toggleShowAllClubItems = () => {
   if (showAllClubItems.value) {
     visibleClubItems.value = 10;
@@ -253,10 +303,21 @@ const toggleShowAllClubItems = () => {
   }
 };
 
-const deleteArticle = (article) => {
-  console.log("deleteArticleボタン発火");
-  console.log(article);
-};
+//日時のスタイル変更
+function formatDateTime(dateString) {
+  const options = {
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+    hour: "2-digit",
+    minute: "2-digit",
+    second: "2-digit",
+    timeZone: "UTC",
+  };
+  const dateObject = new Date(dateString);
+  const formattedDate = dateObject.toLocaleString("ja-JP", options);
+  return formattedDate;
+}
 
 const article = [
   {
@@ -334,6 +395,4 @@ const combinedData = article.map((item) => {
     tags: tags,
   };
 });
-
-console.log(combinedData);
 </script>

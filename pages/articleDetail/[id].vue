@@ -183,6 +183,7 @@ const options = {
     .from("article")
     .select("*")
     .eq("id", dynamicPageId);
+    console.log(data)
   articleData.value = await data;
   htmlText.value = await marked.parse(articleData.value[0].body);
 
