@@ -5,7 +5,7 @@ export default defineEventHandler(async (event) => {
   // console.log("body", body);
 
   const client = serverSupabaseClient(event);
-  let { data } = await client
+  const { data } = await client
     .from("profiles")
     .select("*,clubid(*),occupation(*)")
     .eq("id", body);
