@@ -222,7 +222,8 @@ const iconsubmit = async (credentials) => {
       id: route.params.id,
       image: imageUrl,
     });
-    router.go(`/useredit/${route.params.id}`);
+
+    router.go();
   }
 };
 
