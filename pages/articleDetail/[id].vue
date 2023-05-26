@@ -25,18 +25,23 @@
       </h1>
       <hr class="border-t-2 border-gray-200" />
       <!-- カテゴリタグ -->
-      <div class="flex space-x-2 m-4">
-        <span class="bg-blue-100 text-blue-600 px-2 py-1 rounded">{{
-          tag[0].name
-        }}</span>
-        <span class="bg-blue-100 text-blue-600 px-2 py-1 rounded">{{
-          tag[1].name
-        }}</span>
+      <div v-if="tagNames" class="flex space-x-2 m-4">
+        <span
+          v-for="(tagName, index) in tagNames"
+          :key="index"
+          class="bg-blue-100 text-blue-600 px-2 py-1 rounded"
+          >{{ tagName }}</span
+        >
       </div>
 
       <div class="text-gray-800 mb-4">
         <!-- tailwindcssのスタイルを無効化するcustom-proseクラス -->
-        <span class="custom-prose" v-html="htmlText"></span>
+        <template v-if="htmlText">
+          <span class="custom-prose" v-html="htmlText"></span>
+        </template>
+        <template v-else>
+          <span>読み込み中</span>
+        </template>
       </div>
 
       <div class="flex justify-end space-x-4">
@@ -157,6 +162,7 @@ let userInfo = ref();
 let articleData = ref();
 let htmlText = ref();
 let formattedDate = ref();
+let tagNames = ref([]);
 
 // 日時のフォーマットを設定
 const options = {
@@ -173,19 +179,43 @@ const options = {
   //記事ID取得
   let dynamicPageId = await route.params.id;
 
-  let { data, error } = await supabase
+  let { data } = await supabase
     .from("article")
     .select("*")
     .eq("id", dynamicPageId);
   articleData.value = await data;
-  console.log(articleData.value);
-
   htmlText.value = await marked.parse(articleData.value[0].body);
-  console.log(htmlText.value);
 
   const dateObject = await new Date(articleData.value[0].date);
   // フォーマットを適用
   formattedDate.value = await dateObject.toLocaleString("ja-JP", options);
+
+  // taggingテーブルからarticleIdを基にtagIdの配列を取ってくる
+  let { data: tagId } = await supabase
+    .from("tagging")
+    .select("tagId")
+    .eq("articleId", dynamicPageId);
+
+  // タグ名を格納する配列
+  // let tagNames = ref([]);
+
+  // 各IDに対応するタグ名を取得
+  tagId.forEach(async (tag) => {
+    const { data, error } = await supabase
+      .from("tag")
+      .select("name")
+      .eq("id", tag.tagId);
+
+    if (error) {
+      console.error(error);
+      return;
+    }
+
+    if (data.length > 0) {
+      tagNames.value.push(data[0].name);
+    }
+  });
+  console.log(tagNames.value);
 })();
 // 記事情報を取得[終わり]
 
@@ -355,8 +385,6 @@ Object.keys(commentData).forEach((articleId) => {
     };
   });
 });
-
-console.log(result);
 
 // いいねの件数をカウントする関数
 // (async () => {
