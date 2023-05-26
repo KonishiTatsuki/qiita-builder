@@ -30,23 +30,34 @@
     <div class="border border-black p-4 w-2/5">
       <div class="flex">
         <div>サークルタグ</div>
-        <div><input type="text" class="border border-black ml-2 p-1" /></div>
         <div>
-          <button class="ml-2 p-1 btn">追加</button>
+          <input
+            type="text"
+            class="border border-black ml-2 p-1"
+            v-model="newclub"
+          />
+        </div>
+        <div>
+          <button class="ml-2 p-1 btn" @click="addNewClub">追加</button>
         </div>
       </div>
       <div class="mt-3">
-        <ul class="flex">
-          <li><input type="checkbox" />タグ１</li>
-          <li><input type="checkbox" />タグ2</li>
-          <li><input type="checkbox" />タグ3</li>
+        <ul class="flex" v-for="display in nondisplayClub">
+          <li>
+            <input
+              type="checkbox"
+              :value="{ id: `${display.value}`, display: true }"
+              @change="checkclub"
+              v-model="addDisplayClub"
+            />{{ display.label }}
+          </li>
         </ul>
       </div>
       <div class="flex justify-end">
         <div class="mr-2">
-          <button class="btn p-1">削除</button>
+          <button class="btn p-1" @click="deleteClub">削除</button>
         </div>
-        <div><button class="btn p-1">表示</button></div>
+        <div><button class="btn p-1" @click="addDisplay">表示</button></div>
       </div>
     </div>
   </div>
@@ -55,15 +66,20 @@
     <div class="border border-black p-4 w-2/5">
       <div>サークルタグ</div>
       <div class="mt-3">
-        <ul class="flex">
-          <li><input type="checkbox" />タグ１</li>
-          <li><input type="checkbox" />タグ2</li>
-          <li><input type="checkbox" />タグ3</li>
+        <ul class="flex" v-for="display in displayClub">
+          <li>
+            <input
+              type="checkbox"
+              :value="{ id: `${display.value}`, display: false }"
+              @change="checkclub"
+              v-model="addnonDisplayClub"
+            />{{ display.label }}
+          </li>
         </ul>
       </div>
       <div class="flex justify-end">
         <div class="mr-2">
-          <button class="btn p-1">表示</button>
+          <button class="btn p-1" @click="nonDisplay">非表示</button>
         </div>
       </div>
     </div>
@@ -104,3 +120,61 @@
     </div>
   </div>
 </template>
+
+<script setup>
+const router = useRouter();
+const client = useSupabaseClient();
+const { data: allclub } = await client.from("club").select();
+
+//display:trueのクラブ
+const displayClub = [];
+//display:falseのクラブ
+const nondisplayClub = [];
+
+//新規追加クラブ
+const newclub = ref("");
+
+const addDisplayClub = ref([]);
+const addnonDisplayClub = ref([]);
+
+allclub.map((club) => {
+  if (club.display) {
+    displayClub.push({ value: club.id, label: club.clubName });
+  } else {
+    nondisplayClub.push({ value: club.id, label: club.clubName });
+  }
+});
+
+//表示するサークルの追加
+const addDisplay = async () => {
+  const { error } = await client.from("club").upsert(addDisplayClub.value);
+  router.go();
+};
+
+//サークルを非表示にする
+const nonDisplay = async () => {
+  const { error } = await client.from("club").upsert(addnonDisplayClub.value);
+  router.go();
+};
+
+//表示するサークルの削除
+const deleteClub = async () => {
+  //削除するサークルの配列
+  const clubId = [];
+  addDisplayClub.value.map((club) => {
+    clubId.push({ id: club.id });
+  });
+  clubId.map(async (club) => {
+    const { error } = await client.from("club").delete().eq("id", club.id);
+  });
+  router.go();
+};
+
+//新規クラブの追加
+const addNewClub = async () => {
+  const { error: cluberror } = await client.from("club").insert({
+    clubName: newclub.value,
+  });
+  router.go();
+};
+</script>
