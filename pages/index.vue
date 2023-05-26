@@ -180,9 +180,12 @@
                     {{ article.body }}
                   </p>
                   <div class="flex justify-between items-center mt-4">
-                    <a class="text-indigo-500 inline-flex items-center"
-                      >記事詳細&nbsp;→
-                    </a>
+                    <router-link
+                      :to="`/articleDetail/${article.id}`"
+                      class="text-indigo-500 inline-flex items-center"
+                    >
+                      記事詳細&nbsp;→
+                    </router-link>
                     <button class="btn" @click="deleteArticle(article)">
                       削除(管理者のみ表示)
                     </button>
