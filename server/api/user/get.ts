@@ -9,10 +9,6 @@ export default defineEventHandler(async (event) => {
     .from("profiles")
     .select("*,clubid(*),occupation(*)")
     .eq("id", body);
-  // console.log(data);
 
-  // const { data } = client.storage.from("avatars").getPublicUrl("earth.png");
-  // console.log(image);
-  // data[0].img = publicURL;
   return data;
 });
