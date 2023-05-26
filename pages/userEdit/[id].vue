@@ -160,7 +160,7 @@
             />
           </div>
           <button class="btn mr-2 mt-8 ml-6" v-show="iconeditbool">
-            アイコを保存する
+            アイコンを保存する
           </button>
         </FormKit>
         <button class="btn mr-2 mt-56" v-show="!iconeditbool" @click="iconedit">
