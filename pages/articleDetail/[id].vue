@@ -10,27 +10,38 @@
           class="w-8 h-8 rounded-full mr-2"
         />
         <!-- ユーザ名 -->
-        <span class="text-gray-600 text-sm">{{ user[0].userName }}</span>
-        <span class="text-gray-400 text-sm mx-2">・</span>
+        <span v-if="userInfo" class="text-gray-600 text-sm">{{
+          userInfo.username
+        }}</span>
+        <span class="text-gray-400 text-sm mx-2">&nbsp;&nbsp;&nbsp;</span>
         <!-- 投稿日 -->
-        <span class="text-gray-600 text-sm">{{ article[0].date }}</span>
+        <span v-if="formattedDate" class="text-gray-600 text-sm"
+          >投稿：{{ formattedDate }}</span
+        >
       </div>
       <!-- 記事タイトル -->
-      <h1 class="text-4xl font-bold mb-2">{{ article[0].title }}</h1>
+      <h1 v-if="articleData" class="text-4xl font-bold mb-2">
+        {{ articleData[0].title }}
+      </h1>
       <hr class="border-t-2 border-gray-200" />
       <!-- カテゴリタグ -->
-      <div class="flex space-x-2 m-4">
-        <span class="bg-blue-100 text-blue-600 px-2 py-1 rounded">{{
-          tag[0].name
-        }}</span>
-        <span class="bg-blue-100 text-blue-600 px-2 py-1 rounded">{{
-          tag[1].name
-        }}</span>
+      <div v-if="tagNames" class="flex space-x-2 m-4">
+        <span
+          v-for="(tagName, index) in tagNames"
+          :key="index"
+          class="bg-blue-100 text-blue-600 px-2 py-1 rounded"
+          >{{ tagName }}</span
+        >
       </div>
 
       <div class="text-gray-800 mb-4">
         <!-- tailwindcssのスタイルを無効化するcustom-proseクラス -->
-        <span class="custom-prose" v-html="htmlText"></span>
+        <template v-if="htmlText">
+          <span class="custom-prose" v-html="htmlText"></span>
+        </template>
+        <template v-else>
+          <span></span>
+        </template>
       </div>
 
       <div class="flex justify-end space-x-4">
@@ -64,11 +75,14 @@
         <span class="text-gray-600 text-lg flex justify-center"
           >目標まで残り</span
         >
-        <p class="text-red-500 text-4xl font-bold flex justify-center m-4">
-          {{ goalLike }}
+        <p
+          v-if="articleData"
+          class="text-red-500 text-4xl font-bold flex justify-center m-4"
+        >
+          {{ articleData[0].goalLike }}
           <span
             class="text-lg text-gray-600 align-text-bottom pt-3"
-            v-show="goalLike !== '達成'"
+            v-show="articleData[0].goalLike !== '達成'"
             >件</span
           >
         </p>
@@ -123,46 +137,88 @@
 <script setup>
 import { ref, onMounted } from "vue";
 import { marked } from "marked";
+
 const route = useRoute();
-
 const supabase = useSupabaseClient();
+const userss = useSupabaseUser();
+const userId = userss.value?.id;
 
-let sessionUserId = ref("");
+let userInfo = ref();
+
+// ユーザセッションid取得
 (async () => {
-  let data = await supabase.auth.getSession();
-  console.log(data);
-  console.log(data.data.session.user.id);
-  sessionUserId = data.data.session.user.id;
-  // if (data) {
-  //   const { error } = await supabase
-  //     .from("profiles")
-  //     .update({ qiitaToken: text.value })
-  //     .eq("id", data.data.session.user.id);
-  // }
+  if (userId) {
+    let { data, error } = await supabase
+      .from("profiles")
+      .select("*")
+      .eq("id", userId);
+    console.log(data);
+    userInfo.value = await data[0];
+    console.log(userInfo);
+  }
 })();
 
+// 記事情報を取得[始まり]
 let articleData = ref();
 let htmlText = ref();
+let formattedDate = ref();
+let tagNames = ref([]);
+
+// 日時のフォーマットを設定
+const options = {
+  year: "numeric",
+  month: "2-digit",
+  day: "2-digit",
+  hour: "2-digit",
+  minute: "2-digit",
+  second: "2-digit",
+  timeZone: "UTC",
+};
 
 (async () => {
   //記事ID取得
   let dynamicPageId = await route.params.id;
 
-  let { data, error } = await supabase
+  let { data } = await supabase
     .from("article")
     .select("*")
     .eq("id", dynamicPageId);
+    console.log(data)
   articleData.value = await data;
-  console.log(articleData.value);
-
   htmlText.value = await marked.parse(articleData.value[0].body);
-  console.log(htmlText.value);
-})();
 
-// onMounted(async () => {
-//   htmlText.value = await marked.parse(articleData.value[0].body);
-//   console.log(htmlText.value);
-// })
+  const dateObject = await new Date(articleData.value[0].date);
+  // フォーマットを適用
+  formattedDate.value = await dateObject.toLocaleString("ja-JP", options);
+
+  // taggingテーブルからarticleIdを基にtagIdの配列を取ってくる
+  let { data: tagId } = await supabase
+    .from("tagging")
+    .select("tagId")
+    .eq("articleId", dynamicPageId);
+
+  // タグ名を格納する配列
+  // let tagNames = ref([]);
+
+  // 各IDに対応するタグ名を取得
+  tagId.forEach(async (tag) => {
+    const { data, error } = await supabase
+      .from("tag")
+      .select("name")
+      .eq("id", tag.tagId);
+
+    if (error) {
+      console.error(error);
+      return;
+    }
+
+    if (data.length > 0) {
+      tagNames.value.push(data[0].name);
+    }
+  });
+  console.log(tagNames.value);
+})();
+// 記事情報を取得[終わり]
 
 const article = [
   {
@@ -180,11 +236,8 @@ const article = [
     bannerId: 1,
     delete: true,
     goalLike: "5",
-  }
+  },
 ];
-
-// let htmlText = marked.parse(article[0].body);
-// console.log(htmlText);
 
 const tagging = [
   {
@@ -289,10 +342,10 @@ const comment = [
   },
 ];
 
-// いいね!した人のuserIdと、いいね！した記事のarticleIdの保存
-let userId = user[0].id;
-let articleId = article[0].id;
+//likeテーブルにインサートする時に使う
+let articleId = route.params.id;
 
+// いいね!した人のuserIdと、いいね！した記事のarticleIdの保存
 const countLike = async () => {
   let { data, error } = await supabase
     .from("like")
@@ -333,8 +386,6 @@ Object.keys(commentData).forEach((articleId) => {
     };
   });
 });
-
-console.log(result);
 
 // いいねの件数をカウントする関数
 // (async () => {
