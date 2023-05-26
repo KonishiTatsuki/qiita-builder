@@ -240,7 +240,7 @@ const post = async (credentials) => {
     body: credentials,
   });
   if (!error.value) {
-    router.go(`/useredit/${route.params.id}`);
+    router.go();
   }
 };
 
