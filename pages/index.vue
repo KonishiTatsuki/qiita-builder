@@ -148,6 +148,7 @@
               投稿日順
             </button>
             <button
+              @click="sortByLikes"
               type="button"
               class="px-4 py-2 text-sm font-medium text-gray-900 bg-transparent border border-gray-200 rounded-r-md hover:bg-[#1D8EB9] hover:text-white focus:z-10 focus:ring-2 focus:ring-[#1D8EB9] focus:bg-[#1D8EB9] focus:text-white focus:border-[#1D8EB9] dark:border-white dark:text-white dark:hover:text-white dark:hover:bg-gray-700 dark:focus:bg-gray-700"
             >
@@ -208,7 +209,6 @@
 import { ref, onMounted } from "vue";
 
 const supabase = useSupabaseClient();
-// ここではユーザID不要
 const userss = useSupabaseUser();
 const userId = userss.value?.id;
 
@@ -217,7 +217,6 @@ const { data: userAuthority } = await supabase
   .from("profiles")
   .select("authority")
   .eq("id", userId);
-console.log(userAuthority);
 const authority = userAuthority[0].authority;
 
 // Supabaseからプログラミング言語名(display:trueのみ)を取得
@@ -225,6 +224,7 @@ let tagName = ref("");
 let visibleTagItems = ref(10);
 let showAllTagItems = ref(false);
 let articleData = ref([]);
+let likeData = ref([]);
 
 (async () => {
   // 記事全件取得
@@ -233,13 +233,11 @@ let articleData = ref([]);
     .select("body, clubTagId, date, delete, id, occupationTagId, title, userId")
     .eq("delete", false)
     .order("date", { ascending: false });
-  console.log(data);
 
   // userIdを取得してユーザ名を取得する連想配列を作成
   const userIds = data
     .filter((article) => article.userId !== null) // nullを除外
     .map((article) => article.userId);
-  console.log(userIds);
   const { data: users } = await supabase
     .from("profiles")
     .select("id, username")
@@ -249,14 +247,35 @@ let articleData = ref([]);
     usernameMap[user.id] = user.username;
   }
 
-  console.log(usernameMap);
-
   // data配列にusernameを追加
   articleData.value = data.map((article) => ({
     ...article,
     username: usernameMap[article.userId],
   }));
 
+  console.log(articleData.value);
+
+  // likeテーブルを取得し、articleData配列にいいね数が表示されたlikeプロパティを持たせる
+  let { data: db, error } = await supabase.from("like").select("*");
+  console.log(db);
+  likeData.value = db;
+
+  const likeTable = likeData.value.reduce((acc, like) => {
+    const { articleId, userId } = like;
+    if (!acc.hasOwnProperty(articleId)) {
+      acc[articleId] = new Set();
+    }
+    acc[articleId].add(userId);
+    return acc;
+  }, {});
+
+  console.log(likeTable);
+  console.log(articleData.value);
+
+  articleData.value = await articleData.value.map((article) => ({
+    ...article,
+    like: likeTable[article.id] ? likeTable[article.id].size : 0,
+  }));
   console.log(articleData.value);
 })();
 
@@ -298,6 +317,11 @@ const sortArticlesByDateDescending = () => {
   articleData.value.sort((a, b) => new Date(b.date) - new Date(a.date));
 };
 
+// 記事データをいいね数の降順にソートする
+const sortByLikes = () => {
+  articleData.value.sort((a, b) => b.like - a.like);
+};
+
 const toggleShowAllTagItems = () => {
   if (showAllTagItems.value) {
     visibleTagItems.value = 10;
@@ -334,6 +358,7 @@ function formatDateTime(dateString) {
   return formattedDate;
 }
 
+// 管理者による記事削除
 const router = useRouter();
 const deleteArticle = async (id) => {
   await supabase.from("article").upsert({ id: id, delete: true });
