@@ -186,7 +186,11 @@
                     >
                       記事詳細&nbsp;→
                     </router-link>
-                    <button class="btn" @click="deleteArticle(article)">
+                    <button
+                      class="btn"
+                      @click="deleteArticle(article.id)"
+                      v-show="authority"
+                    >
                       削除(管理者のみ表示)
                     </button>
                   </div>
@@ -205,8 +209,16 @@ import { ref, onMounted } from "vue";
 
 const supabase = useSupabaseClient();
 // ここではユーザID不要
-// const userss = useSupabaseUser();
-// const userId = userss.value?.id;
+const userss = useSupabaseUser();
+const userId = userss.value?.id;
+
+//管理者権限があるか確認
+const { data: userAuthority } = await supabase
+  .from("profiles")
+  .select("authority")
+  .eq("id", userId);
+console.log(userAuthority);
+const authority = userAuthority[0].authority;
 
 // Supabaseからプログラミング言語名(display:trueのみ)を取得
 let tagName = ref("");
@@ -321,6 +333,12 @@ function formatDateTime(dateString) {
   const formattedDate = dateObject.toLocaleString("ja-JP", options);
   return formattedDate;
 }
+
+const router = useRouter();
+const deleteArticle = async (id) => {
+  await supabase.from("article").upsert({ id: id, delete: true });
+  router.go();
+};
 
 const article = [
   {
