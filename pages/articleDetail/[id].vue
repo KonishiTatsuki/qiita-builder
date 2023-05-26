@@ -113,6 +113,26 @@
         <button type="submit" class="btn">送信</button>
       </div>
     </form>
+    <!-- <div v-show="result"> -->
+    <div>
+      <h2 class="text-xl font-bold mb-2">投稿済みのコメント</h2>
+      <!-- 過去のコメントを表示するループ -->
+      <div
+        class="bg-gray-200 p-2 rounded my-3 flex justify-between items-center"
+        v-for="commented in commenteds"
+        :key="commented.id"
+      >
+        <div>
+          <span class="font-semibold">{{ commented.userId }}</span>
+          <p class="text-gray-600">{{ commented.comment }}</p>
+        </div>
+        <button class="text-gray-600" @click="deleteComment(commented.id)">
+          削除
+        </button>
+      </div>
+      <!-- 過去のコメントを表示するループ終了 -->
+    </div>
+
     <!-- コメントがある場合のみ表示
     <div v-show="result">
       <h2 class="text-xl font-bold mb-2">投稿済みのコメント</h2>
@@ -307,7 +327,7 @@ const countRecommend = async () => {
     .insert({ userId, articleId });
 };
 
-// // articleId毎にユーザー名、コメント内容、コメントの日付をまとめたデータを生成
+// articleId毎にユーザー名、コメント内容、コメントの日付をまとめたデータを生成
 // const result = {};
 // Object.keys(commentData).forEach((articleId) => {
 //   const comments = commentData[articleId];
@@ -365,6 +385,7 @@ goalLike.value =
     : "達成";
 
 //コメント投稿機能
+const router = useRouter();
 let date = new Date();
 const year = date.getFullYear();
 const month = date.getMonth() + 1;
@@ -373,25 +394,37 @@ const day = date.getDate();
 date = `${year}/${month}/${day}`;
 //コメント
 let comment = ref("");
-comment = comment.value
+comment = comment.value;
 
 const submit = async () => {
   let { data, error } = await supabase
     .from("comment")
     .insert({ date, userId, comment, articleId });
-  console.log("完了");
-  console.log(error);
+  router.go();
 };
 
+//投稿済みコメントを取得
+const commentData = async () => {
+  let { data, error } = await supabase
+    .from("comment")
+    .select("*")
+    .eq("articleId", articleId);
+  return data;
+};
+
+// 関数の呼び出し
+const commenteds = await commentData();
 // //コメントを削除
-// const deleteComment = async (id) => {
-//   let { data, error } = await supabase
-//     .from("comment")
-//     .delete()
-//     .match({ id: id });
-//   console.log("commentのdelete完了");
-//   console.log(error);
-// };
+const deleteComment = async (commentId) => {
+  try {
+    // 削除処理の実行
+    await supabase.from("comment").delete().eq("id", commentId);
+    router.go();
+    // 削除後にコメントを再取得するなどの更新処理を実行する場合はここで行う
+  } catch (error) {
+    console.error(error);
+  }
+};
 </script>
 
 <style>
