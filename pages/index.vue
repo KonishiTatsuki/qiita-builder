@@ -186,8 +186,12 @@
                     >
                       記事詳細&nbsp;→
                     </router-link>
-                    <button class="btn" @click="deleteArticle(article)">
-                      削除(管理者のみ表示)
+                    <button
+                      class="btn"
+                      @click="deleteArticle(article.id)"
+                      v-show="authority"
+                    >
+                      削除
                     </button>
                   </div>
                 </div>
@@ -202,11 +206,18 @@
 
 <script setup>
 import { ref, onMounted } from "vue";
-
+const router = useRouter();
 const supabase = useSupabaseClient();
 // ここではユーザID不要
-// const userss = useSupabaseUser();
-// const userId = userss.value?.id;
+const userss = useSupabaseUser();
+const userId = userss.value?.id;
+
+//ログインしているuserに管理者権限があるか確認
+let { data: userAuthority } = await supabase
+  .from("profiles")
+  .select("authority")
+  .eq("id", userId);
+const authority = userAuthority[0].authority;
 
 // Supabaseからプログラミング言語名(display:trueのみ)を取得
 let tagName = ref("");
@@ -221,13 +232,13 @@ let articleData = ref([]);
     .select("body, clubTagId, date, delete, id, occupationTagId, title, userId")
     .eq("delete", false)
     .order("date", { ascending: false });
-  console.log(data);
+  // console.log(data);
 
   // userIdを取得してユーザ名を取得する連想配列を作成
   const userIds = data
     .filter((article) => article.userId !== null) // nullを除外
     .map((article) => article.userId);
-  console.log(userIds);
+  // console.log(userIds);
   const { data: users } = await supabase
     .from("profiles")
     .select("id, username")
@@ -321,6 +332,17 @@ function formatDateTime(dateString) {
   const formattedDate = dateObject.toLocaleString("ja-JP", options);
   return formattedDate;
 }
+
+//記事の削除(管理者のみ）
+const deleteArticle = async (id) => {
+  console.log("削除", id);
+  const { error } = await supabase.from("article").upsert({
+    id: id,
+    delete: true,
+  });
+  router.go();
+  console.log(error);
+};
 
 const article = [
   {
