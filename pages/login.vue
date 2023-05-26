@@ -58,9 +58,6 @@ definePageMeta({ layout: "login" });
 const router = useRouter();
 const client = useSupabaseClient();
 
-const email = ref("");
-const password = ref("");
-
 const submit = async (submit) => {
   const { data } = await client.auth.signInWithPassword({
     email: submit.email,
