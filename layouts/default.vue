@@ -19,7 +19,7 @@
       >
         <ul class="flex gap-4">
           <li class="mr-5 hover:text-gray-900">
-            <NuxtLink to="/">ログアウト</NuxtLink>
+            <NuxtLink to="/" @click="logout">ログアウト</NuxtLink>
           </li>
           <li class="mr-5 hover:text-gray-900">
             <NuxtLink to="/">マイページ</NuxtLink>
@@ -42,3 +42,13 @@
     </div>
   </footer>
 </template>
+
+<script setup>
+const router = useRouter();
+const client = useSupabaseClient();
+const logout = async () => {
+  const { error } = await client.auth.signOut();
+  console.log("ログアウト", error);
+  router.go();
+};
+</script>
