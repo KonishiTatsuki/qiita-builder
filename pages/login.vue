@@ -54,6 +54,7 @@
 </template>
 
 <script setup>
+definePageMeta({ layout: "login" });
 const router = useRouter();
 const client = useSupabaseClient();
 
