@@ -86,13 +86,15 @@
             >
               <div class="flex items-center pl-3">
                 <input
-                  id="vue-checkbox"
+                  :id="'club-checkbox-' + index"
                   type="checkbox"
-                  value=""
+                  value="club"
                   class="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-700 dark:focus:ring-offset-gray-700 focus:ring-2 dark:bg-gray-600 dark:border-gray-500"
+                  v-model="club.checked"
+                  @change="filterArticlesByClub"
                 />
                 <label
-                  for="vue-checkbox"
+                  :for="'club-checkbox-' + index"
                   class="w-full py-3 ml-2 text-sm font-medium text-gray-900 dark:text-gray-300"
                   >{{ club.clubName }}</label
                 >
@@ -166,7 +168,7 @@
                 class="py-8 flex flex-wrap md:flex-nowrap"
                 v-for="article in articleData"
                 :key="article.id"
-                v-show="!article.hide"
+                v-show="!article.hideByOccupation & !article.hideByClub"
               >
                 <div class="md:w-64 md:mb-0 mb-6 flex-shrink-0 flex flex-col">
                   <span class="font-semibold title-font text-gray-700">{{
@@ -272,7 +274,8 @@ let likeData = ref([]);
   articleData.value = await articleData.value.map((article) => ({
     ...article,
     like: likeTable[article.id] ? likeTable[article.id].size : 0,
-    hide: false,
+    hideByOccupation: false,
+    hideByClub: false,
   }));
   console.log(articleData.value);
 })();
@@ -308,9 +311,15 @@ let showAllClubItems = ref(false);
 (async function () {
   let { data: club, error } = await supabase
     .from("club")
-    .select("clubName")
+    .select("*")
     .eq("display", "true");
   clubName.value = club;
+
+  // 全ての要素にcheckedプロパティを追加し、初期値を設定する
+  clubName.value.forEach((club) => {
+    club.checked = false;
+  });
+  console.log(clubName.value);
 })();
 
 // 記事データを投稿日順にソートする
@@ -337,10 +346,31 @@ const filterArticlesByOccupation = () => {
   articleData.value.forEach((article) => {
     if (selectedOccupations.length === 0) {
       // 選択された職種がない場合はすべての記事を表示
-      article.hide = false;
+      article.hideByOccupation = false;
     } else {
       // 選択された職種と同じidの記事のみ表示
-      article.hide = !selectedOccupations.includes(article.occupationTagId);
+      article.hideByOccupation = !selectedOccupations.includes(
+        article.occupationTagId
+      );
+    }
+  });
+};
+
+// サークルをフィルターする関数
+const filterArticlesByClub = () => {
+  const selectedClubs = clubName.value
+    .filter((club) => club.checked)
+    .map((club) => club.id);
+
+  articleData.value.forEach((article) => {
+    if (selectedClubs.length === 0) {
+      // 選択されたサークルがない場合はすべての記事を表示
+      article.hideByClub = false;
+    } else {
+      // 選択されたサークルと同じidの記事のみ表示
+      article.hideByClub = !selectedClubs.includes(
+        article.clubTagId
+      );
     }
   });
 };
