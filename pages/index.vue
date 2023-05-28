@@ -54,13 +54,15 @@
             >
               <div class="flex items-center pl-3">
                 <input
-                  id="vue-checkbox"
+                  :id="'occupation-checkbox-' + index"
                   type="checkbox"
-                  value=""
+                  :value="occupation"
                   class="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-700 dark:focus:ring-offset-gray-700 focus:ring-2 dark:bg-gray-600 dark:border-gray-500"
+                  v-model="occupation.checked"
+                  @change="filterArticlesByOccupation"
                 />
                 <label
-                  for="vue-checkbox"
+                  :for="'occupation-checkbox-' + index"
                   class="w-full py-3 ml-2 text-sm font-medium text-gray-900 dark:text-gray-300"
                   >{{ occupation.occupationName }}</label
                 >
@@ -164,6 +166,7 @@
                 class="py-8 flex flex-wrap md:flex-nowrap"
                 v-for="article in articleData"
                 :key="article.id"
+                v-show="!article.hide"
               >
                 <div class="md:w-64 md:mb-0 mb-6 flex-shrink-0 flex flex-col">
                   <span class="font-semibold title-font text-gray-700">{{
@@ -253,11 +256,8 @@ let likeData = ref([]);
     username: usernameMap[article.userId],
   }));
 
-  console.log(articleData.value);
-
   // likeテーブルを取得し、articleData配列にいいね数が表示されたlikeプロパティを持たせる
   let { data: db, error } = await supabase.from("like").select("*");
-  console.log(db);
   likeData.value = db;
 
   const likeTable = likeData.value.reduce((acc, like) => {
@@ -269,12 +269,10 @@ let likeData = ref([]);
     return acc;
   }, {});
 
-  console.log(likeTable);
-  console.log(articleData.value);
-
   articleData.value = await articleData.value.map((article) => ({
     ...article,
     like: likeTable[article.id] ? likeTable[article.id].size : 0,
+    hide: false,
   }));
   console.log(articleData.value);
 })();
@@ -293,8 +291,14 @@ let occupationName = ref("");
 (async function () {
   let { data: occupation, error } = await supabase
     .from("occupation")
-    .select("occupationName");
+    .select("*");
   occupationName.value = occupation;
+
+  // 全ての要素にcheckedプロパティを追加し、初期値を設定する
+  occupationName.value.forEach((occupation) => {
+    occupation.checked = false;
+  });
+  console.log(occupationName.value);
 })();
 
 // Supabaseからサークルテーブルのサークル名を取得
@@ -309,10 +313,12 @@ let showAllClubItems = ref(false);
   clubName.value = club;
 })();
 
+// 記事データを投稿日順にソートする
 const sortArticlesByDate = () => {
   articleData.value.sort((a, b) => new Date(a.date) - new Date(b.date));
 };
 
+// 記事データを新着順にソートする
 const sortArticlesByDateDescending = () => {
   articleData.value.sort((a, b) => new Date(b.date) - new Date(a.date));
 };
@@ -320,6 +326,23 @@ const sortArticlesByDateDescending = () => {
 // 記事データをいいね数の降順にソートする
 const sortByLikes = () => {
   articleData.value.sort((a, b) => b.like - a.like);
+};
+
+// 職種をフィルターする関数
+const filterArticlesByOccupation = () => {
+  const selectedOccupations = occupationName.value
+    .filter((occupation) => occupation.checked)
+    .map((occupation) => occupation.id);
+
+  articleData.value.forEach((article) => {
+    if (selectedOccupations.length === 0) {
+      // 選択された職種がない場合はすべての記事を表示
+      article.hide = false;
+    } else {
+      // 選択された職種と同じidの記事のみ表示
+      article.hide = !selectedOccupations.includes(article.occupationTagId);
+    }
+  });
 };
 
 const toggleShowAllTagItems = () => {
@@ -364,81 +387,4 @@ const deleteArticle = async (id) => {
   await supabase.from("article").upsert({ id: id, delete: true });
   router.go();
 };
-
-const article = [
-  {
-    id: 1,
-    userId: 1,
-    date: "2023-05-19T12:34:56Z",
-    title: "articleId1のtitle",
-    clubTagId: 1,
-    occupationTagId: 1,
-    body: "articleId1のbody",
-    goalLIke: 1,
-    qiitaPost: true,
-    publishDate: "2023-05-19T12:34:56Z",
-    publish: true,
-    bannerId: 1,
-    delete: true,
-  },
-  {
-    id: 2,
-    userId: 2,
-    date: "2023-05-20T12:34:56Z",
-    title: "articleId2のtitle",
-    clubTagId: 2,
-    occupationTagId: 2,
-    body: "articleId2のbody",
-    goalLIke: 2,
-    qiitaPost: false,
-    publishDate: "2023-05-20T12:34:56Z",
-    publish: false,
-    bannerId: 2,
-    delete: false,
-  },
-];
-
-const tagging = [
-  {
-    id: 1,
-    articleId: 1,
-    tagId: 1,
-  },
-  {
-    id: 2,
-    articleId: 2,
-    tagId: 2,
-  },
-];
-
-const tag = [
-  {
-    id: 1,
-    name: "tagId1のname",
-    code: "tagId1のcode",
-  },
-  {
-    id: 2,
-    name: "tagId2のname",
-    code: "tagId2のcode",
-  },
-];
-
-const combinedData = article.map((item) => {
-  const tags = tagging
-    .filter((tagItem) => tagItem.articleId === item.id)
-    .map((tagItem) => {
-      const matchedTag = tag.find((t) => t.id === tagItem.tagId);
-      return {
-        id: matchedTag.id,
-        name: matchedTag.name,
-        code: matchedTag.code,
-      };
-    });
-
-  return {
-    ...item,
-    tags: tags,
-  };
-});
 </script>
