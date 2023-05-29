@@ -45,18 +45,16 @@
       </div>
 
       <div class="flex justify-end space-x-4">
-        <button
-          @click="countLike"
-          class="bg-red-500 border-indigo-700 px-4 py-2 rounded-md text-base text-white border hover:text-gray-900"
-        >
-          いいね！
-        </button>
-        <button
-          @click="countRecommend"
-          class="bg-[#1D8EB9] border-indigo-700 px-4 py-2 rounded-md text-base text-white border hover:text-gray-900"
-        >
-          Qiitaオススメ
-        </button>
+        <LikeButton
+          :userId="userId"
+          :articleId="articleId"
+          :showLikeButton="showLikeButton"
+        />
+        <RecommendButton
+          :userId="userId"
+          :articleId="articleId"
+          :showRecommendButton="showRecommendButton"
+        />
       </div>
     </div>
 
@@ -79,10 +77,10 @@
           v-if="articleData"
           class="text-red-500 text-4xl font-bold flex justify-center m-4"
         >
-          {{ articleData[0].goalLike }}
+          {{ goalLike }}
           <span
             class="text-lg text-gray-600 align-text-bottom pt-3"
-            v-show="articleData[0].goalLike !== '達成'"
+            v-show="goalLike > 0"
             >件</span
           >
         </p>
@@ -102,8 +100,9 @@
   <!-- コメントフォーム -->
   <div class="p-4 bg-gray-100">
     <h2 class="text-xl font-bold mb-2">コメント</h2>
-    <form class="flex flex-col items-end">
+    <form class="flex flex-col items-end" @submit.prevent="submit">
       <textarea
+        v-model="comment"
         name="comment"
         id="comment"
         rows="5"
@@ -117,33 +116,41 @@
         <button type="submit" class="btn">送信</button>
       </div>
     </form>
-    <!-- コメントがある場合のみ表示 -->
-    <div v-show="result">
+    <!-- <div v-show="result"> -->
+    <div>
       <h2 class="text-xl font-bold mb-2">投稿済みのコメント</h2>
       <!-- 過去のコメントを表示するループ -->
-      <div class="bg-gray-200 p-2 rounded my-3">
-        <span class="font-semibold">{{ result[1][0].userName }}</span>
-        <span class="text-gray-600 float-right"
-          >{{ result[1][0].date }}&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-          <button class="text-gray-600">削除</button>
-        </span>
-        <p class="text-gray-600">{{ result[1][0].comment }}</p>
+      <div
+        class="bg-gray-200 p-2 rounded my-3 flex justify-between items-center"
+        v-for="commented in commenteds"
+        :key="commented.id"
+      >
+        <div>
+          <span class="font-semibold">{{ commented.username }}</span>
+          <p class="text-gray-600">{{ commented.comment }}</p>
+        </div>
+        <button class="text-gray-600" @click="deleteComment(commented.id)">
+          削除
+        </button>
       </div>
-      <!-- 過去のコメントを表示するループ終了 -->
     </div>
   </div>
 </template>
 
 <script setup>
+import LikeButton from "~/components/LikeButton.vue";
+import RecommendButton from "~/components/RecommendButton.vue";
 import { ref, onMounted } from "vue";
 import { marked } from "marked";
 
 const route = useRoute();
 const supabase = useSupabaseClient();
-const userss = useSupabaseUser();
-const userId = userss.value?.id;
+const users = useSupabaseUser();
+const router = useRouter();
 
+const userId = users.value?.id;
 let userInfo = ref();
+let articleId = route.params.id;
 
 // ユーザセッションid取得
 (async () => {
@@ -152,9 +159,7 @@ let userInfo = ref();
       .from("profiles")
       .select("*")
       .eq("id", userId);
-    console.log(data);
     userInfo.value = await data[0];
-    console.log(userInfo);
   }
 })();
 
@@ -163,6 +168,7 @@ let articleData = ref();
 let htmlText = ref();
 let formattedDate = ref();
 let tagNames = ref([]);
+const goalLike = ref(0);
 
 // 日時のフォーマットを設定
 const options = {
@@ -186,7 +192,6 @@ const options = {
     console.log(data)
   articleData.value = await data;
   htmlText.value = await marked.parse(articleData.value[0].body);
-
   const dateObject = await new Date(articleData.value[0].date);
   // フォーマットを適用
   formattedDate.value = await dateObject.toLocaleString("ja-JP", options);
@@ -216,217 +221,113 @@ const options = {
       tagNames.value.push(data[0].name);
     }
   });
-  console.log(tagNames.value);
 })();
-// 記事情報を取得[終わり]
 
-const article = [
-  {
-    id: 1,
-    userId: 1,
-    date: "2023-05-24T02:26:27.716Z",
-    title: "articleId1のtitle",
-    clubTagId: 1,
-    occupationTagId: 1,
-    body: "**articleId1のbody**\n*fff*\n# fff\n> fff\n* fff\n1. fff\n2. fff\n[fff](https://)\n![fff](https://)\n",
-    goalLIke: 1,
-    qiitaPost: true,
-    publishDate: "2023-05-25",
-    publish: true,
-    bannerId: 1,
-    delete: true,
-    goalLike: "5",
-  },
-];
+//　　　　　　　おすすめ数表示機能　　　　　　　　　　//
+const recommendCount = ref(0);
+const showRecommendButton = ref(false);
 
-const tagging = [
-  {
-    id: 1,
-    articleId: 1,
-    tagId: 1,
-  },
-  {
-    id: 2,
-    articleId: 2,
-    tagId: 2,
-  },
-];
-
-const tag = [
-  {
-    id: 1,
-    name: "tagId1のname",
-    code: "tagId1のcode",
-  },
-  {
-    id: 2,
-    name: "tagId2のname",
-    code: "tagId2のcode",
-  },
-];
-
-const user = [
-  {
-    id: 1,
-    userName: "userName1",
-    email: "userName1@userName1.com",
-    password: "userName1",
-    clubId: 1,
-    addClubId: 1,
-    occupationId: 1,
-    detail: "userName1の自己紹介文自己紹介文自己紹介文自己紹介文",
-    qiitaToken: "userName1",
-    authority: true,
-    image: "https://randomuser.me/api/portraits/men/32.jpg",
-  },
-  {
-    id: 2,
-    userName: "userName2",
-    email: "userName2@userName2.com",
-    password: "userName2",
-    clubId: 2,
-    addClubId: 2,
-    occupationId: 2,
-    detail: "userName2の自己紹介文自己紹介文自己紹介文自己紹介文",
-    qiitaToken: "userName2",
-    authority: false,
-    image: "https://randomuser.me/api/portraits/men/32.jpg",
-  },
-];
-
-const like = [
-  {
-    id: 1,
-    userId: 1,
-    articleId: 1,
-  },
-  {
-    id: 2,
-    userId: 2,
-    articleId: 2,
-  },
-  {
-    id: 3,
-    userId: 2,
-    articleId: 1,
-  },
-];
-
-const recommend = [
-  {
-    id: 1,
-    userId: 1,
-    articleId: 1,
-  },
-  {
-    id: 2,
-    userId: 2,
-    articleId: 2,
-  },
-];
-
-const comment = [
-  {
-    id: 1,
-    userID: 1,
-    date: "2023-05-19T12:34:56Z",
-    comment: "commentId1のcomment",
-    articleId: 1,
-  },
-  {
-    id: 2,
-    userID: 2,
-    date: "2023-05-20T12:34:56Z",
-    comment: "commentId2のcomment",
-    articleId: 2,
-  },
-];
-
-//likeテーブルにインサートする時に使う
-let articleId = route.params.id;
-
-// いいね!した人のuserIdと、いいね！した記事のarticleIdの保存
-const countLike = async () => {
-  let { data, error } = await supabase
-    .from("like")
-    .insert({ userId, articleId });
-  console.log("likeのinsert完了");
-};
-
-// Qiitaオススメした人のuserIdと、Qiitaオススメした記事のarticleIdの保存
-const countRecommend = async () => {
+//おすすsめ数を取得する関数
+const Recommend = async () => {
   let { data, error } = await supabase
     .from("recommend")
-    .insert({ userId, articleId });
-  console.log("recommendのinsert完了");
-  console.log(error);
-};
+    .select("*")
+    .eq("articleId", articleId);
 
-// コメントデータをarticleId毎にグループ化
-const commentData = {};
-comment.forEach((c) => {
-  if (!commentData[c.articleId]) {
-    commentData[c.articleId] = [];
+  const confirmation = await supabase
+    .from("recommend")
+    .select("*")
+    .eq("userId", userId);
+
+  if (!confirmation.data[0]) {
+    showRecommendButton.value = true;
   }
-  commentData[c.articleId].push(c);
-});
-
-console.log(commentData);
-
-// articleId毎にユーザー名、コメント内容、コメントの日付をまとめたデータを生成
-const result = {};
-Object.keys(commentData).forEach((articleId) => {
-  const comments = commentData[articleId];
-  result[articleId] = comments.map((c) => {
-    const userObject = user.find((u) => u.id === c.userID);
-    return {
-      userName: userObject.userName,
-      comment: c.comment,
-      date: c.date,
-    };
-  });
-});
-
-// いいねの件数をカウントする関数
-// (async () => {
-//   let { data, error } = await supabase
-//     .from("like")
-//     .select("*")
-//     .eq("articleId", `${this.id}`);;
-//   console.log("データ取得完了");
-// })();
-
-const countLikes = (likes) => {
-  const uniqueUserIds = [...new Set(likes.map((like) => like.userId))];
-  return uniqueUserIds.length;
+  return data.length;
 };
+recommendCount.value = await Recommend();
 
-// Qiitaオススメの件数をカウントする関数
-const countRecommends = (recommends) => {
-  const uniqueUserIds = [
-    ...new Set(recommends.map((recommend) => recommend.userId)),
-  ];
-  return uniqueUserIds.length;
-};
-
+//　　　　　　　いいね数表示機能　　　　　　　　　　//
 // いいねの件数を表示するためのリアクティブな変数
 const likeCount = ref(0);
+const showLikeButton = ref(false);
 
-// Qiitaオススメの件数を表示するためのリアクティブな変数
-const recommendCount = ref(0);
+//いいね数を取得する関数
+const Like = async () => {
+  let { data, error } = await supabase
+    .from("like")
+    .select("*")
+    .eq("articleId", articleId);
 
-// コンポーネントがマウントされた時にいいねの件数を計算する
-onMounted(() => {
-  likeCount.value = countLikes(like);
-  recommendCount.value = countRecommends(recommend);
-});
+  const confirmation = await supabase
+    .from("like")
+    .select("*")
+    .eq("userId", userId);
+
+  if (!confirmation.data[0]) {
+    showLikeButton.value = true;
+  }
+  return data.length;
+};
+likeCount.value = await Like();
 
 //目標いいねに到達してたら「達成」。それ以外は残り件数表示する
-const goalLike = ref(null);
+const articleDataGoalLike = Number(articleData.value[0].goalLike);
 goalLike.value =
-  article[0].goalLike - likeCount >= 0
-    ? article[0].goalLike - likeCount
+  Number(articleData.value[0].goalLike) - likeCount.value > 0
+    ? `${Number(articleData.value[0].goalLike) - likeCount.value}`
     : "達成";
+
+//　　　　　　　　コメント機能　　　　　　　　　//
+//投稿済みコメントを取得
+const commentData = async () => {
+  let { data } = await supabase
+    .from("comment")
+    .select("*")
+    .eq("articleId", articleId);
+  // dataのループ処理 map
+  await Promise.all(
+    data.map(async (item) => {
+      let { data: users } = await supabase
+        .from("profiles")
+        .select("*")
+        .eq("id", item.userId);
+      item.username = users[0].username;
+    })
+  );
+  return data;
+};
+
+const commenteds = await commentData();
+
+//コメント投稿機能
+let date = new Date();
+const year = date.getFullYear();
+const month = date.getMonth() + 1;
+const day = date.getDate();
+//投稿日
+date = `${year}/${month}/${day}`;
+//コメント
+let comment = ref("");
+comment = comment.value;
+
+const submit = async () => {
+  let { data, error } = await supabase
+    .from("comment")
+    .insert({ date, userId, comment, articleId });
+  router.go();
+};
+
+// //コメントを削除
+const deleteComment = async (commentId) => {
+  try {
+    // 削除処理の実行
+    await supabase.from("comment").delete().eq("id", commentId);
+    router.go();
+    // 削除後にコメントを再取得するなどの更新処理を実行する場合はここで行う
+  } catch (error) {
+    console.error(error);
+  }
+};
 </script>
 
 <style>
