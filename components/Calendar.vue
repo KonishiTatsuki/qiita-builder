@@ -33,7 +33,14 @@
             {{ day.date }}
           </div>
           <div>
-            <button class="button-entry">参加する</button>
+            <NuxtLink to="/postAdvent">
+              <button
+                class="button-entry"
+                @click="handleJoinButton(day.postDate)"
+              >
+                参加する
+              </button>
+            </NuxtLink>
           </div>
         </div>
       </div>
@@ -41,70 +48,79 @@
   </div>
 </template>
 <script>
+import { reactive, computed } from "vue";
+import { useRouter } from "vue-router";
 import moment from "moment";
 export default {
-  data() {
-    return {
-      currentDate: moment(),
-    };
-  },
-  computed: {
-    calendars() {
-      return this.getCalendar();
-    },
-    displayMonth() {
-      return this.currentDate.format("YYYY[年]M[月]");
-    },
-    currentMonth() {
-      return this.currentDate.format("YYYY-MM");
-    },
-  },
-
-  methods: {
-    getStartDate() {
-      let date = moment(this.currentDate);
+  setup() {
+    const router = useRouter();
+    const currentDate = reactive(moment());
+    const getStartDate = () => {
+      let date = moment(currentDate);
       date.startOf("month");
       const youbiNum = date.day();
       return date.subtract(youbiNum, "days");
-    },
-    getEndDate() {
-      let date = moment(this.currentDate);
+    };
+    const getEndDate = () => {
+      let date = moment(currentDate);
       date.endOf("month");
       const youbiNum = date.day();
       return date.add(6 - youbiNum, "days");
-    },
-    getCalendar() {
-      let startDate = this.getStartDate();
-      const endDate = this.getEndDate();
+    };
+    const getCalendar = () => {
+      let startDate = getStartDate();
+      const endDate = getEndDate();
       const weekNumber = Math.ceil(endDate.diff(startDate, "days") / 7);
       let calendars = [];
-      let calendarDate = this.getStartDate();
+      let calendarDate = getStartDate();
       for (let week = 0; week < weekNumber; week++) {
         let weekRow = [];
         for (let day = 0; day < 7; day++) {
           weekRow.push({
             date: calendarDate.get("date"),
             month: calendarDate.format("YYYY-MM"),
+            postDate: calendarDate.format("YYYY-MM-DD"),
           });
           calendarDate.add(1, "days");
         }
         calendars.push(weekRow);
       }
       return calendars;
-    },
-    nextMonth() {
-      this.currentDate = moment(this.currentDate).add(1, "month");
-    },
-    prevMonth() {
-      this.currentDate = moment(this.currentDate).subtract(1, "month");
-    },
-    youbi(dayIndex) {
+    };
+    const nextMonth = () => {
+      currentDate.add(1, "month");
+    };
+    const prevMonth = () => {
+      currentDate.subtract(1, "month");
+    };
+    const youbi = (dayIndex) => {
       const week = ["日", "月", "火", "水", "木", "金", "土"];
       return week[dayIndex];
-    },
-  },
-  mounted() {
-    console.log(this.getCalendar());
+    };
+    const displayMonth = computed(() => {
+      return currentDate.format("YYYY[年]M[月]");
+    });
+    const currentMonth = computed(() => {
+      return currentDate.format("YYYY-MM");
+    });
+    const handleJoinButton = (postDate) => {
+      console.log("ボタンデータ", postDate);
+      router.push({
+        path: "/postAdvent",
+        query: { date: postDate },
+      });
+    };
+
+    return {
+      currentDate,
+      calendars: computed(getCalendar),
+      displayMonth,
+      currentMonth,
+      prevMonth,
+      nextMonth,
+      youbi,
+      handleJoinButton,
+    };
   },
 };
 </script>

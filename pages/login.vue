@@ -54,16 +54,14 @@
 </template>
 
 <script setup>
+definePageMeta({ layout: "login" });
 const router = useRouter();
 const client = useSupabaseClient();
 
-const email = ref("");
-const password = ref("");
-
-const submit = async (formData) => {
-  const response = await client.auth.signInWithPassword({
-    email: formData.email,
-    password: formData.password,
+const submit = async (submit) => {
+  const { data } = await client.auth.signInWithPassword({
+    email: submit.email,
+    password: submit.password,
   });
   const data = response.data;
   if (data && data.session) {
