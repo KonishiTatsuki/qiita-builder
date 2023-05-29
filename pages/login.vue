@@ -59,17 +59,16 @@ const router = useRouter();
 const client = useSupabaseClient();
 
 const submit = async (submit) => {
-  const { data } = await client.auth.signInWithPassword({
+  const { data: signInData } = await client.auth.signInWithPassword({
     email: submit.email,
     password: submit.password,
   });
-  const data = response.data;
-  if (data && data.session) {
-    console.log(data.session);
+  if (signInData && signInData.session) {
+    // console.log(signInData.session);
     console.log("成功");
     router.push("/");
   } else {
-    console.log(data.session);
+    // console.log(signInData.session);
     console.log("失敗");
   }
 };
