@@ -1,7 +1,6 @@
 export default defineNuxtRouteMiddleware(async (to, from) => {
   const user = useSupabaseUser();
-
-  // console.log(user.value);
+  const client = useSupabaseClient();
 
   if (!user.value) {
     const path = "/login";
@@ -10,5 +9,16 @@ export default defineNuxtRouteMiddleware(async (to, from) => {
     }
   } else {
     const userId = user.value?.id;
+    if (to.path === "/ownerPage") {
+      //ログインユーザのauthority取得
+      const { data: authority } = await client
+        .from("profiles")
+        .select("authority")
+        .eq("id", userId);
+      //authorityがfalseの時はindexへ
+      if (!authority[0].authority) {
+        return navigateTo("/");
+      }
+    }
   }
 });
