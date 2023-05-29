@@ -1,7 +1,7 @@
 <template>
   <div class="my-20">
       <div class="text-right">
-        <button type="submit" class="btn mb-4">記事を削除</button>
+        <button type="submit" class="btn mb-4" @click="deleteHandler">記事を削除</button>
     </div>
     <div>
         <input type="text" class="border" style="width: 100%; height: 50px;" placeholder="タイトル" v-model="title">
@@ -75,7 +75,7 @@ const goalLike = ref(data.value.article[0].goalLike)
 const publishDate = ref(data.value.article[0].publishDate)
 const router = useRouter()
 
-const handleSubmit= async () => {
+const submitHandler = async () => {
     const postData = {
       id: id,
       title: title,
@@ -85,13 +85,14 @@ const handleSubmit= async () => {
       publishDate: publishDate,
       publish: true,
     }
-  await useFetch(`/api/article/patch`, {
+  await useFetch('/api/article/patch', {
   method: 'PATCH',
   body: { postData: postData, tag: select}
 });
     router.push('/')
 }
-const draftSubmit= async () => {
+
+const draftHandler = async () => {
     const postData = {
       id: id,
       title: title,
@@ -101,12 +102,22 @@ const draftSubmit= async () => {
       publishDate: publishDate,
       publish: false,
     }
-  await useFetch(`/api/article/patch`, {
+  await useFetch('/api/article/patch', {
   method: 'PATCH',
   body: { postData: postData, tag: select}
-});
+  });
+  router.push('/')
+}
+
+const deleteHandler = async() => {
+  await useFetch('/api/article/delete', {
+    method: 'PATCH',
+    body: id
+  })
     router.push('/')
 }
+
+
 onMounted(async () => {
   const EasyMDE = (await import("easymde")).default;
   mde = new EasyMDE({
