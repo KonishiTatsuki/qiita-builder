@@ -188,7 +188,7 @@
                   <h2 class="title font-medium text-gray-900 title-font mb-2">
                     {{ article.title }}
                   </h2>
-                  <p class="leading-relaxed">
+                  <p class="leading-relaxed" id="custom-prose">
                     {{ article.body }}
                   </p>
                   <div class="flex justify-between items-center mt-4">
@@ -468,3 +468,9 @@ const deleteArticle = async (id) => {
   router.go();
 };
 </script>
+
+<style>
+#custom-prose * {
+  all: revert;
+}
+</style>
