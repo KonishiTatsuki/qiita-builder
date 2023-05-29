@@ -250,6 +250,20 @@ recommendCount.value = await Recommend();
 const likeCount = ref(0);
 const showLikeButton = ref(false);
 
+let { data: user } = await supabase
+  .from("profiles")
+  .select("*")
+  .eq("id", userId);
+let { data: article } = await supabase
+  .from("article")
+  .select("*")
+  .eq("id", articleId);
+
+const qiitaToken = user[0].qiitaToken;
+const articleBody = article[0].body;
+console.log("qiitaToken", qiitaToken);
+console.log("articleBody", articleBody);
+
 //いいね数を取得する関数
 const Like = async () => {
   let { data } = await supabase
@@ -264,6 +278,36 @@ const Like = async () => {
 
   if (confirmation.data[0]) {
     showLikeButton.value = true;
+    //いいね数が目標いいねに到達した場合
+
+    // if (goalLike.value <= 0) {
+    //   function fetchData() {
+    //     const item = {
+    //       body: "【投稿内容】", //マークダウン形式で記載が必要
+    //       private: false, //限定共有状態かどうかを表すフラグ (Qiita Teamでは無効)
+    //       tags: [
+    //         {
+    //           name: "テスト投稿", //タグ：APIテスト時は投稿が無難
+    //         },
+    //       ],
+    //       title: "【記事タイトル】",
+    //       tweet: false, //Twitterに投稿するかどうか (Twitter連携を有効化している場合のみ有効)
+    //     };
+    //     axios
+    //       .post("https://qiita.com/api/v2/items?", item, {
+    //         headers: {
+    //           "Content-Type": "application/json",
+    //           Authorization: "【作成したトークン】",
+    //         },
+    //       })
+    //       .then(() => {
+    //         //成功処理
+    //       })
+    //       .catch((error) => {
+    //         //失敗処理
+    //       });
+    //   }
+    // }
   }
   return data.length;
 };
