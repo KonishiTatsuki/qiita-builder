@@ -64,7 +64,7 @@ const submit = async (submit) => {
     password: submit.password,
   });
   if (signInData && signInData.session) {
-    // console.log(signInData.session);
+    console.log(signInData.session);
     console.log("成功");
     router.push("/");
   } else {
