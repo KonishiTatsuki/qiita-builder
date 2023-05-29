@@ -189,7 +189,6 @@ const options = {
     .from("article")
     .select("*")
     .eq("id", dynamicPageId);
-    console.log(data)
   articleData.value = await data;
   htmlText.value = await marked.parse(articleData.value[0].body);
   const dateObject = await new Date(articleData.value[0].date);
@@ -227,9 +226,9 @@ const options = {
 const recommendCount = ref(0);
 const showRecommendButton = ref(false);
 
-//おすすsめ数を取得する関数
+//おすすめ数を取得する関数
 const Recommend = async () => {
-  let { data, error } = await supabase
+  let { data } = await supabase
     .from("recommend")
     .select("*")
     .eq("articleId", articleId);
@@ -238,10 +237,10 @@ const Recommend = async () => {
     .from("recommend")
     .select("*")
     .eq("userId", userId);
-
-  if (!confirmation.data[0]) {
+  if (confirmation.data[0]) {
     showRecommendButton.value = true;
   }
+
   return data.length;
 };
 recommendCount.value = await Recommend();
@@ -253,7 +252,7 @@ const showLikeButton = ref(false);
 
 //いいね数を取得する関数
 const Like = async () => {
-  let { data, error } = await supabase
+  let { data } = await supabase
     .from("like")
     .select("*")
     .eq("articleId", articleId);
@@ -263,7 +262,7 @@ const Like = async () => {
     .select("*")
     .eq("userId", userId);
 
-  if (!confirmation.data[0]) {
+  if (confirmation.data[0]) {
     showLikeButton.value = true;
   }
   return data.length;
@@ -280,20 +279,24 @@ goalLike.value =
 //　　　　　　　　コメント機能　　　　　　　　　//
 //投稿済みコメントを取得
 const commentData = async () => {
-  let { data } = await supabase
+  let { data, error } = await supabase
     .from("comment")
     .select("*")
     .eq("articleId", articleId);
   // dataのループ処理 map
-  await Promise.all(
-    data.map(async (item) => {
-      let { data: users } = await supabase
-        .from("profiles")
-        .select("*")
-        .eq("id", item.userId);
-      item.username = users[0].username;
-    })
-  );
+  if (data) {
+    await Promise.all(
+      data.map(async (item) => {
+        let { data: users } = await supabase
+          .from("profiles")
+          .select("*")
+          .eq("id", item.userId);
+        item.username = users[0].username;
+      })
+    );
+  } else {
+    console.log("投稿済みコメントなし");
+  }
   return data;
 };
 
@@ -317,7 +320,7 @@ const submit = async () => {
   router.go();
 };
 
-// //コメントを削除
+//コメントを削除
 const deleteComment = async (commentId) => {
   try {
     // 削除処理の実行
