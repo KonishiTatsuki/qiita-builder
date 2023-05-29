@@ -19,13 +19,15 @@
             >
               <div class="flex items-center pl-3">
                 <input
-                  id="vue-checkbox"
+                  :id="'tag-checkbox-' + index"
                   type="checkbox"
-                  value=""
+                  value="tag"
                   class="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-700 dark:focus:ring-offset-gray-700 focus:ring-2 dark:bg-gray-600 dark:border-gray-500"
+                  v-model="tag.checked"
+                  @change="filterArticlesByTag"
                 />
                 <label
-                  for="vue-checkbox"
+                  :for="'tag-checkbox-' + index"
                   class="w-full py-3 ml-2 text-sm font-medium text-gray-900 dark:text-gray-300"
                   >{{ tag.name }}</label
                 >
@@ -168,7 +170,11 @@
                 class="py-8 flex flex-wrap md:flex-nowrap"
                 v-for="article in articleData"
                 :key="article.id"
-                v-show="!article.hideByOccupation & !article.hideByClub"
+                v-show="
+                  !article.hideByOccupation &
+                  !article.hideByClub &
+                  !article.hideByTag
+                "
               >
                 <div class="md:w-64 md:mb-0 mb-6 flex-shrink-0 flex flex-col">
                   <span class="font-semibold title-font text-gray-700">{{
@@ -230,9 +236,13 @@ let visibleTagItems = ref(10);
 let showAllTagItems = ref(false);
 let articleData = ref([]);
 let likeData = ref([]);
+let occupationName = ref("");
+let clubName = ref("");
+let visibleClubItems = ref(10);
+let showAllClubItems = ref(false);
 
+//articleデータ取得
 (async () => {
-  // 記事全件取得
   let { data } = await supabase
     .from("article")
     .select("body, clubTagId, date, delete, id, occupationTagId, title, userId")
@@ -276,21 +286,47 @@ let likeData = ref([]);
     like: likeTable[article.id] ? likeTable[article.id].size : 0,
     hideByOccupation: false,
     hideByClub: false,
+    hideByTag: false,
   }));
+
+  let { data: tags } = await supabase.from("tagging").select("tagId,articleId");
+
+  // articleData配列の各要素に"tags"プロパティを追加する
+  articleData.value.forEach((article) => {
+    article.tags = [];
+  });
+
+  // tags配列をイテレートし、関連するarticleData要素にtagIdを追加する
+  tags.forEach((tag) => {
+    const articleId = tag.articleId;
+    const article = articleData.value.find(
+      (article) => article.id === articleId
+    );
+    if (article) {
+      article.tags.push(tag.tagId);
+    }
+  });
+  
   console.log(articleData.value);
 })();
 
-// Supabaseからtagテーブルのtag名を取得
+// Supabaseからtagテーブルデータを取得
 (async function () {
   let { data: name, error } = await supabase
     .from("tag")
-    .select("name")
+    .select("*")
     .eq("display", "true");
   tagName.value = name;
+
+  // 全ての要素にcheckedプロパティを追加し、初期値を設定する
+  tagName.value.forEach((tag) => {
+    tag.checked = false;
+  });
+
+  console.log(tagName.value);
 })();
 
-// Supabaseから職種テーブルの職種名を取得
-let occupationName = ref("");
+// Supabaseから職種テーブルデータを取得
 (async function () {
   let { data: occupation, error } = await supabase
     .from("occupation")
@@ -301,13 +337,9 @@ let occupationName = ref("");
   occupationName.value.forEach((occupation) => {
     occupation.checked = false;
   });
-  console.log(occupationName.value);
 })();
 
-// Supabaseからサークルテーブルのサークル名を取得
-let clubName = ref("");
-let visibleClubItems = ref(10);
-let showAllClubItems = ref(false);
+// Supabaseからサークルテーブルデータを取得
 (async function () {
   let { data: club, error } = await supabase
     .from("club")
@@ -319,7 +351,6 @@ let showAllClubItems = ref(false);
   clubName.value.forEach((club) => {
     club.checked = false;
   });
-  console.log(clubName.value);
 })();
 
 // 記事データを投稿日順にソートする
@@ -368,8 +399,27 @@ const filterArticlesByClub = () => {
       article.hideByClub = false;
     } else {
       // 選択されたサークルと同じidの記事のみ表示
-      article.hideByClub = !selectedClubs.includes(
-        article.clubTagId
+      article.hideByClub = !selectedClubs.includes(article.clubTagId);
+    }
+  });
+};
+
+// プログラミング言語をフィルターする関数
+const filterArticlesByTag = () => {
+  const selectedTags = tagName.value
+    .filter((tag) => tag.checked)
+    .map((tag) => tag.id);
+
+  articleData.value.forEach((article) => {
+    if (selectedTags.length === 0) {
+      // 選択されたプログラミング言語がない場合はすべての記事を表示
+      article.hideByTag = false;
+    } else {
+      // 選択されたサークルと同じidの記事のみ表示
+      // article.hideByTag = !selectedTags.includes(article.tags);
+      // ↑ここ問題
+      article.hideByTag = !article.tags.some((tag) =>
+        selectedTags.includes(tag)
       );
     }
   });
