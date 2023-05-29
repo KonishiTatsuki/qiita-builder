@@ -2,7 +2,7 @@
 
 export default defineNuxtConfig({
   // modules: ["@nuxtjs/tailwindcss", "@formkit/nuxt"],
-  modules: ["@nuxtjs/tailwindcss", "@formkit/nuxt", "@nuxtjs/supabase"],
+  modules: ["@nuxtjs/tailwindcss", "@formkit/nuxt", "@nuxtjs/supabase", '@invictus.codes/nuxt-vuetify'],
   css: ["@/assets/css/app.css", "easymde/dist/easymde.min.css"],
   runtimeConfig: {
     SUPABASE_URL: process.env.SUPABASE_URL,

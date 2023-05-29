@@ -17,7 +17,7 @@
     <div class="flex justify-around mt-5">
         <div>
             <label for="">Qiita自動投稿：</label>
-            <select name="like" size="1" v-model="goalLike">
+            <select name="like" size="1" v-model="goalLike" class="border">
             <option value="">---</option>
             <option value="5">5いいね</option>
             <option value="10">10いいね</option>
@@ -28,8 +28,17 @@
         </div>
         <div class="mr-36">
             <div>
-                <label for="">タグ：</label>
-                <input type="text" class="border">
+            <v-row>
+              <v-col cols="12">
+                <v-combobox
+                  v-model="select"
+                  :items="items"
+                  label="タグを設定してください"
+                  multiple
+                  chips
+                ></v-combobox>
+              </v-col>
+            </v-row>
             </div>
             <div>
                 <label for="">公開日：</label>
@@ -38,10 +47,10 @@
         </div>
       <div>
         <span class="mr-4">
-            <button type="submit" class="btn text-right" @click="handleSubmit">投稿する</button>
+            <button type="submit" class="btn text-right" @click="submitHandler">投稿する</button>
         </span>
         <span>
-            <button type="submit" class="border py-2 px-2 rounded-md" @click="draftSubmit">下書き保存</button>
+            <button type="submit" class="border py-2 px-2 rounded-md" @click="draftHandler">下書き保存</button>
         </span>
       </div>
     </div>
@@ -52,55 +61,78 @@
 import type EasyMDE from "easymde";
 
 let mde: InstanceType<typeof EasyMDE> | null = null;
-
+let items = ref(["Java", "PHP", "JavaScript", "Python", "Ruby", "フロントエンド", "バックエンド", "クラウド"])
+const select = ref([])
 const content = ref('');
 const contentArea = ref();
-const title = ref('')
-const goalLike = ref('')
-const publishDate = ref('')
-const router = useRouter()
+const title = ref('');
+const goalLike = ref('');
+const publishDate = ref('');
+const router = useRouter();
 
-const handleSubmit= async () => {
-    const postData = {
-        // userId: userId,
-        // clubTagId: clubTagId,
-        // occupationId: occupationId,
-        // qiitaPost: false,
-        // bannerId: bannerId,
-        // delete: false,
-        title: title,
-        body: content,
-        goalLike: goalLike,
-        date: new Date(),
-        publishDate: publishDate,
-        publish: true,
-    }
-  await useFetch('http://localhost:8000/article', {
-  method: 'POST',
-  body: postData,
-});
+//記事投稿
+async function submitHandler() {
+  const postData = {
+    // userId: userId,
+    // clubTagId: clubTagId,
+    // occupationId: occupationId,
+    bannerId: null,
+    qiitaPost: false,
+    delete: false,
+    title: title,
+    body: content,
+    goalLike: goalLike,
+    date: new Date(),
+    publishDate: publishDate,
+    publish: true,
+  }
+    const { data } = await useFetch('/api/article/post', {
+    method: 'POST',
+    body: postData,
+  })
+  .then(
+    // タグの投稿
+    async(id) => {
+    const articleId = id.data.value
+    const { data } = await useFetch('/api/tag/post', {
+    method: 'POST',
+    body: {tagArray: select.value, articleId: articleId},
+  })
     router.push('/')
-}
-const draftSubmit= async () => {
-    const postData = {
-        // userId: userId,
-        // clubTagId: clubTagId,
-        // occupationId: occupationId,
-        // qiitaPost: false,
-        // bannerId: bannerId,
-        // delete: false,
-        title: title,
-        body: content,
-        goalLike: goalLike,
-        date: new Date(),
-        publishDate: publishDate,
-        publish: false
-    }
-  await useFetch('http://localhost:8000/article', {
-  method: 'POST',
-  body: postData,
 })
+}
+
+// 下書き記事の投稿
+const draftHandler= async () => {
+  const postData = {
+    // userId: userId,
+    // clubTagId: clubTagId,
+    // occupationId: occupationId,
+    bannerId: null,
+    qiitaPost: false,
+    delete: false,
+    title: title,
+    body: content,
+    goalLike: goalLike,
+    date: new Date(),
+    publishDate: publishDate,
+    publish: false
+  }
+  const { data } = await useFetch('/api/article/post', {
+    method: 'POST',
+    body: postData,
+  })
+  .then(
+    // タグの投稿
+    async(id) => {
+    const articleId = id.data.value
+    const { data } = await useFetch('/api/tag/post', {
+    method: 'POST',
+    body: {tagArray: select.value, articleId: articleId},
+  })
     router.push('/')
+})
+
 }
 onMounted(async () => {
   const EasyMDE = (await import("easymde")).default;
