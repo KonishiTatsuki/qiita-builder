@@ -3,26 +3,40 @@
   <div class="flex items-center">
     <div>バナー表示：</div>
     <div>
-      <select name="" id="" class="border border-black">
-        <option value="">アドベントカレンダー選択</option>
+      <select name="" id="" class="border border-black" v-model="choseAdvent">
+        <option v-for="item in advent" :value="item.id">
+          {{ item.adventName }}
+        </option>
       </select>
     </div>
-    <div class="btn ml-2">保存</div>
+
+    <div class="btn ml-2" @click="registerAdvent">保存</div>
   </div>
   <div class="mt-6 flex items-center">
     <div class="flex">
       <div>アドベントカレンダー：</div>
       <div>
-        <div><button class="btn mb-3">新規登録</button></div>
         <div>
-          <select name="" id="" class="border border-black">
-            <option value="">アドベントカレンダー選択</option>
+          <NuxtLink to="createAdvent"
+            ><button class="btn mb-3">新規登録</button></NuxtLink
+          >
+        </div>
+        <div>
+          <select
+            name=""
+            id=""
+            class="border border-black"
+            v-model="choseEditAdvent"
+          >
+            <option v-for="item in advent" :value="item.id">
+              {{ item.adventName }}
+            </option>
           </select>
         </div>
       </div>
     </div>
     <div class="flex mt-12 ml-2">
-      <div><button class="btn">編集</button></div>
+      <div><button class="btn" @click="editAdvent">編集</button></div>
     </div>
   </div>
   <div>
@@ -53,6 +67,7 @@
           </li>
         </ul>
       </div>
+      <div class="text-red-500">{{ msgForaddDisplayClub }}</div>
       <div class="flex justify-end">
         <div class="mr-2">
           <button class="btn p-1" @click="deleteClub">削除</button>
@@ -77,6 +92,7 @@
           </li>
         </ul>
       </div>
+      <div class="text-red-500">{{ msgForaddnonDisplayClub }}</div>
       <div class="flex justify-end">
         <div class="mr-2">
           <button class="btn p-1" @click="nonDisplay">非表示</button>
@@ -89,31 +105,28 @@
     <p>管理者権限を与えたい社員のメールアドレスを入力してください</p>
     <div class="flex items-center">
       <div>
-        <input type="text" class="border border-black" maxlength="255" />
+        <input
+          type="text"
+          class="border border-black"
+          maxlength="255"
+          v-model="owner"
+        />
       </div>
-      <div><button class="btn ml-2">保存</button></div>
+      <div><button class="btn ml-2" @click="submitOwner">保存</button></div>
     </div>
+    <p class="text-red-500">{{ errormsg }}</p>
   </div>
   <div class="mt-5">
     <div>管理者一覧：</div>
     <div>
       <table class="border-collapse border border-slate-500 border-spacing-2">
-        <tr>
+        <tr v-for="item in owners">
           <td class="border border-slate-500 px-2">
-            shuhei.hayakawa@rakus-partners.co.jp
+            ユーザ名:{{ item.username }}
           </td>
-          <td class="border border-slate-500 px-2">ユーザ名</td>
+          <td class="border border-slate-500 px-2">{{ item.email }}</td>
           <td class="border border-slate-500 px-2">
-            <button class="btn px-2">削除</button>
-          </td>
-        </tr>
-        <tr>
-          <td class="border border-slate-500 px-2">
-            shuhei.hayakawa@rakus-partners.co.jp
-          </td>
-          <td class="border border-slate-500 px-2">ユーザ名</td>
-          <td class="border border-slate-500 px-2">
-            <button class="btn px-2">削除</button>
+            <button class="btn px-2" @click="deleteOwner(item.id)">削除</button>
           </td>
         </tr>
       </table>
@@ -126,6 +139,44 @@ const router = useRouter();
 const client = useSupabaseClient();
 const { data: allclub } = await client.from("club").select();
 
+//アドベントカレンダーのデータ取得
+const { data: advent } = await client.from("banner").select("*");
+
+// console.log(advent);
+
+//display:trueのアドベントの取得
+const { data: showAdvent } = await client
+  .from("banner")
+  .select("*")
+  .eq("display", true);
+
+//管理者権限あるユーザの取得
+const { data: owners } = await client
+  .from("profiles")
+  .select("*")
+  .eq("authority", true);
+
+//初期表示は現在のアドベントとして保存されているもの
+const choseAdvent = ref(`${showAdvent[0].id}`);
+
+//初期表示は現在のアドベントとして保存されているもの
+const choseEditAdvent = ref(`${showAdvent[0].id}`);
+
+//アドベントカレンダーの保存
+const registerAdvent = async () => {
+  console.log("aaa", choseAdvent.value);
+  //選択したアドベントをtrue
+  await client.from("banner").upsert({ id: choseAdvent.value, display: true });
+  //初期のアドベントをfalse
+  await client.from("banner").upsert({ id: showAdvent[0].id, display: false });
+  router.go();
+};
+
+//編集するアドベントの選択
+const editAdvent = async () => {
+  console.log(choseEditAdvent.value);
+};
+
 //display:trueのクラブ
 const displayClub = [];
 //display:falseのクラブ
@@ -135,6 +186,8 @@ const nondisplayClub = [];
 const newclub = ref("");
 
 const addDisplayClub = ref([]);
+const msgForaddDisplayClub = ref();
+const msgForaddnonDisplayClub = ref();
 const addnonDisplayClub = ref([]);
 
 allclub.map((club) => {
@@ -147,14 +200,23 @@ allclub.map((club) => {
 
 //表示するサークルの追加
 const addDisplay = async () => {
-  const { error } = await client.from("club").upsert(addDisplayClub.value);
-  router.go();
+  if (addDisplayClub.value.length === 0) {
+    msgForaddDisplayClub.value = "少なくとも一つ選択してください";
+  } else {
+    console.log(addDisplayClub.value);
+    const { error } = await client.from("club").upsert(addDisplayClub.value);
+    router.go();
+  }
 };
 
 //サークルを非表示にする
 const nonDisplay = async () => {
-  const { error } = await client.from("club").upsert(addnonDisplayClub.value);
-  router.go();
+  if (addnonDisplayClub.value.length === 0) {
+    msgForaddnonDisplayClub.value = "少なくとも一つ選択してください";
+  } else {
+    const { error } = await client.from("club").upsert(addnonDisplayClub.value);
+    router.go();
+  }
 };
 
 //表示するサークルの削除
@@ -175,6 +237,40 @@ const addNewClub = async () => {
   const { error: cluberror } = await client.from("club").insert({
     clubName: newclub.value,
   });
+  router.go();
+};
+
+//エラーメッセージ
+const errormsg = ref("");
+
+//新規管理者権限
+const owner = ref("");
+//新規管理者の保存
+const submitOwner = async () => {
+  const re = /^[a-zA-Z0-9_+-]+(.[a-zA-Z0-9_+-]+)*@rakus-partners.co.jp/;
+  //ラクスメールアドレス形式のバリデーション
+  if (re.test(owner.value)) {
+    const { data, error } = await client
+      .from("profiles")
+      .update({ authority: true })
+      .eq("email", owner.value)
+      .select();
+    if (data.length > 0) {
+      console.log("完了");
+      router.go();
+    } else if (data.length === 0) {
+      errormsg.value = "該当のメールアドレスが見つかりません";
+    }
+  } else {
+    errormsg.value = "ラクスメールアドレスの形式で入力してください";
+  }
+};
+
+//owner権限の削除
+const deleteOwner = async (id) => {
+  const { data, error } = await client
+    .from("profiles")
+    .upsert({ id: id, authority: false });
   router.go();
 };
 </script>
