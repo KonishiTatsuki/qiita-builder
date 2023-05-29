@@ -116,26 +116,25 @@
 
       <div>
         <!-- アドベントカレンダーバナー -->
+        <NuxtLink to="/advent">
         <div
           class="bg-gradient-to-r from-purple-400 via-pink-500 to-red-500 p-4 rounded-lg shadow-lg flex items-center justify-between mt-3"
         >
-          <NuxtLink to="/advent">
             <!-- メッセージ -->
             <div class="text-white font-bold title">
               <p class="ml-5">Qiita Builder Advent Calendar</p>
               <p class="ml-5">開催中</p>
             </div>
-          </NuxtLink>
-          <!-- ビジュアル -->
-          <!-- サンプル画像 -->
-          <img
+            <!-- サンプル画像 -->
+            <img
             src="https://picsum.photos/200/150?random=2"
             alt="朝焼けの線路"
             width="200"
             height="150"
             class="rounded-lg"
-          />
-        </div>
+            />
+          </div>
+        </NuxtLink>
         <!-- ソート機能 -->
         <div class="flex justify-end">
           <div class="inline-flex rounded-md shadow-sm pt-5 pb-3" role="group">
@@ -173,7 +172,8 @@
                 v-show="
                   !article.hideByOccupation &
                   !article.hideByClub &
-                  !article.hideByTag
+                  !article.hideByTag &
+                  !article.hide
                 "
               >
                 <div class="md:w-64 md:mb-0 mb-6 flex-shrink-0 flex flex-col">
@@ -186,10 +186,18 @@
                 </div>
                 <div class="md:flex-grow">
                   <h2 class="title font-medium text-gray-900 title-font mb-2">
-                    {{ article.title }}
+                    {{
+                      article.title.length > 20
+                        ? article.title.slice(0, 20) + "..."
+                        : article.title
+                    }}
                   </h2>
                   <p class="leading-relaxed" id="custom-prose">
-                    {{ article.body }}
+                    {{
+                      article.body.length > 100
+                        ? article.body.slice(0, 100) + "..."
+                        : article.body
+                    }}
                   </p>
                   <div class="flex justify-between items-center mt-4">
                     <router-link
@@ -218,7 +226,9 @@
 
 <script setup>
 import { ref, onMounted } from "vue";
+import { useRouter } from "vue-router";
 
+const route = useRouter();
 const supabase = useSupabaseClient();
 const userss = useSupabaseUser();
 const userId = userss.value?.id;
@@ -287,6 +297,7 @@ let showAllClubItems = ref(false);
     hideByOccupation: false,
     hideByClub: false,
     hideByTag: false,
+    hide: false,
   }));
 
   let { data: tags } = await supabase.from("tagging").select("tagId,articleId");
@@ -306,7 +317,7 @@ let showAllClubItems = ref(false);
       article.tags.push(tag.tagId);
     }
   });
-  
+
   console.log(articleData.value);
 })();
 
@@ -322,8 +333,6 @@ let showAllClubItems = ref(false);
   tagName.value.forEach((tag) => {
     tag.checked = false;
   });
-
-  console.log(tagName.value);
 })();
 
 // Supabaseから職種テーブルデータを取得
@@ -352,6 +361,31 @@ let showAllClubItems = ref(false);
     club.checked = false;
   });
 })();
+
+// データフィルタリング用のメソッド
+const filterArticles = (searchParam) => {
+  // 全ての記事を表示する場合はフィルタリングをスキップ
+  if (!searchParam) {
+    articleData.value.forEach((article) => (article.hide = false));
+    return;
+  }
+
+  // 検索クエリを小文字に変換して、記事のタイトルや本文と照合する
+  const query = searchParam.toLowerCase();
+
+  articleData.value.forEach((article) => {
+    const titleMatch = article.title.toLowerCase().includes(query);
+    const bodyMatch = article.body.toLowerCase().includes(query);
+    article.hide = !(titleMatch || bodyMatch);
+  });
+};
+
+// クエリパラメータが変更される毎にfilterArticles関数が行われる
+watchEffect(() => {
+  const searchParam = route.currentRoute.value.query.search;
+  console.log("クエリパラメータ:", searchParam);
+  filterArticles(searchParam);
+});
 
 // 記事データを投稿日順にソートする
 const sortArticlesByDate = () => {
