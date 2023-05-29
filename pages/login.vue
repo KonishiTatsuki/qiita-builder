@@ -60,15 +60,18 @@ const client = useSupabaseClient();
 const email = ref("");
 const password = ref("");
 
-const submit = async (submit) => {
-  const { data } = await client.auth.signInWithPassword({
-    email: submit.email,
-    password: submit.password,
+const submit = async (formData) => {
+  const response = await client.auth.signInWithPassword({
+    email: formData.email,
+    password: formData.password,
   });
-  console.log(data.session);
-  if (data.session) {
-    location.href = "/";
+  const data = response.data;
+  if (data && data.session) {
+    console.log(data.session);
+    console.log("成功");
+    router.push("/");
   } else {
+    console.log(data.session);
     console.log("失敗");
   }
 };
