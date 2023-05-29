@@ -45,31 +45,16 @@
       </div>
 
       <div class="flex justify-end space-x-4">
-        <!-- <MyComponent
+        <LikeButton
           :userId="userId"
           :articleId="articleId"
           :showLikeButton="showLikeButton"
-        /> -->
-        <button
-          @click="countLike"
-          v-if="showLikeButton"
-          class="bg-white border-indigo-700 px-4 py-2 rounded-md text-base border hover:text-gray-900"
-        >
-          いいね！
-        </button>
-        <button
-          @click="countLike"
-          v-else
-          class="bg-red-500 px-4 py-2 rounded-md text-base text-white border hover:text-gray-900"
-        >
-          いいね！
-        </button>
-        <button
-          @click="countRecommend"
-          class="bg-[#1D8EB9] border-indigo-700 px-4 py-2 rounded-md text-base text-white border hover:text-gray-900"
-        >
-          Qiitaオススメ
-        </button>
+        />
+        <RecommendButton
+          :userId="userId"
+          :articleId="articleId"
+          :showRecommendButton="showRecommendButton"
+        />
       </div>
     </div>
 
@@ -153,7 +138,8 @@
 </template>
 
 <script setup>
-import MyComponent from "@/components/ClickButton.vue";
+import LikeButton from "~/components/LikeButton.vue";
+import RecommendButton from "~/components/RecommendButton.vue";
 import { ref, onMounted } from "vue";
 import { marked } from "marked";
 
@@ -238,34 +224,26 @@ const options = {
 
 //　　　　　　　おすすめ数表示機能　　　　　　　　　　//
 const recommendCount = ref(0);
+const showRecommendButton = ref(false);
 
-//おすすめ数を取得する関数
+//おすすsめ数を取得する関数
 const Recommend = async () => {
   let { data, error } = await supabase
     .from("recommend")
     .select("*")
     .eq("articleId", articleId);
+
+  const confirmation = await supabase
+    .from("recommend")
+    .select("*")
+    .eq("userId", userId);
+
+  if (!confirmation.data[0]) {
+    showRecommendButton.value = true;
+  }
   return data.length;
 };
 recommendCount.value = await Recommend();
-
-const countRecommend = async () => {
-  try {
-    // Likeテーブルにデータを挿入
-    await supabase.from("recommend").insert({ userId, articleId });
-    // Commentテーブルから該当する記事のコメントを取得;
-    const { data, error } = await supabase
-      .from("recommend")
-      .select("*")
-      .eq("articleId", articleId);
-    recommendCount.value = data.length;
-    router.go();
-    return data;
-  } catch (error) {
-    console.error(error);
-    return null;
-  }
-};
 
 //　　　　　　　いいね数表示機能　　　　　　　　　　//
 // いいねの件数を表示するためのリアクティブな変数
@@ -290,41 +268,6 @@ const Like = async () => {
   return data.length;
 };
 likeCount.value = await Like();
-
-//いいね数をカウントする関数
-const countLike = async () => {
-  try {
-    //すでにいいねを押しているのか確認
-    const confirmation = await supabase
-      .from("like")
-      .select("*")
-      .eq("userId", userId);
-    if (!confirmation.data[0]) {
-      // Likeテーブルにデータを挿入
-      await supabase.from("like").insert({ userId, articleId });
-      router.go();
-    } else {
-      //いいね数を削除する
-      await supabase
-        .from("like")
-        .delete()
-        .eq("userId", userId)
-        .eq("articleId", articleId);
-      router.go();
-      displayLike.value = true;
-    }
-    //Commentテーブルから該当する記事のいいね数を取得
-    const { data, error } = await supabase
-      .from("like")
-      .select("*")
-      .eq("articleId", articleId);
-    likeCount.value = data.length;
-    return data;
-  } catch (error) {
-    console.error(error);
-    return null;
-  }
-};
 
 //目標いいねに到達してたら「達成」。それ以外は残り件数表示する
 const articleDataGoalLike = Number(articleData.value[0].goalLike);

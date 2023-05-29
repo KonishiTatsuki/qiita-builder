@@ -16,11 +16,16 @@
 </template>
 
 <script setup>
+const supabase = useSupabaseClient();
+const router = useRouter();
 const props = defineProps({
   userId: String,
   articleId: Number,
   showLikeButton: Boolean,
 });
+const userId = props.userId;
+const articleId = props.articleId;
+const showLikeButton = props.showLikeButton;
 
 //いいね数をカウントする関数
 const countLike = async () => {
@@ -42,14 +47,12 @@ const countLike = async () => {
         .eq("userId", userId)
         .eq("articleId", articleId);
       router.go();
-      displayLike.value = true;
     }
-    //Commentテーブルから該当する記事のいいね数を取得
+    //likeテーブルから該当する記事のいいね数を取得
     const { data, error } = await supabase
       .from("like")
       .select("*")
       .eq("articleId", articleId);
-    likeCount.value = data.length;
     return data;
   } catch (error) {
     console.error(error);
