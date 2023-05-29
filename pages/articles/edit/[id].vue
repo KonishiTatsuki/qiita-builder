@@ -20,7 +20,7 @@
     <div class="flex justify-around mt-5">
         <div>
             <label for="">Qiita自動投稿：</label>
-            <select name="like" size="1" v-model="goalLike">
+            <select name="like" size="1" v-model="goalLike" class="border">
             <option value="">---</option>
             <option value="5">5いいね</option>
             <option value="10">10いいね</option>
@@ -30,9 +30,17 @@
         </select>
         </div>
         <div class="mr-36">
-            <div>
-                <label for="">タグ：</label>
-                <input type="text" class="border">
+          <div>
+            <v-row>
+              <v-col cols="12">
+                <v-combobox
+                  v-model="select"
+                  label="タグを設定してください"
+                  multiple
+                  chips
+                ></v-combobox>
+              </v-col>
+            </v-row>
             </div>
             <div>
                 <label for="">公開日：</label>
@@ -55,59 +63,48 @@
 const route = useRoute();
 // パスパラメータよりid取得
 const { id } = route.params;
-const { data: article } = await useFetch(`http://localhost:8000/article/${id}`)
-
+const { data } = await useFetch(`/api/article/get?id=${id}`)
 import type EasyMDE from "easymde";
 
 let mde: InstanceType<typeof EasyMDE> | null = null;
-
-const content = ref(article.value.body);
+const content = ref(data.value.article[0].body);
 const contentArea = ref();
-const title = ref(article.value.title)
-const goalLike = ref(article.value.goalLike)
-const publishDate = ref(article.value.publishDate)
+const title = ref(data.value.article[0].title)
+const select = ref(data.value.tag)
+const goalLike = ref(data.value.article[0].goalLike)
+const publishDate = ref(data.value.article[0].publishDate)
 const router = useRouter()
 
 const handleSubmit= async () => {
     const postData = {
-        // userId: userId,
-        // clubTagId: clubTagId,
-        // occupationId: occupationId,
-        // qiitaPost: false,
-        // bannerId: bannerId,
-        // delete: false,
-        title: title,
-        body: content,
-        goalLike: goalLike,
-        date: new Date(),
-        publishDate: publishDate,
-        publish: true,
+      id: id,
+      title: title,
+      body: content,
+      goalLike: goalLike,
+      date: new Date(),
+      publishDate: publishDate,
+      publish: true,
     }
-  await useFetch(`http://localhost:8000/article/${id}`, {
+  await useFetch(`/api/article/patch`, {
   method: 'PATCH',
-  body: postData,
+  body: { postData: postData, tag: select}
 });
     router.push('/')
 }
 const draftSubmit= async () => {
     const postData = {
-        // userId: userId,
-        // clubTagId: clubTagId,
-        // occupationId: occupationId,
-        // qiitaPost: false,
-        // bannerId: bannerId,
-        // delete: false,
-        title: title,
-        body: content,
-        goalLike: goalLike,
-        date: new Date(),
-        publishDate: publishDate,
-        publish: false
+      id: id,
+      title: title,
+      body: content,
+      goalLike: goalLike,
+      date: new Date(),
+      publishDate: publishDate,
+      publish: false,
     }
-  await useFetch(`http://localhost:8000/article/${id}`, {
+  await useFetch(`/api/article/patch`, {
   method: 'PATCH',
-  body: postData,
-})
+  body: { postData: postData, tag: select}
+});
     router.push('/')
 }
 onMounted(async () => {
