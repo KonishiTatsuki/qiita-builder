@@ -14,6 +14,6 @@ export default defineEventHandler(async (event) => {
     const body = await readBody(event)
     const { data, error }: PostgrestSingleResponse<Article[]> =  await supabase.from("article").insert(body).select()
     if(data) {
-    return data[0].id
+        return data[0].id
     }
 })

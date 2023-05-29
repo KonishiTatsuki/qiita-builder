@@ -61,7 +61,7 @@
 import type EasyMDE from "easymde";
 
 let mde: InstanceType<typeof EasyMDE> | null = null;
-let items = ref(["Java", "フロントエンド", "クラウド"])
+let items = ref(["Java", "PHP", "JavaScript", "Python", "Ruby", "フロントエンド", "バックエンド", "クラウド"])
 const select = ref([])
 const content = ref('');
 const contentArea = ref();
@@ -70,26 +70,28 @@ const goalLike = ref('');
 const publishDate = ref('');
 const router = useRouter();
 
+//記事投稿
 async function submitHandler() {
-        const postData = {
-        // userId: userId,
-        // clubTagId: clubTagId,
-        // occupationId: occupationId,
-        bannerId: null,
-        qiitaPost: false,
-        delete: false,
-        title: title,
-        body: content,
-        goalLike: goalLike,
-        date: new Date(),
-        publishDate: publishDate,
-        publish: true,
-    }
+  const postData = {
+    // userId: userId,
+    // clubTagId: clubTagId,
+    // occupationId: occupationId,
+    bannerId: null,
+    qiitaPost: false,
+    delete: false,
+    title: title,
+    body: content,
+    goalLike: goalLike,
+    date: new Date(),
+    publishDate: publishDate,
+    publish: true,
+  }
     const { data } = await useFetch('/api/article/post', {
     method: 'POST',
     body: postData,
   })
   .then(
+    // タグの投稿
     async(id) => {
     const articleId = id.data.value
     const { data } = await useFetch('/api/tag/post', {
@@ -100,26 +102,28 @@ async function submitHandler() {
 })
 }
 
+// 下書き記事の投稿
 const draftHandler= async () => {
-    const postData = {
-        // userId: userId,
-        // clubTagId: clubTagId,
-        // occupationId: occupationId,
-        bannerId: null,
-        qiitaPost: false,
-        delete: false,
-        title: title,
-        body: content,
-        goalLike: goalLike,
-        date: new Date(),
-        publishDate: publishDate,
-        publish: false
-    }
-const { data } = await useFetch('/api/article/post', {
+  const postData = {
+    // userId: userId,
+    // clubTagId: clubTagId,
+    // occupationId: occupationId,
+    bannerId: null,
+    qiitaPost: false,
+    delete: false,
+    title: title,
+    body: content,
+    goalLike: goalLike,
+    date: new Date(),
+    publishDate: publishDate,
+    publish: false
+  }
+  const { data } = await useFetch('/api/article/post', {
     method: 'POST',
     body: postData,
   })
   .then(
+    // タグの投稿
     async(id) => {
     const articleId = id.data.value
     const { data } = await useFetch('/api/tag/post', {

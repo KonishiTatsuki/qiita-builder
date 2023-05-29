@@ -18,19 +18,17 @@ export default defineEventHandler(async (event) => {
 
     body.tagArray.map(async(tag: string) => {
     const { data }: PostgrestSingleResponse<Tag[]> = await supabase.from("tag").select("*").eq("name", tag)
-  if(data?.length === 0) {
-    const { data, error }: PostgrestSingleResponse<Tag[]> = await supabase.from("tag").insert<Tag>({ name: tag, display: false}).select()
-    // console.log(data)
-    if(data !== null) {
-    await supabase.from("tagging").insert<Tagging>({articleId: body.articleId, tagId: data[0].id}).select()
+    if(data?.length === 0) {
+        const { data, error }: PostgrestSingleResponse<Tag[]> = await supabase.from("tag").insert<Tag>({ name: tag, display: false}).select()
+        if(data !== null) {
+            await supabase.from("tagging").insert<Tagging>({articleId: body.articleId, tagId: data[0].id}).select()
+        }
+    } else {
+        if(data !== null) {
+            await supabase.from("tagging").insert<Tagging>({articleId: body.articleId, tagId: data[0].id}).select()
+        }
     }
-  } else {
-    if(data !== null) {
-    await supabase.from("tagging").insert<Tagging>({articleId: body.articleId, tagId: data[0].id}).select()
-
-    }
-  }
 })
-return "ok"
+    return "ok"
 
 })
