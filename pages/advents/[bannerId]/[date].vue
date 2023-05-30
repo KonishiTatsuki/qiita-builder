@@ -9,7 +9,12 @@
       <p>入力したタイトル: {{ title }}</p>
     </div>
     <h2 class="subtitle">記事の選択</h2>
-
+    <div v-for="(article, index) in articles" :key="article.id">
+      <div>
+        {{ article.title }}- index:{{ index }}-publishDate:
+        {{ article.publishDate }}
+      </div>
+    </div>
     <div class="mb-2">
       <select name="" id="">
         <option value="">記事１</option>
@@ -49,12 +54,12 @@ console.log("bannerIdの結果", bannerId.value);
 console.log("dateの結果", date.value);
 
 // user.idをもとにarticleテーブルから記事を全部取得する
-const { data: articles, error } = supabase
+const { data: articles } = await supabase
   .from("article")
   .select("*")
   .eq("userId", userId);
 
-console.log("articlesの結果", articles);
+console.log("articles", articles);
 </script>
 
 <style lang="scss" scoped></style>
