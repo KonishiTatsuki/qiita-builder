@@ -117,9 +117,9 @@
       <div>
         <!-- アドベントカレンダーバナー -->
         <NuxtLink to="/advent">
-        <div
-          class="bg-gradient-to-r from-purple-400 via-pink-500 to-red-500 p-4 rounded-lg shadow-lg flex items-center justify-between mt-3"
-        >
+          <div
+            class="bg-gradient-to-r from-purple-400 via-pink-500 to-red-500 p-4 rounded-lg shadow-lg flex items-center justify-between mt-3"
+          >
             <!-- メッセージ -->
             <div class="text-white font-bold title">
               <p class="ml-5">Qiita Builder Advent Calendar</p>
@@ -127,11 +127,11 @@
             </div>
             <!-- サンプル画像 -->
             <img
-            src="https://picsum.photos/200/150?random=2"
-            alt="朝焼けの線路"
-            width="200"
-            height="150"
-            class="rounded-lg"
+              src="https://picsum.photos/200/150?random=2"
+              alt="朝焼けの線路"
+              width="200"
+              height="150"
+              class="rounded-lg"
             />
           </div>
         </NuxtLink>
@@ -176,43 +176,45 @@
                   !article.hide
                 "
               >
-                <div class="md:w-64 md:mb-0 mb-6 flex-shrink-0 flex flex-col">
-                  <span class="font-semibold title-font text-gray-700">{{
-                    article.username
-                  }}</span>
-                  <span class="mt-1 text-gray-500 text-sm">{{
-                    formatDateTime(article.date)
-                  }}</span>
-                </div>
-                <div class="md:flex-grow">
-                  <h2 class="title font-medium text-gray-900 title-font mb-2">
-                    {{
-                      article.title.length > 20
-                        ? article.title.slice(0, 20) + "..."
-                        : article.title
-                    }}
-                  </h2>
-                  <p class="leading-relaxed" id="custom-prose">
-                    {{
-                      article.body.length > 100
-                        ? article.body.slice(0, 100) + "..."
-                        : article.body
-                    }}
-                  </p>
-                  <div class="flex justify-between items-center mt-4">
-                    <router-link
-                      :to="`/articleDetail/${article.id}`"
-                      class="text-indigo-500 inline-flex items-center"
-                    >
-                      記事詳細&nbsp;→
-                    </router-link>
-                    <button
-                      class="btn"
-                      @click="deleteArticle(article.id)"
-                      v-show="authority"
-                    >
-                      削除(管理者のみ表示)
-                    </button>
+                <div class="flex">
+                  <div class="md:w-64 md:mb-0 mb-6 flex-shrink-0 flex flex-col">
+                    <span class="font-semibold title-font text-gray-700">{{
+                      article.username
+                    }}</span>
+                    <span class="mt-1 text-gray-500 text-sm">{{
+                      formatDateTime(article.date)
+                    }}</span>
+                  </div>
+                  <div class="md:flex-grow">
+                    <h2 class="title font-medium text-gray-900 title-font mb-2">
+                      {{
+                        article.title.length > 20
+                          ? article.title.slice(0, 20) + "..."
+                          : article.title
+                      }}
+                    </h2>
+                    <p class="leading-relaxed" id="custom-prose">
+                      {{
+                        article.body.length > 100
+                          ? article.body.slice(0, 100) + "..."
+                          : article.body
+                      }}
+                    </p>
+                    <div class="flex justify-between items-center mt-4">
+                      <router-link
+                        :to="`/articleDetail/${article.id}`"
+                        class="text-indigo-500 inline-flex items-center"
+                      >
+                        記事詳細&nbsp;→
+                      </router-link>
+                      <button
+                        class="btn"
+                        @click="deleteArticle(article.id)"
+                        v-show="authority"
+                      >
+                        削除(管理者のみ表示)
+                      </button>
+                    </div>
                   </div>
                 </div>
               </div>
