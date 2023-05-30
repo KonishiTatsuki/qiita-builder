@@ -128,7 +128,7 @@
             <!-- サンプル画像 -->
             <img
               src="https://picsum.photos/200/150?random=2"
-              alt="朝焼けの線路"
+              alt="ランダム画像"
               width="200"
               height="150"
               class="rounded-lg"
