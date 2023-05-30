@@ -191,9 +191,6 @@ const options = {
     .select("tagId")
     .eq("articleId", dynamicPageId);
 
-  // タグ名を格納する配列
-  // let tagNames = ref([]);
-
   // 各IDに対応するタグ名を取得
   tagId.forEach(async (tag) => {
     const { data, error } = await supabase
@@ -211,13 +208,11 @@ const options = {
     }
   });
 
-  console.log(articleData.value);
   let userId = await articleData.value[0].userId;
   let { data: userData } = await supabase
     .from("profiles")
     .select("username,image")
     .eq("id", userId);
-  console.log(userData);
   userInfo.value = userData;
 })();
 
@@ -248,19 +243,27 @@ recommendCount.value = await Recommend();
 // いいねの件数を表示するためのリアクティブな変数
 const likeCount = ref(0);
 const showLikeButton = ref(false);
-
+//Qiita投稿に必要な情報取得
 let { data: user } = await supabase
   .from("profiles")
   .select("*")
   .eq("id", userId);
+
 let { data: article } = await supabase
   .from("article")
   .select("*")
   .eq("id", articleId);
 
+let { data: articleUserDate } = await supabase
+  .from("profiles")
+  .select("*")
+  .eq("id", article[0].userId);
+
+const articleQiitaToken = articleUserDate[0].qiitaToken;
 const qiitaToken = user[0].qiitaToken;
 const articleBody = article[0].body;
 const articleTitle = article[0].title;
+const articleQiitaPost = article[0].qiitaPost;
 const articleTag = Object.keys(tagNames.value).map((key) => {
   return { name: tagNames.value[key] };
 });
@@ -292,7 +295,7 @@ goalLike.value =
     : "達成";
 
 //いいね数が目標いいねに到達した場合
-if (goalLike.value <= 0) {
+if (goalLike.value <= 0 && articleQiitaPost === false) {
   ///自動投稿
   const fetchData = () => {
     const item = {
@@ -307,7 +310,7 @@ if (goalLike.value <= 0) {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        Authorization: `Bearer ${qiitaToken}`,
+        Authorization: `Bearer ${articleQiitaToken}`,
       },
       body: JSON.stringify(item),
     })
@@ -324,6 +327,12 @@ if (goalLike.value <= 0) {
       });
   };
   fetchData();
+  await supabase
+    .from("article")
+    .update({ qiitaPost: true })
+    .match({ id: articleId });
+} else {
+  console.log("まだ達成してないよ/もしくはQiitaに投稿済み");
 }
 
 //　　　　　　　　コメント機能　　　　　　　　　//
