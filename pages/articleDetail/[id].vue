@@ -5,13 +5,14 @@
       <div class="flex items-center mb-4">
         <!-- アイコン -->
         <img
-          src="https://randomuser.me/api/portraits/men/32.jpg"
+          v-if="userInfo[0].image"
+          :src="userInfo[0].image"
           alt="User"
           class="w-8 h-8 rounded-full mr-2"
         />
         <!-- ユーザ名 -->
         <span v-if="userInfo" class="text-gray-600 text-sm">{{
-          userInfo.username
+          userInfo[0].username
         }}</span>
         <span class="text-gray-400 text-sm mx-2">&nbsp;&nbsp;&nbsp;</span>
         <!-- 投稿日 -->
@@ -152,17 +153,6 @@ const userId = users.value?.id;
 let userInfo = ref();
 let articleId = route.params.id;
 
-// ユーザセッションid取得
-(async () => {
-  if (userId) {
-    let { data, error } = await supabase
-      .from("profiles")
-      .select("*")
-      .eq("id", userId);
-    userInfo.value = await data[0];
-  }
-})();
-
 // 記事情報を取得[始まり]
 let articleData = ref();
 let htmlText = ref();
@@ -220,6 +210,15 @@ const options = {
       tagNames.value.push(data[0].name);
     }
   });
+
+  console.log(articleData.value);
+  let userId = await articleData.value[0].userId;
+  let { data: userData } = await supabase
+    .from("profiles")
+    .select("username,image")
+    .eq("id", userId);
+  console.log(userData);
+  userInfo.value = userData;
 })();
 
 //　　　　　　　おすすめ数表示機能　　　　　　　　　　//
