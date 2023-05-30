@@ -137,7 +137,7 @@
             <img
               v-if="bannerData && bannerData[0]?.image"
               :src="bannerData[0]?.image"
-              alt="ランダム画像"
+              alt="バナー画像"
               width="200"
               height="150"
               class="rounded-lg"
@@ -195,7 +195,7 @@
                     }}</span>
                   </div>
                   <div class="md:flex-grow">
-                    <h2 class="title font-medium text-gray-900 title-font mb-2">
+                    <h2 class="text-4xl font-medium text-gray-900 title-font mb-2">
                       {{
                         article.title.length > 30
                           ? article.title.slice(0, 30) + "..."
@@ -209,19 +209,19 @@
                           : article.body
                       }}
                     </p>
-                    <div class="flex justify-between items-center mt-4">
+                    <div class="mt-4">
                       <router-link
                         :to="`/articleDetail/${article.id}`"
-                        class="text-indigo-500 inline-flex items-center"
+                        class="text-indigo-500"
                       >
                         記事詳細&nbsp;→
                       </router-link>
                       <button
-                        class="btn"
+                        class="btn block mt-4"
                         @click="deleteArticle(article.id)"
-                        v-show="authority"
+                        v-if="authority"
                       >
-                        削除(管理者のみ表示)
+                        削除
                       </button>
                     </div>
                   </div>
@@ -262,6 +262,8 @@ let clubName = ref("");
 let visibleClubItems = ref(10);
 let showAllClubItems = ref(false);
 let bannerData = ref([]);
+let currentPage = ref(1);
+const articlesPerPage = 10;
 
 //articleデータ取得
 (async () => {
