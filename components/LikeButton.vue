@@ -1,7 +1,7 @@
 <template>
   <button
     @click="countLike"
-    v-if="showLikeButton"
+    v-if="!showLikeButton"
     class="bg-white border-indigo-700 px-4 py-2 rounded-md text-base border hover:text-gray-900"
   >
     いいね！
