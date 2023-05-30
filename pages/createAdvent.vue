@@ -28,7 +28,8 @@
     <h2 class="subtitle">バナー画像</h2>
     <div>
       <span class="text-xs text-red-500">(必須)</span>
-      <input type="file" accept="image/*" />
+      <input type="file" accept="image/*" ref="fileInput" />
+      <p class="text-red-500">{{ errorMsg }}</p>
     </div>
     <div class="flex justify-end">
       <button type="submit" class="btn" @click="submitHandler">登録</button>
@@ -41,17 +42,17 @@ import { ref, onMounted, computed } from "vue";
 import VueDatePicker from "@vuepic/vue-datepicker";
 import "@vuepic/vue-datepicker/dist/main.css";
 
+const router = useRouter();
 const supabase = useSupabaseClient();
 
 const { data } = await useFetch("/api/advent/post");
-const loading = ref(false);
 
+const errorMsg = ref("");
 const user = useSupabaseUser();
 const adventName = ref("");
 const description = ref("");
-const startDate = ref();
-const endDate = ref();
-const image = ref(null);
+
+const fileInput = ref();
 
 const date = ref([]);
 const format = "yyyy/MM/dd";
@@ -65,25 +66,132 @@ onMounted(() => {
 
 // supabaseにデータを送信する
 async function submitHandler() {
-  try {
-    loading.value = true;
-    const user = useSupabaseUser();
+  if (!adventName.value) {
+    errorMsg.value = "アドベントカレンダーの題名を入力してください";
+  } else if (!description.value) {
+    errorMsg.value = "アドベントカレンダーの説明を入力してください";
+  } else if (fileInput.value) {
+    errorMsg.value = "画像を選択してください";
+  } else {
+    let startDate = "";
+    let endDate = "";
 
-    const create = {
-      adventName: adventName.value,
-      description: description.value,
-      startDate: startDate.value,
-      endDate: endDate.value,
-      userId: user.value.id,
-      image: image.value,
-    };
+    //月が1桁
+    if (date.value[0].getMonth() + 1 < 10) {
+      //月が1桁 日が2桁
+      if (date.value[0].getDate() < 10) {
+        startDate =
+          new Date(date.value[0]).getFullYear() +
+          "-0" +
+          (new Date(date.value[0]).getMonth() + 1) +
+          "-0" +
+          new Date(date.value[0]).getDate();
+        //月が1桁 日が2桁
+      } else {
+        startDate =
+          new Date(date.value[0]).getFullYear() +
+          "-0" +
+          (new Date(date.value[0]).getMonth() + 1) +
+          "-" +
+          new Date(date.value[0]).getDate();
+      }
+      //月が2桁
+    } else {
+      //月が2桁　日が1桁
+      if (date.value[0].getDate() < 10) {
+        startDate =
+          new Date(date.value[0]).getFullYear() +
+          "-" +
+          (new Date(date.value[0]).getMonth() + 1) +
+          "-0" +
+          new Date(date.value[0]).getDate();
+        //月が2桁　日が2桁
+      } else {
+        startDate =
+          new Date(date.value[0]).getFullYear() +
+          "-" +
+          (new Date(date.value[0]).getMonth() + 1) +
+          "-" +
+          new Date(date.value[0]).getDate();
+      }
+    }
 
-    let { error } = await supabase.from("banner").upsert(create);
-    if (error) throw error;
-  } catch (error) {
-    alert(error.message);
-  } finally {
-    loading.value = false;
+    //月が1桁
+    if (date.value[1].getMonth() + 1 < 10) {
+      //月が1桁 日が2桁
+      if (date.value[1].getDate() < 10) {
+        endDate =
+          new Date(date.value[1]).getFullYear() +
+          "-0" +
+          (new Date(date.value[1]).getMonth() + 1) +
+          "-0" +
+          new Date(date.value[1]).getDate();
+        //月が1桁 日が2桁
+      } else {
+        endDate =
+          new Date(date.value[1]).getFullYear() +
+          "-0" +
+          (new Date(date.value[1]).getMonth() + 1) +
+          "-" +
+          new Date(date.value[1]).getDate();
+      }
+      //月が2桁
+    } else {
+      //月が2桁　日が1桁
+      if (date.value[1].getDate() < 10) {
+        endDate =
+          new Date(date.value[1]).getFullYear() +
+          "-" +
+          (new Date(date.value[1]).getMonth() + 1) +
+          "-0" +
+          new Date(date.value[1]).getDate();
+        //月が2桁　日が2桁
+      } else {
+        endDate =
+          new Date(date.value[1]).getFullYear() +
+          "-" +
+          (new Date(date.value[1]).getMonth() + 1) +
+          "-" +
+          new Date(date.value[1]).getDate();
+      }
+    }
+
+    const file = fileInput.value.files[0];
+    const filePath = fileInput.value.files[0].name;
+
+    // バナー画像の保存;
+    const { error: avatarerror } = await supabase.storage
+      .from("bannarImage")
+      .upload(filePath, file);
+
+    //バナー画像のpathを取得
+    if (!avatarerror) {
+      const { data } = await supabase.storage
+        .from("bannarImage")
+        .createSignedUrl(filePath, 600);
+      const imageUrl = data.signedUrl;
+
+      try {
+        const user = useSupabaseUser();
+        const create = {
+          adventName: adventName.value,
+          description: description.value,
+          startDate: startDate,
+          endDate: endDate,
+          userId: user.value.id,
+          image: imageUrl,
+        };
+
+        let { error } = await supabase.from("banner").upsert(create);
+        if (error) throw error;
+        router.push("/ownerPage");
+      } catch (error) {
+        // alert(error.message);
+        errorMsg.value = "登録失敗";
+      }
+    } else {
+      errorMsg.value = "既に保存されている画像です";
+    }
   }
 }
 </script>
