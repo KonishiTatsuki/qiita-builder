@@ -275,6 +275,7 @@ const Like = async () => {
     .select("*")
     .eq("articleId", articleId);
 
+  //ユーザーがいいねしているかどうかの確認
   const confirmation = await supabase
     .from("like")
     .select("*")
@@ -321,7 +322,7 @@ if (goalLike.value <= 0 && articleQiitaPost === false) {
         // 成功処理
         console.log("成功");
       })
-      .catch((error) => {
+      .catch(() => {
         // 失敗処理
         console.log("失敗");
       });
@@ -338,7 +339,7 @@ if (goalLike.value <= 0 && articleQiitaPost === false) {
 //　　　　　　　　コメント機能　　　　　　　　　//
 //投稿済みコメントを取得
 const commentData = async () => {
-  let { data, error } = await supabase
+  let { data } = await supabase
     .from("comment")
     .select("*")
     .eq("articleId", articleId);
@@ -372,9 +373,7 @@ let comment = ref("");
 comment = comment.value;
 
 const submit = async () => {
-  let { data, error } = await supabase
-    .from("comment")
-    .insert({ date, userId, comment, articleId });
+  await supabase.from("comment").insert({ date, userId, comment, articleId });
   router.go();
 };
 
