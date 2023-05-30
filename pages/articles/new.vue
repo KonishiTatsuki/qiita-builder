@@ -72,12 +72,21 @@ const router = useRouter();
 const users = useSupabaseUser();
 const userId = users.value.id;
 
+
+const { data: user } =  await useFetch('/api/user/get', {
+    method: 'POST',
+    body: userId,
+  })
+  const club = user.value[0].clubid.id
+  const occupation = user.value[0].occupation.id
+
+
 //記事投稿
 async function submitHandler() {
   const postData = {
     userId: userId,
-    // clubTagId: clubTagId,
-    // occupationId: occupationId,
+    clubTagId: club,
+    occupationTagId: occupation,
     bannerId: null,
     qiitaPost: false,
     delete: false,
@@ -108,8 +117,8 @@ async function submitHandler() {
 const draftHandler= async () => {
   const postData = {
     userId: userId,
-    // clubTagId: clubTagId,
-    // occupationId: occupationId,
+    clubTagId: club,
+    occupationTagId: occupation,
     bannerId: null,
     qiitaPost: false,
     delete: false,

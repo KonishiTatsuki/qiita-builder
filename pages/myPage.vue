@@ -42,7 +42,7 @@
               </button>
             </NuxtLink>
           </div>
-          <div>
+          <div v-if="authority">
             <NuxtLink to="/ownerPage">
               <button type="submit" class="btn w-full">管理者画面</button>
             </NuxtLink>
@@ -57,6 +57,11 @@
 const users = useSupabaseUser();
 const userId = users.value.id;
 const articleArray = []
+const { data: user } =  await useFetch('/api/user/get', {
+    method: 'POST',
+    body: userId,
+  })
+const authority = user.value[0].authority
 
 const { data: likeArticleArray } = await useFetch(`/api/like/get?userId=${userId}`) 
 likeArticleArray.value.map(async(likeArticle) => {

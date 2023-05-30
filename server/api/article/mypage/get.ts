@@ -20,7 +20,6 @@ export default defineEventHandler(async (event) => {
     const query = getQuery(event)
     const queryString = JSON.stringify(query.userId)
     const queryNumber = JSON.parse(queryString)
-    console.log(queryNumber)
 
     const { data: article }: PostgrestSingleResponse<Article[]> =  await supabase.from("article").select("*").eq("userId", queryNumber)
     return article
