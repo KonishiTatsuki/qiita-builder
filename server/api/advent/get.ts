@@ -8,4 +8,4 @@ export default defineEventHandler(async (event) => {
 
   const { data } = await client.from("banner").select("*,userId(username)").eq("id", queryNumber);
   return data;
-});;
+});
