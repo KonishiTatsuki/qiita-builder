@@ -191,9 +191,6 @@ const options = {
     .select("tagId")
     .eq("articleId", dynamicPageId);
 
-  // タグ名を格納する配列
-  // let tagNames = ref([]);
-
   // 各IDに対応するタグ名を取得
   tagId.forEach(async (tag) => {
     const { data, error } = await supabase
@@ -211,13 +208,11 @@ const options = {
     }
   });
 
-  console.log(articleData.value);
   let userId = await articleData.value[0].userId;
   let { data: userData } = await supabase
     .from("profiles")
     .select("username,image")
     .eq("id", userId);
-  console.log(userData);
   userInfo.value = userData;
 })();
 
@@ -225,9 +220,9 @@ const options = {
 const recommendCount = ref(0);
 const showRecommendButton = ref(false);
 
-//おすすsめ数を取得する関数
+//おすすめ数を取得する関数
 const Recommend = async () => {
-  let { data, error } = await supabase
+  let { data } = await supabase
     .from("recommend")
     .select("*")
     .eq("articleId", articleId);
@@ -236,10 +231,10 @@ const Recommend = async () => {
     .from("recommend")
     .select("*")
     .eq("userId", userId);
-
-  if (!confirmation.data[0]) {
+  if (confirmation.data[0]) {
     showRecommendButton.value = true;
   }
+
   return data.length;
 };
 recommendCount.value = await Recommend();
@@ -248,20 +243,45 @@ recommendCount.value = await Recommend();
 // いいねの件数を表示するためのリアクティブな変数
 const likeCount = ref(0);
 const showLikeButton = ref(false);
+//Qiita投稿に必要な情報取得
+let { data: user } = await supabase
+  .from("profiles")
+  .select("*")
+  .eq("id", userId);
+
+let { data: article } = await supabase
+  .from("article")
+  .select("*")
+  .eq("id", articleId);
+
+let { data: articleUserDate } = await supabase
+  .from("profiles")
+  .select("*")
+  .eq("id", article[0].userId);
+
+const articleQiitaToken = articleUserDate[0].qiitaToken;
+const qiitaToken = user[0].qiitaToken;
+const articleBody = article[0].body;
+const articleTitle = article[0].title;
+const articleQiitaPost = article[0].qiitaPost;
+const articleTag = Object.keys(tagNames.value).map((key) => {
+  return { name: tagNames.value[key] };
+});
 
 //いいね数を取得する関数
 const Like = async () => {
-  let { data, error } = await supabase
+  let { data } = await supabase
     .from("like")
     .select("*")
     .eq("articleId", articleId);
 
+  //ユーザーがいいねしているかどうかの確認
   const confirmation = await supabase
     .from("like")
     .select("*")
     .eq("userId", userId);
 
-  if (!confirmation.data[0]) {
+  if (confirmation.data[0]) {
     showLikeButton.value = true;
   }
   return data.length;
@@ -275,6 +295,47 @@ goalLike.value =
     ? `${Number(articleData.value[0].goalLike) - likeCount.value}`
     : "達成";
 
+//いいね数が目標いいねに到達した場合
+if (goalLike.value <= 0 && articleQiitaPost === false) {
+  ///自動投稿
+  const fetchData = () => {
+    const item = {
+      body: articleBody, // マークダウン形式で記載が必要
+      private: false, // 限定共有状態かどうかを表すフラグ (Qiita Teamでは無効)
+      tags: articleTag,
+      title: articleTitle,
+      tweet: false, // Twitterに投稿するかどうか (Twitter連携を有効化している場合のみ有効)
+    };
+
+    fetch("https://qiita.com/api/v2/items", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${articleQiitaToken}`,
+      },
+      body: JSON.stringify(item),
+    })
+      .then((response) => {
+        if (!response.ok) {
+          throw new Error("Request failed with status: " + response.status);
+        }
+        // 成功処理
+        console.log("成功");
+      })
+      .catch(() => {
+        // 失敗処理
+        console.log("失敗");
+      });
+  };
+  fetchData();
+  await supabase
+    .from("article")
+    .update({ qiitaPost: true })
+    .match({ id: articleId });
+} else {
+  console.log("まだ達成してないよ/もしくはQiitaに投稿済み");
+}
+
 //　　　　　　　　コメント機能　　　　　　　　　//
 //投稿済みコメントを取得
 const commentData = async () => {
@@ -283,18 +344,21 @@ const commentData = async () => {
     .select("*")
     .eq("articleId", articleId);
   // dataのループ処理 map
-  await Promise.all(
-    data.map(async (item) => {
-      let { data: users } = await supabase
-        .from("profiles")
-        .select("*")
-        .eq("id", item.userId);
-      item.username = users[0].username;
-    })
-  );
+  if (data) {
+    await Promise.all(
+      data.map(async (item) => {
+        let { data: users } = await supabase
+          .from("profiles")
+          .select("*")
+          .eq("id", item.userId);
+        item.username = users[0].username;
+      })
+    );
+  } else {
+    console.log("投稿済みコメントなし");
+  }
   return data;
 };
-
 const commenteds = await commentData();
 
 //コメント投稿機能
@@ -309,13 +373,11 @@ let comment = ref("");
 comment = comment.value;
 
 const submit = async () => {
-  let { data, error } = await supabase
-    .from("comment")
-    .insert({ date, userId, comment, articleId });
+  await supabase.from("comment").insert({ date, userId, comment, articleId });
   router.go();
 };
 
-// //コメントを削除
+//コメントを削除
 const deleteComment = async (commentId) => {
   try {
     // 削除処理の実行
