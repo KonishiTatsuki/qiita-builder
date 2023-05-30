@@ -19,13 +19,15 @@
             >
               <div class="flex items-center pl-3">
                 <input
-                  id="vue-checkbox"
+                  :id="'tag-checkbox-' + index"
                   type="checkbox"
-                  value=""
+                  value="tag"
                   class="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-700 dark:focus:ring-offset-gray-700 focus:ring-2 dark:bg-gray-600 dark:border-gray-500"
+                  v-model="tag.checked"
+                  @change="filterArticlesByTag"
                 />
                 <label
-                  for="vue-checkbox"
+                  :for="'tag-checkbox-' + index"
                   class="w-full py-3 ml-2 text-sm font-medium text-gray-900 dark:text-gray-300"
                   >{{ tag.name }}</label
                 >
@@ -54,13 +56,15 @@
             >
               <div class="flex items-center pl-3">
                 <input
-                  id="vue-checkbox"
+                  :id="'occupation-checkbox-' + index"
                   type="checkbox"
-                  value=""
+                  :value="occupation"
                   class="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-700 dark:focus:ring-offset-gray-700 focus:ring-2 dark:bg-gray-600 dark:border-gray-500"
+                  v-model="occupation.checked"
+                  @change="filterArticlesByOccupation"
                 />
                 <label
-                  for="vue-checkbox"
+                  :for="'occupation-checkbox-' + index"
                   class="w-full py-3 ml-2 text-sm font-medium text-gray-900 dark:text-gray-300"
                   >{{ occupation.occupationName }}</label
                 >
@@ -84,13 +88,15 @@
             >
               <div class="flex items-center pl-3">
                 <input
-                  id="vue-checkbox"
+                  :id="'club-checkbox-' + index"
                   type="checkbox"
-                  value=""
+                  value="club"
                   class="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-700 dark:focus:ring-offset-gray-700 focus:ring-2 dark:bg-gray-600 dark:border-gray-500"
+                  v-model="club.checked"
+                  @change="filterArticlesByClub"
                 />
                 <label
-                  for="vue-checkbox"
+                  :for="'club-checkbox-' + index"
                   class="w-full py-3 ml-2 text-sm font-medium text-gray-900 dark:text-gray-300"
                   >{{ club.clubName }}</label
                 >
@@ -110,26 +116,25 @@
 
       <div>
         <!-- アドベントカレンダーバナー -->
+        <NuxtLink to="/advent">
         <div
           class="bg-gradient-to-r from-purple-400 via-pink-500 to-red-500 p-4 rounded-lg shadow-lg flex items-center justify-between mt-3"
         >
-          <NuxtLink to="/advent">
             <!-- メッセージ -->
             <div class="text-white font-bold title">
               <p class="ml-5">Qiita Builder Advent Calendar</p>
               <p class="ml-5">開催中</p>
             </div>
-          </NuxtLink>
-          <!-- ビジュアル -->
-          <!-- サンプル画像 -->
-          <img
+            <!-- サンプル画像 -->
+            <img
             src="https://picsum.photos/200/150?random=2"
             alt="朝焼けの線路"
             width="200"
             height="150"
             class="rounded-lg"
-          />
-        </div>
+            />
+          </div>
+        </NuxtLink>
         <!-- ソート機能 -->
         <div class="flex justify-end">
           <div class="inline-flex rounded-md shadow-sm pt-5 pb-3" role="group">
@@ -148,6 +153,7 @@
               投稿日順
             </button>
             <button
+              @click="sortByLikes"
               type="button"
               class="px-4 py-2 text-sm font-medium text-gray-900 bg-transparent border border-gray-200 rounded-r-md hover:bg-[#1D8EB9] hover:text-white focus:z-10 focus:ring-2 focus:ring-[#1D8EB9] focus:bg-[#1D8EB9] focus:text-white focus:border-[#1D8EB9] dark:border-white dark:text-white dark:hover:text-white dark:hover:bg-gray-700 dark:focus:bg-gray-700"
             >
@@ -163,6 +169,12 @@
                 class="py-8 flex flex-wrap md:flex-nowrap"
                 v-for="article in articleData"
                 :key="article.id"
+                v-show="
+                  !article.hideByOccupation &
+                  !article.hideByClub &
+                  !article.hideByTag &
+                  !article.hide
+                "
               >
                 <div class="md:w-64 md:mb-0 mb-6 flex-shrink-0 flex flex-col">
                   <span class="font-semibold title-font text-gray-700">{{
@@ -174,10 +186,18 @@
                 </div>
                 <div class="md:flex-grow">
                   <h2 class="title font-medium text-gray-900 title-font mb-2">
-                    {{ article.title }}
+                    {{
+                      article.title.length > 20
+                        ? article.title.slice(0, 20) + "..."
+                        : article.title
+                    }}
                   </h2>
-                  <p class="leading-relaxed">
-                    {{ article.body }}
+                  <p class="leading-relaxed" id="custom-prose">
+                    {{
+                      article.body.length > 100
+                        ? article.body.slice(0, 100) + "..."
+                        : article.body
+                    }}
                   </p>
                   <div class="flex justify-between items-center mt-4">
                     <router-link
@@ -206,9 +226,10 @@
 
 <script setup>
 import { ref, onMounted } from "vue";
+import { useRouter } from "vue-router";
 
+const route = useRouter();
 const supabase = useSupabaseClient();
-// ここではユーザID不要
 const userss = useSupabaseUser();
 const userId = userss.value?.id;
 
@@ -217,7 +238,6 @@ const { data: userAuthority } = await supabase
   .from("profiles")
   .select("authority")
   .eq("id", userId);
-console.log(userAuthority);
 const authority = userAuthority[0].authority;
 
 // Supabaseからプログラミング言語名(display:trueのみ)を取得
@@ -225,21 +245,24 @@ let tagName = ref("");
 let visibleTagItems = ref(10);
 let showAllTagItems = ref(false);
 let articleData = ref([]);
+let likeData = ref([]);
+let occupationName = ref("");
+let clubName = ref("");
+let visibleClubItems = ref(10);
+let showAllClubItems = ref(false);
 
+//articleデータ取得
 (async () => {
-  // 記事全件取得
   let { data } = await supabase
     .from("article")
     .select("body, clubTagId, date, delete, id, occupationTagId, title, userId")
     .eq("delete", false)
     .order("date", { ascending: false });
-  console.log(data);
 
   // userIdを取得してユーザ名を取得する連想配列を作成
   const userIds = data
     .filter((article) => article.userId !== null) // nullを除外
     .map((article) => article.userId);
-  console.log(userIds);
   const { data: users } = await supabase
     .from("profiles")
     .select("id, username")
@@ -249,53 +272,191 @@ let articleData = ref([]);
     usernameMap[user.id] = user.username;
   }
 
-  console.log(usernameMap);
-
   // data配列にusernameを追加
   articleData.value = data.map((article) => ({
     ...article,
     username: usernameMap[article.userId],
   }));
 
+  // likeテーブルを取得し、articleData配列にいいね数が表示されたlikeプロパティを持たせる
+  let { data: db, error } = await supabase.from("like").select("*");
+  likeData.value = db;
+
+  const likeTable = likeData.value.reduce((acc, like) => {
+    const { articleId, userId } = like;
+    if (!acc.hasOwnProperty(articleId)) {
+      acc[articleId] = new Set();
+    }
+    acc[articleId].add(userId);
+    return acc;
+  }, {});
+
+  articleData.value = await articleData.value.map((article) => ({
+    ...article,
+    like: likeTable[article.id] ? likeTable[article.id].size : 0,
+    hideByOccupation: false,
+    hideByClub: false,
+    hideByTag: false,
+    hide: false,
+  }));
+
+  let { data: tags } = await supabase.from("tagging").select("tagId,articleId");
+
+  // articleData配列の各要素に"tags"プロパティを追加する
+  articleData.value.forEach((article) => {
+    article.tags = [];
+  });
+
+  // tags配列をイテレートし、関連するarticleData要素にtagIdを追加する
+  tags.forEach((tag) => {
+    const articleId = tag.articleId;
+    const article = articleData.value.find(
+      (article) => article.id === articleId
+    );
+    if (article) {
+      article.tags.push(tag.tagId);
+    }
+  });
+
   console.log(articleData.value);
 })();
 
-// Supabaseからtagテーブルのtag名を取得
+// Supabaseからtagテーブルデータを取得
 (async function () {
   let { data: name, error } = await supabase
     .from("tag")
-    .select("name")
+    .select("*")
     .eq("display", "true");
   tagName.value = name;
+
+  // 全ての要素にcheckedプロパティを追加し、初期値を設定する
+  tagName.value.forEach((tag) => {
+    tag.checked = false;
+  });
 })();
 
-// Supabaseから職種テーブルの職種名を取得
-let occupationName = ref("");
+// Supabaseから職種テーブルデータを取得
 (async function () {
   let { data: occupation, error } = await supabase
     .from("occupation")
-    .select("occupationName");
+    .select("*");
   occupationName.value = occupation;
+
+  // 全ての要素にcheckedプロパティを追加し、初期値を設定する
+  occupationName.value.forEach((occupation) => {
+    occupation.checked = false;
+  });
 })();
 
-// Supabaseからサークルテーブルのサークル名を取得
-let clubName = ref("");
-let visibleClubItems = ref(10);
-let showAllClubItems = ref(false);
+// Supabaseからサークルテーブルデータを取得
 (async function () {
   let { data: club, error } = await supabase
     .from("club")
-    .select("clubName")
+    .select("*")
     .eq("display", "true");
   clubName.value = club;
+
+  // 全ての要素にcheckedプロパティを追加し、初期値を設定する
+  clubName.value.forEach((club) => {
+    club.checked = false;
+  });
 })();
 
+// データフィルタリング用のメソッド
+const filterArticles = (searchParam) => {
+  // 全ての記事を表示する場合はフィルタリングをスキップ
+  if (!searchParam) {
+    articleData.value.forEach((article) => (article.hide = false));
+    return;
+  }
+
+  // 検索クエリを小文字に変換して、記事のタイトルや本文と照合する
+  const query = searchParam.toLowerCase();
+
+  articleData.value.forEach((article) => {
+    const titleMatch = article.title.toLowerCase().includes(query);
+    const bodyMatch = article.body.toLowerCase().includes(query);
+    article.hide = !(titleMatch || bodyMatch);
+  });
+};
+
+// クエリパラメータが変更される毎にfilterArticles関数が行われる
+watchEffect(() => {
+  const searchParam = route.currentRoute.value.query.search;
+  console.log("クエリパラメータ:", searchParam);
+  filterArticles(searchParam);
+});
+
+// 記事データを投稿日順にソートする
 const sortArticlesByDate = () => {
   articleData.value.sort((a, b) => new Date(a.date) - new Date(b.date));
 };
 
+// 記事データを新着順にソートする
 const sortArticlesByDateDescending = () => {
   articleData.value.sort((a, b) => new Date(b.date) - new Date(a.date));
+};
+
+// 記事データをいいね数の降順にソートする
+const sortByLikes = () => {
+  articleData.value.sort((a, b) => b.like - a.like);
+};
+
+// 職種をフィルターする関数
+const filterArticlesByOccupation = () => {
+  const selectedOccupations = occupationName.value
+    .filter((occupation) => occupation.checked)
+    .map((occupation) => occupation.id);
+
+  articleData.value.forEach((article) => {
+    if (selectedOccupations.length === 0) {
+      // 選択された職種がない場合はすべての記事を表示
+      article.hideByOccupation = false;
+    } else {
+      // 選択された職種と同じidの記事のみ表示
+      article.hideByOccupation = !selectedOccupations.includes(
+        article.occupationTagId
+      );
+    }
+  });
+};
+
+// サークルをフィルターする関数
+const filterArticlesByClub = () => {
+  const selectedClubs = clubName.value
+    .filter((club) => club.checked)
+    .map((club) => club.id);
+
+  articleData.value.forEach((article) => {
+    if (selectedClubs.length === 0) {
+      // 選択されたサークルがない場合はすべての記事を表示
+      article.hideByClub = false;
+    } else {
+      // 選択されたサークルと同じidの記事のみ表示
+      article.hideByClub = !selectedClubs.includes(article.clubTagId);
+    }
+  });
+};
+
+// プログラミング言語をフィルターする関数
+const filterArticlesByTag = () => {
+  const selectedTags = tagName.value
+    .filter((tag) => tag.checked)
+    .map((tag) => tag.id);
+
+  articleData.value.forEach((article) => {
+    if (selectedTags.length === 0) {
+      // 選択されたプログラミング言語がない場合はすべての記事を表示
+      article.hideByTag = false;
+    } else {
+      // 選択されたサークルと同じidの記事のみ表示
+      // article.hideByTag = !selectedTags.includes(article.tags);
+      // ↑ここ問題
+      article.hideByTag = !article.tags.some((tag) =>
+        selectedTags.includes(tag)
+      );
+    }
+  });
 };
 
 const toggleShowAllTagItems = () => {
@@ -334,86 +495,16 @@ function formatDateTime(dateString) {
   return formattedDate;
 }
 
+// 管理者による記事削除
 const router = useRouter();
 const deleteArticle = async (id) => {
   await supabase.from("article").upsert({ id: id, delete: true });
   router.go();
 };
-
-const article = [
-  {
-    id: 1,
-    userId: 1,
-    date: "2023-05-19T12:34:56Z",
-    title: "articleId1のtitle",
-    clubTagId: 1,
-    occupationTagId: 1,
-    body: "articleId1のbody",
-    goalLIke: 1,
-    qiitaPost: true,
-    publishDate: "2023-05-19T12:34:56Z",
-    publish: true,
-    bannerId: 1,
-    delete: true,
-  },
-  {
-    id: 2,
-    userId: 2,
-    date: "2023-05-20T12:34:56Z",
-    title: "articleId2のtitle",
-    clubTagId: 2,
-    occupationTagId: 2,
-    body: "articleId2のbody",
-    goalLIke: 2,
-    qiitaPost: false,
-    publishDate: "2023-05-20T12:34:56Z",
-    publish: false,
-    bannerId: 2,
-    delete: false,
-  },
-];
-
-const tagging = [
-  {
-    id: 1,
-    articleId: 1,
-    tagId: 1,
-  },
-  {
-    id: 2,
-    articleId: 2,
-    tagId: 2,
-  },
-];
-
-const tag = [
-  {
-    id: 1,
-    name: "tagId1のname",
-    code: "tagId1のcode",
-  },
-  {
-    id: 2,
-    name: "tagId2のname",
-    code: "tagId2のcode",
-  },
-];
-
-const combinedData = article.map((item) => {
-  const tags = tagging
-    .filter((tagItem) => tagItem.articleId === item.id)
-    .map((tagItem) => {
-      const matchedTag = tag.find((t) => t.id === tagItem.tagId);
-      return {
-        id: matchedTag.id,
-        name: matchedTag.name,
-        code: matchedTag.code,
-      };
-    });
-
-  return {
-    ...item,
-    tags: tags,
-  };
-});
 </script>
+
+<style>
+#custom-prose * {
+  all: revert;
+}
+</style>

@@ -9,11 +9,7 @@
       >
         <span class="ml-3 text-xl text-white">Qiita Builder</span>
       </NuxtLink>
-      <input
-        type="text"
-        class="bg-white text-gray-900 rounded-full py-2 px-4 focus:outline-none focus:shadow-outline m-4"
-        placeholder="検索"
-      />
+      <SearchArticle />
       <nav
         class="md:ml-auto flex flex-wrap items-center text-base justify-center"
       >
@@ -44,6 +40,7 @@
 </template>
 
 <script setup>
+import SearchArticle from "../components/SearchArticle.vue";
 const router = useRouter();
 const client = useSupabaseClient();
 const logout = async () => {
