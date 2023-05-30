@@ -2,7 +2,17 @@ import { serverSupabaseClient } from "#supabase/server";
 import { PostgrestSingleResponse } from "@supabase/supabase-js";
 
 type Article = {
-    
+    id: number,
+    date: string,
+    title: string,
+    clubId: number,
+    occupationId: number,
+    body: string,
+    qiitaPost: boolean,
+    publishDate: string,
+    bannerId: number,
+    userId: string,
+    goalLike: string
 }
 
 export default defineEventHandler(async (event) => {

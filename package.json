@@ -23,7 +23,6 @@
     "marked": "^5.0.2",
     "moment": "^2.29.4",
     "nuxt": "^3.4.3",
-    "nuxt-vue-multiselect": "^1.0.4",
     "tailwindcss": "^3.3.2"
   },
   "devDependencies": {
