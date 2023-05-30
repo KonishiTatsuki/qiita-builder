@@ -46,8 +46,6 @@ import "@vuepic/vue-datepicker/dist/main.css";
 const router = useRouter();
 const supabase = useSupabaseClient();
 
-const { data } = await useFetch("/api/advent/post");
-
 const errorMsg = ref("");
 const user = useSupabaseUser();
 const adventName = ref("");
