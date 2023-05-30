@@ -31,29 +31,37 @@
 </template>
 
 <script setup>
-// user情報からidを取得
-// 取得したuserIdを使って、articleテーブルからuserIdが一致するものを取得してタイトルを表示する
-// 登録ボタンを押下した時の処理
-// タイトルを選択したら、公開日としてボタンを押下した日付と登録したアドベントカレンダーのIDをパッチする
+// 取得したuserIdを使って、articleテーブルからuserIdが一致するものを取得してタイ
+import { ref } from "vue";
 
-import { useRouter } from "vue-router";
+// 引数を受け取る変数
+const bannerId = ref(null);
+const date = ref(null);
+const month = ref(null);
+const year = ref(null);
+
 const router = useRouter();
-const selectedDate = ref(null);
-const title = ref("");
-const article = ref([]);
+const supabase = useSupabaseClient();
 const user = useSupabaseUser();
-const { data: post } = await useFetch("/api/advent/get");
-console.log(post);
-//登録する押下
-const submitHandler = async (credentials) => {
-  console.log(credentials);
-};
+const userId = user.value?.id;
+const title = ref("");
 
-console.log(user.value);
-// 遷移前の日付を取得
-if (router.currentRoute.value.query.date) {
-  selectedDate.value = router.currentRoute.value.query.date;
-}
+// ルート情報を取得してadventの引数を代入
+const route = useRoute();
+console.log("routeの結果", route);
+bannerId.value = route.params.bannerId;
+date.value = route.params.date;
+
+console.log("bannerIdの結果", bannerId.value);
+console.log("dateの結果", date.value);
+
+// user.idをもとにarticleテーブルから記事を全部取得する
+const { data: articles, error } = supabase
+  .from("article")
+  .select("*")
+  .eq("userId", userId);
+
+console.log("articlesの結果", articles);
 </script>
 
 <style lang="scss" scoped></style>

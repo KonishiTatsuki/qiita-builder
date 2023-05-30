@@ -8,7 +8,7 @@
 import CalendarSec from "~/components/CalendarSec.vue";
 
 export default {
-  name: "App",
+  name: "advent",
   components: {
     CalendarSec,
   },
