@@ -69,11 +69,13 @@ const title = ref('');
 const goalLike = ref('');
 const publishDate = ref('');
 const router = useRouter();
+const users = useSupabaseUser();
+const userId = users.value.id;
 
 //記事投稿
 async function submitHandler() {
   const postData = {
-    // userId: userId,
+    userId: userId,
     // clubTagId: clubTagId,
     // occupationId: occupationId,
     bannerId: null,
@@ -105,7 +107,7 @@ async function submitHandler() {
 // 下書き記事の投稿
 const draftHandler= async () => {
   const postData = {
-    // userId: userId,
+    userId: userId,
     // clubTagId: clubTagId,
     // occupationId: occupationId,
     bannerId: null,
