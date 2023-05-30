@@ -95,6 +95,7 @@
         </p>
       </div>
     </div>
+    <button @click="fetchData">自動投稿</button>
   </div>
 
   <!-- コメントフォーム -->
@@ -258,11 +259,19 @@ let { data: article } = await supabase
   .from("article")
   .select("*")
   .eq("id", articleId);
-
+let { data: tag } = await supabase
+  .from("tagging")
+  .select("*")
+  .eq("id", articleId);
+  
+console.log("tag", tag);
 const qiitaToken = user[0].qiitaToken;
 const articleBody = article[0].body;
+const articleTitle = article[0].title;
+// const tag =
 console.log("qiitaToken", qiitaToken);
 console.log("articleBody", articleBody);
+console.log("articleTitle", articleTitle);
 
 //いいね数を取得する関数
 const Like = async () => {
@@ -279,34 +288,8 @@ const Like = async () => {
   if (confirmation.data[0]) {
     showLikeButton.value = true;
     //いいね数が目標いいねに到達した場合
-
     // if (goalLike.value <= 0) {
-    //   function fetchData() {
-    //     const item = {
-    //       body: "【投稿内容】", //マークダウン形式で記載が必要
-    //       private: false, //限定共有状態かどうかを表すフラグ (Qiita Teamでは無効)
-    //       tags: [
-    //         {
-    //           name: "テスト投稿", //タグ：APIテスト時は投稿が無難
-    //         },
-    //       ],
-    //       title: "【記事タイトル】",
-    //       tweet: false, //Twitterに投稿するかどうか (Twitter連携を有効化している場合のみ有効)
-    //     };
-    //     axios
-    //       .post("https://qiita.com/api/v2/items?", item, {
-    //         headers: {
-    //           "Content-Type": "application/json",
-    //           Authorization: "【作成したトークン】",
-    //         },
-    //       })
-    //       .then(() => {
-    //         //成功処理
-    //       })
-    //       .catch((error) => {
-    //         //失敗処理
-    //       });
-    //   }
+
     // }
   }
   return data.length;
@@ -374,6 +357,34 @@ const deleteComment = async (commentId) => {
   } catch (error) {
     console.error(error);
   }
+};
+
+///自動投稿
+const fetchData = () => {
+  const item = {
+    body: articleBody, //マークダウン形式で記載が必要
+    private: false, //限定共有状態かどうかを表すフラグ (Qiita Teamでは無効)
+    tags: [
+      {
+        name: "投稿", //タグ：APIテスト時は投稿が無難
+      },
+    ],
+    title: articleTitle,
+    tweet: false, //Twitterに投稿するかどうか (Twitter連携を有効化している場合のみ有効)
+  };
+  axios
+    .post("https://qiita.com/api/v2/items?", item, {
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: "a9fa491ebb8d0a85d9ed0816c8874c0d97188323",
+      },
+    })
+    .then(() => {
+      //成功処理
+    })
+    .catch((error) => {
+      //失敗処理
+    });
 };
 </script>
 
