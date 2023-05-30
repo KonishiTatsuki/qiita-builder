@@ -3,14 +3,9 @@
     <h1 class="title">アドベントカレンダーに投稿</h1>
     <p class="text-red-500">※投稿や編集、削除ができるのは期間までです。</p>
     <h2 class="subtitle">題名</h2>
-    <input
-      maxlength="30"
-      type="text"
-      v-model="title"
-      class="border border-blue-500 w-96"
-    />
+    <div>{{}}</div>
     <div>
-      <p>選択した日付: {{ selectedDate }}</p>
+      <p>選択した日付: {{ date }}日</p>
       <p>入力したタイトル: {{ title }}</p>
     </div>
     <h2 class="subtitle">記事の選択</h2>
@@ -37,8 +32,6 @@ import { ref } from "vue";
 // 引数を受け取る変数
 const bannerId = ref(null);
 const date = ref(null);
-const month = ref(null);
-const year = ref(null);
 
 const router = useRouter();
 const supabase = useSupabaseClient();
