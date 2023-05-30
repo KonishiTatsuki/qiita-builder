@@ -114,11 +114,19 @@
         </div>
       </div>
 
-      <div>
+      <div class="w-full">
         <!-- アドベントカレンダーバナー -->
-        <NuxtLink to="/advent">
+        <NuxtLink
+          v-if="bannerData && bannerData[0]"
+          :to="{ path: `/calendar/${bannerData[0].id}` }"
+        >
           <div
             class="bg-gradient-to-r from-purple-400 via-pink-500 to-red-500 p-4 rounded-lg shadow-lg flex items-center justify-between mt-3"
+            :style="
+              'background-image: url(' +
+              (bannerData && bannerData[0]?.image) +
+              ')'
+            "
           >
             <!-- メッセージ -->
             <div class="text-white font-bold title">
@@ -189,8 +197,8 @@
                   <div class="md:flex-grow">
                     <h2 class="title font-medium text-gray-900 title-font mb-2">
                       {{
-                        article.title.length > 20
-                          ? article.title.slice(0, 20) + "..."
+                        article.title.length > 30
+                          ? article.title.slice(0, 30) + "..."
                           : article.title
                       }}
                     </h2>
