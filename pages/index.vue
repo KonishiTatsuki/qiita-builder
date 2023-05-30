@@ -127,7 +127,8 @@
             </div>
             <!-- サンプル画像 -->
             <img
-              src="https://picsum.photos/200/150?random=2"
+              v-if="bannerData && bannerData[0]?.image"
+              :src="bannerData[0]?.image"
               alt="ランダム画像"
               width="200"
               height="150"
@@ -252,6 +253,7 @@ let occupationName = ref("");
 let clubName = ref("");
 let visibleClubItems = ref(10);
 let showAllClubItems = ref(false);
+let bannerData = ref([]);
 
 //articleデータ取得
 (async () => {
@@ -362,6 +364,18 @@ let showAllClubItems = ref(false);
   clubName.value.forEach((club) => {
     club.checked = false;
   });
+})();
+
+// Supabaseからbannerテーブルデータを取得
+(async function () {
+  let { data: banner } = await supabase
+    .from("banner")
+    .select("*")
+    .eq("display", "true");
+  bannerData.value = banner;
+
+  console.log(bannerData.value);
+  console.log(bannerData.value[0].image);
 })();
 
 // データフィルタリング用のメソッド
