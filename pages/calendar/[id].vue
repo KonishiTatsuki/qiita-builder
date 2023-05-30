@@ -19,14 +19,13 @@
           <tr v-for="(week, index) in calendarChunks" :key="index" class="p">
             <td v-for="day in week" :key="day.date" class="pt-2 pb-7 pl-7 pr-7">
               <div class="text-lg text-center mt-2 mb-5">{{ day.date }}</div>
-              <NuxtLink :to="{ path: `/advents/${bannerId}/${day.date}` }">
+              <NuxtLink :to="{ path: `/advents/${id}/${day.date}` }">
                 <button
                   v-if="day.isCurrentMonth && day.period"
                   class="bg-blue-200 hover:bg-blue-400 text-black py-2 px-4 rounded"
                 >
                   参加する
                 </button>
-                <!-- <p>{{ week }}</p>s -->
               </NuxtLink>
               <div>
                 <div v-if="day.isCurrentMonth && day.period">
@@ -52,13 +51,16 @@ const description = ref("");
 const startDate = ref("");
 const endDate = ref("");
 const managerName = ref("");
-const bannerId = ref(null);
+
 const date = ref("");
 
 // bannerテーブル情報を取得
-const { data } = await useFetch("/api/advent/get");
-console.log(data.value[0]);
-bannerId.value = data.value[0].id;
+const route = useRoute();
+const { id } = route.params;
+console.log(id);
+const { data } = await useFetch(`/api/advent/get?id=${id}`);
+console.log("data.value[0]", data.value[0]);
+
 adventName.value = data.value[0].adventName;
 description.value = data.value[0].description;
 startDate.value = data.value[0].startDate;
@@ -128,19 +130,6 @@ const calendarChunks = computed(() => {
 
 // 曜日の配列
 const daysOfWeek = ["日", "月", "火", "水", "木", "金", "土"];
-
-// 引数を含んだリンクを生成する関数
-
-const getPostAdventRoute = (day) => {
-  const bannerInfo = {
-    name: "postAdvent",
-    params: {
-      bannerId: bannerId.value,
-      date: day.date,
-    },
-  };
-  return bannerInfo;
-};
 </script>
 
 <style scoped>
