@@ -15,7 +15,7 @@
                   v-model="text"
                 />
               </div>
-              <p v-if="errorMessage">{{ errorMessage }}</p>
+              <p v-if="errorMessage" class="text-red-500">{{ errorMessage }}</p>
             </div>
           </div>
           <NuxtLink to="/userRegister">
@@ -51,14 +51,16 @@ const submit = async () => {
   })
     .then((response) => response.json())
     .then(async (data) => {
-      // console.log("data", data);
       confirmation = data[0];
-      console.log(confirmation);
       if (confirmation) {
-        const { error } = await supabase
-          .from("profiles")
-          .update({ qiitaToken: text.value })
-          .eq("id", userId);
+        const postData = {
+          userId: userId,
+          qiitaToken: text.value,
+        };
+        await useFetch("/api/user/qiitaTokenUpdate", {
+          method: "POST",
+          body: postData,
+        });
         router.push("/");
       } else {
         errorMessage.value = "アクセストークンが存在しません";
