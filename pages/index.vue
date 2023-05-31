@@ -117,7 +117,7 @@
       <div class="w-full">
         <!-- アドベントカレンダーバナー -->
         <NuxtLink
-          v-if="bannerData && bannerData[0]"
+          v-if="bannerData && bannerData[0]?.id"
           :to="{ path: `/calendar/${bannerData[0].id}` }"
         >
           <div
@@ -195,7 +195,9 @@
                     }}</span>
                   </div>
                   <div class="md:flex-grow">
-                    <h2 class="text-4xl font-medium text-gray-900 title-font mb-2">
+                    <h2
+                      class="text-4xl font-medium text-gray-900 title-font mb-2"
+                    >
                       {{
                         article.title.length > 30
                           ? article.title.slice(0, 30) + "..."
@@ -262,8 +264,6 @@ let clubName = ref("");
 let visibleClubItems = ref(10);
 let showAllClubItems = ref(false);
 let bannerData = ref([]);
-let currentPage = ref(1);
-const articlesPerPage = 10;
 
 //articleデータ取得
 (async () => {
@@ -331,8 +331,6 @@ const articlesPerPage = 10;
       article.tags.push(tag.tagId);
     }
   });
-
-  console.log(articleData.value);
 })();
 
 // Supabaseからtagテーブルデータを取得
@@ -383,9 +381,6 @@ const articlesPerPage = 10;
     .select("*")
     .eq("display", "true");
   bannerData.value = banner;
-
-  console.log(bannerData.value);
-  console.log(bannerData.value[0].image);
 })();
 
 // データフィルタリング用のメソッド
@@ -409,7 +404,6 @@ const filterArticles = (searchParam) => {
 // クエリパラメータが変更される毎にfilterArticles関数が行われる
 watchEffect(() => {
   const searchParam = route.currentRoute.value.query.search;
-  console.log("クエリパラメータ:", searchParam);
   filterArticles(searchParam);
 });
 
