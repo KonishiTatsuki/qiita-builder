@@ -178,9 +178,18 @@
               >
                 <div class="flex">
                   <div class="md:w-64 md:mb-0 mb-6 flex-shrink-0 flex flex-col">
-                    <span class="font-semibold title-font text-gray-700">{{
-                      article.username
-                    }}</span>
+                    <div class="flex items-center">
+                      <!-- アイコン -->
+                      <img
+                        v-if="article.image"
+                        :src="article.image"
+                        alt="Icon"
+                        class="w-8 h-8 rounded-full mr-2"
+                      />
+                      <span class="font-semibold title-font text-gray-700">{{
+                        article.username
+                      }}</span>
+                    </div>
                     <span class="mt-1 text-gray-500 text-sm">{{
                       formatDateTime(article.date)
                     }}</span>
@@ -270,17 +279,18 @@ let bannerData = ref([]);
     .map((article) => article.userId);
   const { data: users } = await supabase
     .from("profiles")
-    .select("id, username")
+    .select("id, username,image")
     .in("id", userIds);
-  const usernameMap = {};
+  const userMap = {};
   for (const user of users) {
-    usernameMap[user.id] = user.username;
+    userMap[user.id] = { username: user.username, image: user.image };
   }
 
-  // data配列にusernameを追加
+  // data配列にusernameとimageを追加
   articleData.value = data.map((article) => ({
     ...article,
-    username: usernameMap[article.userId],
+    username: userMap[article.userId]?.username || "",
+    image: userMap[article.userId]?.image || "",
   }));
 
   // likeテーブルを取得し、articleData配列にいいね数が表示されたlikeプロパティを持たせる
@@ -322,6 +332,7 @@ let bannerData = ref([]);
       article.tags.push(tag.tagId);
     }
   });
+  console.log(articleData.value);
 })();
 
 // Supabaseからtagテーブルデータを取得
