@@ -1,66 +1,90 @@
 <template>
   <div class="my-20">
-      <div class="text-right">
-        <button type="submit" class="btn mb-4" @click="deleteHandler">記事を削除</button>
+    <div class="text-right">
+      <button type="submit" class="btn mb-4" @click="deleteHandler">
+        記事を削除
+      </button>
     </div>
     <div>
-        <input type="text" class="border" style="width: 100%; height: 50px;" placeholder="タイトル" v-model="title">
-        <p v-if="errorTitle" class="text-red-500 mt-2">*タイトルを入力してください</p>
+      <input
+        type="text"
+        class="border"
+        style="width: 100%; height: 50px"
+        placeholder="タイトル"
+        v-model="title"
+      />
+      <p v-if="errorTitle" class="text-red-500 mt-2">
+        *タイトルを入力してください
+      </p>
     </div>
     <div>
-  <div class="mt-5">
-    <textarea
-      ref="contentArea"
-      v-model="content"
-      rows="5"
-      placeholder="markdown形式で説明を記述できます。"
-      maxlength="300"
-    />
-    <p v-if="errorContent" class="text-red-500">*内容を入力してください</p>
-
-  </div>
-  </div>
+      <div class="mt-5">
+        <textarea
+          ref="contentArea"
+          v-model="content"
+          rows="5"
+          placeholder="markdown形式で説明を記述できます。"
+          maxlength="300"
+        />
+        <p v-if="errorContent" class="text-red-500">*内容を入力してください</p>
+      </div>
+    </div>
     <div class="flex justify-around mt-5">
-        <div class="block">
-          <FormKit type="list" #default="{ value }">
-            <FormKit
-              :classes="{
-                input: 'border border-black py-1 px-2 rounded-md',
-                message: 'text-red-500',
-              }"
-              label="Qiita自動投稿"
-              type="select"
-              placeholder="選択してください"
-              :options="goalLikeArray"
-              v-model="goalLike" 
-            />
-          </FormKit>
-          <div v-if="errorGoalLike" class="text-red-500 mt-2">*いいねの数を入力してください</div>
+      <div class="block">
+        <FormKit type="list" #default="{ value }">
+          <FormKit
+            :classes="{
+              input: 'border border-black py-1 px-2 rounded-md',
+              message: 'text-red-500',
+            }"
+            label="Qiita自動投稿"
+            type="select"
+            placeholder="選択してください"
+            :options="goalLikeArray"
+            v-model="goalLike"
+          />
+        </FormKit>
+        <div v-if="errorGoalLike" class="text-red-500 mt-2">
+          *いいねの数を入力してください
         </div>
-          <div>
-            <p>公開日</p>
-            <input type="date" class="border border-black py-1 px-2 rounded-md" style="width: 200px" v-model="publishDate">
-          </div>
-        <div class="mr-36">
-            <div>
-              <v-col>
-                <v-combobox
-                  v-model="select"
-                  :items="items"
-                  label="タグを設定してください"
-                  multiple
-                  chips
-                  style="min-width: 300px;"
-                ></v-combobox>
-              </v-col>
-            </div>
+      </div>
+      <div>
+        <p>公開日</p>
+        <input
+          type="date"
+          class="border border-black py-1 px-2 rounded-md"
+          style="width: 200px"
+          v-model="publishDate"
+        />
+      </div>
+      <div class="mr-36">
+        <div>
+          <v-col>
+            <v-combobox
+              v-model="select"
+              :items="items"
+              label="タグを設定してください"
+              multiple
+              chips
+              style="min-width: 300px"
+            ></v-combobox>
+          </v-col>
         </div>
+      </div>
       <div class="mt-4">
         <span class="mr-4">
-            <button type="submit" class="btn text-right" @click="submitHandler">編集を完了する</button>
+          <button type="submit" class="btn text-right" @click="submitHandler">
+            編集を完了する
+          </button>
         </span>
         <span>
-            <button type="submit" class="border py-2 px-2 rounded-md" @click="draftHandler">下書き保存</button>
+          <button
+            type="submit"
+            class="border py-2 px-2 rounded-md"
+            @click="draftHandler"
+          >
+            下書き保存
+          </button>
         </span>
       </div>
     </div>
@@ -71,92 +95,91 @@
 const route = useRoute();
 // パスパラメータよりid取得
 const { id } = route.params;
-const { data } = await useFetch(`/api/article/get?id=${id}`)
+const { data } = await useFetch(`/api/article/get?id=${id}`);
 import type EasyMDE from "easymde";
 
 let mde: InstanceType<typeof EasyMDE> | null = null;
 const content = ref(data.value.article[0].body);
 const contentArea = ref();
-const title = ref(data.value.article[0].title)
-const select = ref(data.value.tag)
-const goalLike = ref(data.value.article[0].goalLike)
-const publishDate = ref(data.value.article[0].publishDate)
-const router = useRouter()
+const title = ref(data.value.article[0].title);
+const select = ref(data.value.tag);
+const goalLike = ref(data.value.article[0].goalLike);
+const publishDate = ref(data.value.article[0].publishDate);
+const router = useRouter();
 let errorTitle = ref(false);
 let errorContent = ref(false);
 let errorGoalLike = ref(false);
-console.log(errorTitle)
-console.log(errorContent)
-console.log(content.value)
+console.log(errorTitle);
+console.log(errorContent);
+console.log(content.value);
 
 const goalLikeArray = [
   {
-    "value": "0",
-    "label": "設定しない",
+    value: "0",
+    label: "設定しない",
   },
   {
-    "value": "5",
-    "label": "5いいね",
+    value: "5",
+    label: "5いいね",
   },
   {
-    "value": "10",
-    "label": "10いいね",
+    value: "10",
+    label: "10いいね",
   },
   {
-    "value": "15",
-    "label": "15いいね",
+    value: "15",
+    label: "15いいね",
   },
   {
-    "value": "20",
-    "label": "20いいね",
-  }
-]
+    value: "20",
+    label: "20いいね",
+  },
+];
 
 const submitHandler = async () => {
-  if(errorTitle.value || errorContent.value || errorGoalLike.value) {
-    return
+  if (errorTitle.value || errorContent.value || errorGoalLike.value) {
+    return;
   }
-    const postData = {
-      id: id,
-      title: title,
-      body: content,
-      goalLike: goalLike,
-      date: new Date(),
-      publishDate: publishDate,
-      publish: true,
-    }
-  await useFetch('/api/article/patch', {
-  method: 'PATCH',
-  body: { postData: postData, tag: select}
-});
-    router.push('/')
-}
+  const postData = {
+    id: id,
+    title: title,
+    body: content,
+    goalLike: goalLike,
+    date: new Date(),
+    publishDate: publishDate,
+    publish: true,
+  };
+  await useFetch("/api/article/patch", {
+    method: "PATCH",
+    body: { postData: postData, tag: select },
+  });
+  router.push("/");
+};
 
 const draftHandler = async () => {
-    const postData = {
-      id: id,
-      title: title,
-      body: content,
-      goalLike: goalLike,
-      date: new Date(),
-      publishDate: publishDate,
-      publish: false,
-    }
-  await useFetch('/api/article/patch', {
-  method: 'PATCH',
-  body: { postData: postData, tag: select}
+  const postData = {
+    id: id,
+    title: title,
+    body: content,
+    goalLike: goalLike,
+    date: new Date(),
+    publishDate: publishDate,
+    publish: false,
+  };
+  await useFetch("/api/article/patch", {
+    method: "PATCH",
+    body: { postData: postData, tag: select },
   });
-  router.push('/')
-}
+  router.push("/");
+};
 
-const deleteHandler = async() => {
-  await useFetch('/api/article/delete', {
-    method: 'PATCH',
-    body: id
-  })
-    router.push('/')
-}
-
+const deleteHandler = async () => {
+  await useFetch("/api/article/delete", {
+    method: "PATCH",
+    body: id,
+  });
+  router.push("/");
+};
 
 onMounted(async () => {
   const EasyMDE = (await import("easymde")).default;
@@ -168,28 +191,27 @@ onMounted(async () => {
       content.value = mde.value();
     }
   });
-})
+});
 
-watch(title, () => { 
-  if(!title.value) {
-    errorTitle.value = true
+watch(title, () => {
+  if (!title.value) {
+    errorTitle.value = true;
   } else {
-    errorTitle.value = false
+    errorTitle.value = false;
   }
-})
-watch(content, () => { 
-  if(!content.value) {
-    errorContent.value = true
+});
+watch(content, () => {
+  if (!content.value) {
+    errorContent.value = true;
   } else {
-    errorContent.value = false
+    errorContent.value = false;
   }
-})
-watch(goalLike, () => { 
-  if(!goalLike.value) {
-    errorGoalLike.value = true
+});
+watch(goalLike, () => {
+  if (!goalLike.value) {
+    errorGoalLike.value = true;
   } else {
-    errorGoalLike.value = false
+    errorGoalLike.value = false;
   }
-})
-
+});
 </script>
