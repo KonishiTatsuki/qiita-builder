@@ -122,7 +122,7 @@
       <!-- 過去のコメントを表示するループ -->
       <div
         class="bg-gray-200 p-2 rounded my-3 flex justify-between items-center"
-        v-for="commented in commenteds"
+        v-for="commented in commentDate"
         :key="commented.id"
       >
         <div>
@@ -318,35 +318,20 @@ if (goalLike.value <= 0 && articleQiitaPost === false) {
 
 //　　　　　　　　コメント機能　　　　　　　　　//
 //投稿済みコメントを取得
-const commentData = async () => {
-  const { data: commentDate } = await useFetch("/api/comment/get", {
+const commentDate = ref();
+const { data: commentDates } = await useFetch("/api/comment/get", {
+  method: "POST",
+  body: articleId,
+});
+if (commentDates.value) {
+  const { data: commentItem } = await useFetch("/api/user/commentUserGet", {
     method: "POST",
-    body: articleId,
+    body: commentDates.value,
   });
-  // dataのループ処理 map
-  if (commentDate.value) {
-    // console.log(commentDate.value);
-    // const { data: commentDatess } = await useFetch("/api/user/commentUserGet", {
-    //   method: "POST",
-    //   // body: commentDate.value,
-    //   body: 12,
-    // });
-    // console.log(commentDatess.value);
-    await Promise.all(
-      commentDate.value.map(async (item) => {
-        let { data: users } = await supabase
-          .from("profiles")
-          .select("*")
-          .eq("id", item.userId);
-        item.username = users[0].username;
-      })
-    );
-  } else {
-    console.log("投稿済みコメントなし");
-  }
-  return commentDate.value;
-};
-const commenteds = await commentData();
+  commentDate.value = commentItem.value;
+} else {
+  console.log("投稿済みコメントなし");
+}
 
 //コメント投稿機能
 //コメント
