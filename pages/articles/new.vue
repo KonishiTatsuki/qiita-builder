@@ -1,56 +1,85 @@
 <template>
   <div class="my-20">
     <div>
-        <input type="text" class="border" style="width: 100%; height: 50px;" placeholder="タイトル" v-model="title">
+      <input
+        type="text"
+        class="border"
+        style="width: 100%; height: 50px"
+        placeholder="タイトル"
+        v-model="title"
+      />
+      <p v-if="errorTitle" class="text-red-500 mt-2">
+        *タイトルを入力してください
+      </p>
     </div>
     <div>
-  <div class="mt-5">
-    <textarea
-      ref="contentArea"
-      v-model="content"
-      rows="5"
-      placeholder="markdown形式で説明を記述できます。"
-      maxlength="300"
-    />
-  </div>
-  </div>
-    <div class="flex justify-around mt-5">
-        <div>
-            <label for="">Qiita自動投稿：</label>
-            <select name="like" size="1" v-model="goalLike" class="border">
-            <option value="">---</option>
-            <option value="5">5いいね</option>
-            <option value="10">10いいね</option>
-            <option value="15">15いいね</option>
-            <option value="20">20いいね</option>
-            <option value="0">設定しない</option>
-        </select>
+      <div class="mt-5">
+        <textarea
+          ref="contentArea"
+          v-model="content"
+          rows="5"
+          placeholder="markdown形式で説明を記述できます。"
+          maxlength="300"
+        />
+        <p v-if="errorContent" class="text-red-500">*内容を入力してください</p>
+      </div>
+    </div>
+    <div class="flex justify-around mt-8">
+      <div class="block">
+        <FormKit type="list" #default="{ value }">
+          <FormKit
+            :classes="{
+              input: 'border border-black py-1 px-2 rounded-md',
+              message: 'text-red-500',
+            }"
+            label="Qiita自動投稿"
+            type="select"
+            placeholder="選択してください"
+            :options="goalLikeArray"
+            v-model="goalLike"
+          />
+        </FormKit>
+        <div v-if="errorGoalLike" class="text-red-500 mt-2">
+          *いいねの数を入力してください
         </div>
-        <div class="mr-36">
-            <div>
-            <v-row>
-              <v-col cols="12">
-                <v-combobox
-                  v-model="select"
-                  :items="items"
-                  label="タグを設定してください"
-                  multiple
-                  chips
-                ></v-combobox>
-              </v-col>
-            </v-row>
-            </div>
-            <div>
-                <label for="">公開日：</label>
-                <input type="date" class="border mt-5" style="width: 200px" v-model="publishDate">
-            </div>
-        </div>
+      </div>
       <div>
+        <p>公開日</p>
+        <input
+          type="date"
+          class="border border-black py-1 px-2 rounded-md"
+          style="width: 200px"
+          v-model="publishDate"
+        />
+      </div>
+      <div class="mr-36">
+        <div>
+          <v-col>
+            <v-combobox
+              v-model="select"
+              :items="items"
+              label="タグを設定してください"
+              multiple
+              chips
+              style="min-width: 300px"
+            ></v-combobox>
+          </v-col>
+        </div>
+      </div>
+      <div class="mt-4">
         <span class="mr-4">
-            <button type="submit" class="btn text-right" @click="submitHandler">投稿する</button>
+          <button type="submit" class="btn text-right" @click="submitHandler">
+            投稿する
+          </button>
         </span>
         <span>
-            <button type="submit" class="border py-2 px-2 rounded-md" @click="draftHandler">下書き保存</button>
+          <button
+            type="submit"
+            class="border py-2 px-2 rounded-md"
+            @click="draftHandler"
+          >
+            下書き保存
+          </button>
         </span>
       </div>
     </div>
@@ -61,28 +90,65 @@
 import type EasyMDE from "easymde";
 
 let mde: InstanceType<typeof EasyMDE> | null = null;
-let items = ref(["Java", "PHP", "JavaScript", "Python", "Ruby", "フロントエンド", "バックエンド", "クラウド"])
-const select = ref([])
-const content = ref('');
+let items = ref([
+  "Java",
+  "PHP",
+  "JavaScript",
+  "Python",
+  "Ruby",
+  "フロントエンド",
+  "バックエンド",
+  "クラウド",
+]);
+const select = ref([]);
+const content = ref("");
 const contentArea = ref();
-const title = ref('');
-const goalLike = ref('');
-const publishDate = ref('');
+const title = ref("");
+const goalLike = ref("");
+const publishDate = ref(new Date());
 const router = useRouter();
 const users = useSupabaseUser();
 const userId = users.value.id;
+let errorTitle = ref(true);
+let errorContent = ref(true);
+let errorGoalLike = ref(true);
 
+const { data: user } = await useFetch("/api/user/get", {
+  method: "POST",
+  body: userId,
+});
 
-const { data: user } =  await useFetch('/api/user/get', {
-    method: 'POST',
-    body: userId,
-  })
-  const club = user.value[0].clubid.id
-  const occupation = user.value[0].occupation.id
+const club = user.value[0].clubid.id;
+const occupation = user.value[0].occupation.id;
 
+const goalLikeArray = [
+  {
+    value: "0",
+    label: "設定しない",
+  },
+  {
+    value: "5",
+    label: "5いいね",
+  },
+  {
+    value: "10",
+    label: "10いいね",
+  },
+  {
+    value: "15",
+    label: "15いいね",
+  },
+  {
+    value: "20",
+    label: "20いいね",
+  },
+];
 
 //記事投稿
 async function submitHandler() {
+  if (errorTitle.value || errorContent.value || errorGoalLike.value) {
+    return;
+  }
   const postData = {
     userId: userId,
     clubTagId: club,
@@ -96,25 +162,16 @@ async function submitHandler() {
     date: new Date(),
     publishDate: publishDate,
     publish: true,
-  }
-    const { data } = await useFetch('/api/article/post', {
-    method: 'POST',
-    body: postData,
-  })
-  .then(
-    // タグの投稿
-    async(id) => {
-    const articleId = id.data.value
-    const { data } = await useFetch('/api/tag/post', {
-    method: 'POST',
-    body: {tagArray: select.value, articleId: articleId},
-  })
-    router.push('/')
-})
+  };
+  const { data, error } = await useFetch("/api/article/post", {
+    method: "POST",
+    body: { article: postData, tagArray: select.value },
+  });
+  router.push("/");
 }
 
 // 下書き記事の投稿
-const draftHandler= async () => {
+const draftHandler = async () => {
   const postData = {
     userId: userId,
     clubTagId: club,
@@ -127,24 +184,15 @@ const draftHandler= async () => {
     goalLike: goalLike,
     date: new Date(),
     publishDate: publishDate,
-    publish: false
-  }
-  const { data } = await useFetch('/api/article/post', {
-    method: 'POST',
-    body: postData,
-  })
-  .then(
-    // タグの投稿
-    async(id) => {
-    const articleId = id.data.value
-    const { data } = await useFetch('/api/tag/post', {
-    method: 'POST',
-    body: {tagArray: select.value, articleId: articleId},
-  })
-    router.push('/')
-})
+    publish: false,
+  };
+  const { data, error } = await useFetch("/api/article/post", {
+    method: "POST",
+    body: { article: postData, tagArray: select.value },
+  });
+  router.push("/");
+};
 
-}
 onMounted(async () => {
   const EasyMDE = (await import("easymde")).default;
   mde = new EasyMDE({
@@ -155,7 +203,27 @@ onMounted(async () => {
       content.value = mde.value();
     }
   });
-})
+});
 
-
+watch(title, () => {
+  if (!title.value) {
+    errorTitle.value = true;
+  } else {
+    errorTitle.value = false;
+  }
+});
+watch(content, () => {
+  if (!content.value) {
+    errorContent.value = true;
+  } else {
+    errorContent.value = false;
+  }
+});
+watch(goalLike, () => {
+  if (!goalLike.value) {
+    errorGoalLike.value = true;
+  } else {
+    errorGoalLike.value = false;
+  }
+});
 </script>

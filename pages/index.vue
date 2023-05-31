@@ -114,25 +114,25 @@
         </div>
       </div>
 
-      <div>
+      <div class="w-full">
         <!-- アドベントカレンダーバナー -->
-        <NuxtLink to="/advent">
+        <NuxtLink
+          v-if="bannerData && bannerData[0]?.id"
+          :to="{ path: `/calendar/${bannerData[0].id}` }"
+        >
           <div
             class="bg-gradient-to-r from-purple-400 via-pink-500 to-red-500 p-4 rounded-lg shadow-lg flex items-center justify-between mt-3"
+            :style="
+              'background-image: url(' +
+              (bannerData && bannerData[0]?.image) +
+              '); background-size: 1200px 350px;'
+            "
           >
             <!-- メッセージ -->
             <div class="text-white font-bold title">
               <p class="ml-5">Qiita Builder Advent Calendar</p>
               <p class="ml-5">開催中</p>
             </div>
-            <!-- サンプル画像 -->
-            <img
-              src="https://picsum.photos/200/150?random=2"
-              alt="朝焼けの線路"
-              width="200"
-              height="150"
-              class="rounded-lg"
-            />
           </div>
         </NuxtLink>
         <!-- ソート機能 -->
@@ -186,10 +186,12 @@
                     }}</span>
                   </div>
                   <div class="md:flex-grow">
-                    <h2 class="title font-medium text-gray-900 title-font mb-2">
+                    <h2
+                      class="text-4xl font-medium text-gray-900 title-font mb-2"
+                    >
                       {{
-                        article.title.length > 20
-                          ? article.title.slice(0, 20) + "..."
+                        article.title.length > 30
+                          ? article.title.slice(0, 30) + "..."
                           : article.title
                       }}
                     </h2>
@@ -200,19 +202,19 @@
                           : article.body
                       }}
                     </p>
-                    <div class="flex justify-between items-center mt-4">
+                    <div class="mt-4">
                       <router-link
                         :to="`/articleDetail/${article.id}`"
-                        class="text-indigo-500 inline-flex items-center"
+                        class="text-indigo-500"
                       >
                         記事詳細&nbsp;→
                       </router-link>
                       <button
-                        class="btn"
+                        class="btn block mt-4"
                         @click="deleteArticle(article.id)"
-                        v-show="authority"
+                        v-if="authority"
                       >
-                        削除(管理者のみ表示)
+                        削除
                       </button>
                     </div>
                   </div>
@@ -252,6 +254,7 @@ let occupationName = ref("");
 let clubName = ref("");
 let visibleClubItems = ref(10);
 let showAllClubItems = ref(false);
+let bannerData = ref([]);
 
 //articleデータ取得
 (async () => {
@@ -319,8 +322,6 @@ let showAllClubItems = ref(false);
       article.tags.push(tag.tagId);
     }
   });
-
-  console.log(articleData.value);
 })();
 
 // Supabaseからtagテーブルデータを取得
@@ -364,6 +365,15 @@ let showAllClubItems = ref(false);
   });
 })();
 
+// Supabaseからbannerテーブルデータを取得
+(async function () {
+  let { data: banner } = await supabase
+    .from("banner")
+    .select("*")
+    .eq("display", "true");
+  bannerData.value = banner;
+})();
+
 // データフィルタリング用のメソッド
 const filterArticles = (searchParam) => {
   // 全ての記事を表示する場合はフィルタリングをスキップ
@@ -385,7 +395,6 @@ const filterArticles = (searchParam) => {
 // クエリパラメータが変更される毎にfilterArticles関数が行われる
 watchEffect(() => {
   const searchParam = route.currentRoute.value.query.search;
-  console.log("クエリパラメータ:", searchParam);
   filterArticles(searchParam);
 });
 
