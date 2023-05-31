@@ -83,7 +83,7 @@ const editSubmit = async () => {
     if (!avatarerror) {
       const { data } = await client.storage
         .from("bannarImage")
-        .createSignedUrl(filePath, 600);
+        .createSignedUrl(filePath, 2592000);
       const imageUrl = data.signedUrl;
       create = {
         id: route.params.id,
