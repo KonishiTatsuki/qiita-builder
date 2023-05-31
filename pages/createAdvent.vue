@@ -38,14 +38,13 @@
 </template>
 
 <script setup>
+import dayjs from "dayjs";
 import { ref, onMounted, computed } from "vue";
 import VueDatePicker from "@vuepic/vue-datepicker";
 import "@vuepic/vue-datepicker/dist/main.css";
 
 const router = useRouter();
 const supabase = useSupabaseClient();
-
-const { data } = await useFetch("/api/advent/post");
 
 const errorMsg = ref("");
 const user = useSupabaseUser();
@@ -70,91 +69,11 @@ async function submitHandler() {
     errorMsg.value = "アドベントカレンダーの題名を入力してください";
   } else if (!description.value) {
     errorMsg.value = "アドベントカレンダーの説明を入力してください";
-  } else if (fileInput.value) {
+  } else if (!fileInput.value) {
     errorMsg.value = "画像を選択してください";
   } else {
-    let startDate = "";
-    let endDate = "";
-
-    //月が1桁
-    if (date.value[0].getMonth() + 1 < 10) {
-      //月が1桁 日が2桁
-      if (date.value[0].getDate() < 10) {
-        startDate =
-          new Date(date.value[0]).getFullYear() +
-          "-0" +
-          (new Date(date.value[0]).getMonth() + 1) +
-          "-0" +
-          new Date(date.value[0]).getDate();
-        //月が1桁 日が2桁
-      } else {
-        startDate =
-          new Date(date.value[0]).getFullYear() +
-          "-0" +
-          (new Date(date.value[0]).getMonth() + 1) +
-          "-" +
-          new Date(date.value[0]).getDate();
-      }
-      //月が2桁
-    } else {
-      //月が2桁　日が1桁
-      if (date.value[0].getDate() < 10) {
-        startDate =
-          new Date(date.value[0]).getFullYear() +
-          "-" +
-          (new Date(date.value[0]).getMonth() + 1) +
-          "-0" +
-          new Date(date.value[0]).getDate();
-        //月が2桁　日が2桁
-      } else {
-        startDate =
-          new Date(date.value[0]).getFullYear() +
-          "-" +
-          (new Date(date.value[0]).getMonth() + 1) +
-          "-" +
-          new Date(date.value[0]).getDate();
-      }
-    }
-
-    //月が1桁
-    if (date.value[1].getMonth() + 1 < 10) {
-      //月が1桁 日が2桁
-      if (date.value[1].getDate() < 10) {
-        endDate =
-          new Date(date.value[1]).getFullYear() +
-          "-0" +
-          (new Date(date.value[1]).getMonth() + 1) +
-          "-0" +
-          new Date(date.value[1]).getDate();
-        //月が1桁 日が2桁
-      } else {
-        endDate =
-          new Date(date.value[1]).getFullYear() +
-          "-0" +
-          (new Date(date.value[1]).getMonth() + 1) +
-          "-" +
-          new Date(date.value[1]).getDate();
-      }
-      //月が2桁
-    } else {
-      //月が2桁　日が1桁
-      if (date.value[1].getDate() < 10) {
-        endDate =
-          new Date(date.value[1]).getFullYear() +
-          "-" +
-          (new Date(date.value[1]).getMonth() + 1) +
-          "-0" +
-          new Date(date.value[1]).getDate();
-        //月が2桁　日が2桁
-      } else {
-        endDate =
-          new Date(date.value[1]).getFullYear() +
-          "-" +
-          (new Date(date.value[1]).getMonth() + 1) +
-          "-" +
-          new Date(date.value[1]).getDate();
-      }
-    }
+    let startDate = dayjs(date.value[0]).format("YYYY-MM-DD");
+    let endDate = dayjs(date.value[1]).format("YYYY-MM-DD");
 
     const file = fileInput.value.files[0];
     const filePath = fileInput.value.files[0].name;
