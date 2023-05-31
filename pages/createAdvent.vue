@@ -87,7 +87,8 @@ async function submitHandler() {
     if (!avatarerror) {
       const { data } = await supabase.storage
         .from("bannarImage")
-        .createSignedUrl(filePath, 600);
+        // .createSignedUrl(filePath, 600);　URLの有効期限が10分になっているので下に修正（早川）
+        .createSignedUrl(filePath, 2592000);
       const imageUrl = data.signedUrl;
 
       try {

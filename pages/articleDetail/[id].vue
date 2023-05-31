@@ -22,7 +22,9 @@
       </div>
       <!-- 記事タイトル -->
       <h1 v-if="articleData" class="text-4xl font-bold mb-2">
-        {{ articleData[0].title }}
+        <span  class="break-words">
+          {{ articleData[0].title }}
+        </span>
       </h1>
       <hr class="border-t-2 border-gray-200" />
       <!-- カテゴリタグ -->
