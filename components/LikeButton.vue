@@ -34,7 +34,8 @@ const countLike = async () => {
     const confirmation = await supabase
       .from("like")
       .select("*")
-      .eq("userId", userId);
+      .eq("userId", userId)
+      .eq("articleId", articleId);
     if (!confirmation.data[0]) {
       // Likeテーブルにデータを挿入
       await supabase.from("like").insert({ userId, articleId });

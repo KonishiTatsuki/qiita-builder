@@ -34,13 +34,16 @@ const countRecommend = async () => {
     const confirmation = await supabase
       .from("recommend")
       .select("*")
-      .eq("userId", userId);
+      .eq("userId", userId)
+      .eq("articleId", articleId);
+
     if (!confirmation.data[0]) {
       // recommendテーブルにデータを挿入
+      console.log(userId, articleId);
       await supabase.from("recommend").insert({ userId, articleId });
       router.go();
     } else {
-      //おすすめ数を削除する
+      // //おすすめ数を削除する
       await supabase
         .from("recommend")
         .delete()
