@@ -30,7 +30,7 @@
               <p>いいねした記事一覧</p>
               <hr class="mb-5" />
               <li
-                v-for="article in articleArray"
+                v-for="article in likeArticleArray"
                 class="my-4 flex justify-between"
               >
                 <p class="ml-[10px] mr-5 font-bold">{{ article.title }}</p>
@@ -65,7 +65,6 @@
 <script setup>
 const users = useSupabaseUser();
 const userId = users.value.id;
-const articleArray = [];
 
 //ユーザー情報を取得
 const { data: user } = await useFetch("/api/user/get", {
@@ -78,14 +77,6 @@ const authority = user.value[0].authority;
 const { data: likeArticleArray } = await useFetch(
   `/api/like/get?userId=${userId}`
 );
-likeArticleArray.value.map(async (likeArticle) => {
-  const { data: likeArticleTitle } = await useFetch(
-    `/api/article/like/get?id=${likeArticle.articleId}`
-  );
-  likeArticleTitle.value.map((title) => {
-    articleArray.push({ id: likeArticle.articleId, title: title.title });
-  });
-});
 
 //自分が書いた記事を取得
 const { data: myArticle } = await useFetch(
