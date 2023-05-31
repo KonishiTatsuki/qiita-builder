@@ -125,7 +125,7 @@
             :style="
               'background-image: url(' +
               (bannerData && bannerData[0]?.image) +
-              ')'
+              '); background-size: 1200px 350px;'
             "
           >
             <!-- メッセージ -->
@@ -133,15 +133,6 @@
               <p class="ml-5">Qiita Builder Advent Calendar</p>
               <p class="ml-5">開催中</p>
             </div>
-            <!-- サンプル画像 -->
-            <img
-              v-if="bannerData && bannerData[0]?.image"
-              :src="bannerData[0]?.image"
-              alt="バナー画像"
-              width="200"
-              height="150"
-              class="rounded-lg"
-            />
           </div>
         </NuxtLink>
         <!-- ソート機能 -->
