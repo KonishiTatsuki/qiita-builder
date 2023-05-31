@@ -36,7 +36,11 @@
       </div>
     </div>
     <div class="flex mt-12 ml-2">
-      <div><button class="btn" @click="editAdvent">編集</button></div>
+      <div>
+        <NuxtLink :to="`/editAdvent/${choseEditAdvent}`"
+          ><button class="btn" @click="editAdvent">編集</button></NuxtLink
+        >
+      </div>
     </div>
   </div>
   <div>
