@@ -166,7 +166,7 @@
           <div class="container px-5 pb-24 mx-auto">
             <div class="-my-8 divide-y-2 divide-gray-100">
               <div
-                class="py-8 flex flex-wrap md:flex-nowrap"
+                class="flex flex-wrap md:flex-nowrap rounded-lg p-6 m-8 shadow"
                 v-for="article in articleData"
                 :key="article.id"
                 v-show="
