@@ -195,33 +195,36 @@
                     }}</span>
                   </div>
                   <div class="md:flex-grow">
-                    <h2
-                      class="text-4xl font-medium text-gray-900 title-font mb-2"
+                    <router-link
+                      :to="`/articleDetail/${article.id}`"
+                      class="hover:underline"
                     >
-                      {{
-                        article.title.length > 30
-                          ? article.title.slice(0, 30) + "..."
-                          : article.title
-                      }}
-                    </h2>
-                    <p class="leading-relaxed" id="custom-prose">
-                      {{
-                        article.body.length > 100
-                          ? article.body.slice(0, 100) + "..."
-                          : article.body
-                      }}
-                    </p>
-                    <div class="mt-4">
-                      <router-link
-                        :to="`/articleDetail/${article.id}`"
-                        class="text-indigo-500"
+                      <h2
+                        class="text-4xl font-medium text-gray-900 title-font mb-2"
                       >
-                        記事詳細&nbsp;→
-                      </router-link>
+                        {{
+                          article.title.length > 30
+                            ? article.title.slice(0, 30) + "..."
+                            : article.title
+                        }}
+                      </h2>
+                    </router-link>
+                    <router-link
+                      :to="`/articleDetail/${article.id}`"
+                      class="hover:underline"
+                    >
+                      <p class="leading-relaxed" id="custom-prose">
+                        {{
+                          article.body.length > 100
+                            ? article.body.slice(0, 100) + "..."
+                            : article.body
+                        }}
+                      </p>
+                    </router-link>
+                    <div class="mt-4" v-if="authority">
                       <button
                         class="btn block mt-4"
                         @click="deleteArticle(article.id)"
-                        v-if="authority"
                       >
                         削除
                       </button>
