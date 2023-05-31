@@ -12,7 +12,9 @@ type Article = {
 export default defineEventHandler(async (event) => {
     const supabase = serverSupabaseClient(event);
     const body = await readBody(event)
+    console.log(body)
     const { data, error }: PostgrestSingleResponse<Article[]> =  await supabase.from("article").insert(body).select()
+    console.log("エラー", error)
     if(data) {
         return data[0].id
     }
