@@ -22,13 +22,13 @@
                   :id="'tag-checkbox-' + index"
                   type="checkbox"
                   value="tag"
-                  class="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-700 dark:focus:ring-offset-gray-700 focus:ring-2 dark:bg-gray-600 dark:border-gray-500"
+                  class="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-700 dark:focus:ring-offset-gray-700 focus:ring-2 dark:bg-gray-600 dark:border-gray-500 cursor-pointer"
                   v-model="tag.checked"
                   @change="filterArticlesByTag"
                 />
                 <label
                   :for="'tag-checkbox-' + index"
-                  class="w-full py-3 ml-2 text-sm font-medium text-gray-900 dark:text-gray-300"
+                  class="w-full py-3 ml-2 text-sm font-medium text-gray-900 dark:text-gray-300 cursor-pointer"
                   >{{ tag.name }}</label
                 >
               </div>
@@ -59,13 +59,13 @@
                   :id="'occupation-checkbox-' + index"
                   type="checkbox"
                   :value="occupation"
-                  class="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-700 dark:focus:ring-offset-gray-700 focus:ring-2 dark:bg-gray-600 dark:border-gray-500"
+                  class="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-700 dark:focus:ring-offset-gray-700 focus:ring-2 dark:bg-gray-600 dark:border-gray-500 cursor-pointer"
                   v-model="occupation.checked"
                   @change="filterArticlesByOccupation"
                 />
                 <label
                   :for="'occupation-checkbox-' + index"
-                  class="w-full py-3 ml-2 text-sm font-medium text-gray-900 dark:text-gray-300"
+                  class="w-full py-3 ml-2 text-sm font-medium text-gray-900 dark:text-gray-300 cursor-pointer"
                   >{{ occupation.occupationName }}</label
                 >
               </div>
@@ -91,13 +91,13 @@
                   :id="'club-checkbox-' + index"
                   type="checkbox"
                   value="club"
-                  class="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-700 dark:focus:ring-offset-gray-700 focus:ring-2 dark:bg-gray-600 dark:border-gray-500"
+                  class="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-700 dark:focus:ring-offset-gray-700 focus:ring-2 dark:bg-gray-600 dark:border-gray-500 cursor-pointer"
                   v-model="club.checked"
                   @change="filterArticlesByClub"
                 />
                 <label
                   :for="'club-checkbox-' + index"
-                  class="w-full py-3 ml-2 text-sm font-medium text-gray-900 dark:text-gray-300"
+                  class="w-full py-3 ml-2 text-sm font-medium text-gray-900 dark:text-gray-300 cursor-pointer"
                   >{{ club.clubName }}</label
                 >
               </div>
