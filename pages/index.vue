@@ -166,7 +166,7 @@
           <div class="container px-5 pb-24 mx-auto">
             <div class="-my-8 divide-y-2 divide-gray-100">
               <div
-                class="flex flex-wrap md:flex-nowrap rounded-lg p-6 m-8 shadow"
+                class="flex flex-wrap md:flex-nowrap rounded-lg px-6 pt-6 pb-3 m-8 shadow-md"
                 v-for="article in articleData"
                 :key="article.id"
                 v-show="
@@ -193,6 +193,12 @@
                     <span class="mt-1 text-gray-500 text-sm">{{
                       formatDateTime(article.date)
                     }}</span>
+                    <div class="flex mt-3">
+                      <HeartIcon class="h-6 w-6" />
+                      <span class="font-semibold title-font text-gray-700 ml-1">
+                        {{ article.like }}
+                      </span>
+                    </div>
                   </div>
                   <div class="md:flex-grow">
                     <router-link
@@ -243,6 +249,7 @@
 <script setup>
 import { ref, onMounted } from "vue";
 import { useRouter } from "vue-router";
+import { HeartIcon } from "@heroicons/vue/outline";
 
 const route = useRouter();
 const supabase = useSupabaseClient();
