@@ -26,7 +26,10 @@
                 >
                   <div class="text-center">{{ article.userId.username }}</div>
                   <div>{{ article.adventDate }}</div>
-                  <NuxtLink :to="`/articleDetail/${article.id}`">
+                  <NuxtLink
+                    :to="`/articleDetail/${article.id}`"
+                    :class="{ 'disabled-link': isDatePast(day.date) }"
+                  >
                     <div class="text-center">
                       {{ article.title }}
                     </div>
@@ -152,7 +155,6 @@ const calendarChunks = computed(() => {
 const daysOfWeek = ["日", "月", "火", "水", "木", "金", "土"];
 
 // カレンダーの日付にマッチする記事のフィルタリング
-// カレンダーの日付にマッチする記事のフィルタリング
 const matchingArticles = (date) => {
   let result = articleList.filter((article) => {
     const articleDate = article.publishDate.slice(-2); // publishDateの末尾2文字を取得
@@ -160,6 +162,18 @@ const matchingArticles = (date) => {
     return formattedDate === date.toString(); // 末尾の1桁を数値と比較
   });
   return result; // 結果を返す
+};
+
+// カレンダーの日付が現在の日付より前かどうかを判定
+const isDatePast = (date) => {
+  const currentDate = new Date();
+  const articleDate = new Date(
+    currentDate.getFullYear(),
+    currentDate.getMonth(),
+    date
+  );
+  console.log("articleDate", articleDate);
+  return articleDate > currentDate;
 };
 </script>
 
@@ -186,5 +200,9 @@ const matchingArticles = (date) => {
 }
 .calendar td:hover {
   background-color: #eee;
+}
+.disabled-link {
+  pointer-events: none;
+  color: gray;
 }
 </style>
