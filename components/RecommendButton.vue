@@ -16,7 +16,13 @@
 </template>
 
 <script setup lang="ts">
-const supabase = useSupabaseClient();
+type Supabase = {
+  userId: String;
+  articleId: Number;
+  showLikeButton: Boolean;
+};
+
+const supabase = useSupabaseClient<Supabase>();
 const router = useRouter();
 const props = defineProps({
   userId: String,

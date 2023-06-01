@@ -146,12 +146,14 @@ import { ref, onMounted } from "vue";
 import { marked } from "marked";
 
 const route = useRoute();
-const supabase = useSupabaseClient();
 const users = useSupabaseUser();
 const router = useRouter();
 
 //ユーザーIdを取得
-const userId = users.value.id;
+let userId = "";
+if (users.value) {
+  userId = users.value.id;
+}
 //ユーザー情報取得
 let userInfo = ref();
 const { data: userData } = await useFetch("/api/user/userGet", {
@@ -182,6 +184,7 @@ const { data: articleDatas } = await useFetch("/api/article/articleDateGet", {
   method: "POST",
   body: articleId,
 });
+console.log("articleDatas", articleDatas.value);
 const { data: articleUser } = await useFetch("/api/user/userGet", {
   method: "POST",
   body: articleDatas.value[0].userId,
@@ -265,7 +268,7 @@ const { data: likeschecks } = await useFetch("/api/like/likeCheckGet", {
   method: "POST",
   body: { userId, articleId },
 });
-if (("likes.value", likes.value[0])) {
+if (likes.value[0]) {
   showLikeButton.value = true;
 }
 likeCount.value = likes.value.length;
@@ -325,7 +328,7 @@ const { data: commentDates } = await useFetch("/api/comment/get", {
   method: "POST",
   body: articleId,
 });
-console.log(commentDates.value);
+// console.log(commentDates.value);
 if (commentDates.value) {
   const { data: commentItem } = await useFetch("/api/user/commentUserGet", {
     method: "POST",
@@ -351,7 +354,7 @@ const submit = async () => {
       articleId: articleId,
     },
   });
-  router.go();
+  location.reload();
 };
 
 //コメントを削除
@@ -362,7 +365,7 @@ const deleteComment = async (commentId) => {
       method: "POST",
       body: commentId,
     });
-    router.go();
+    location.reload();
     // 削除後にコメントを再取得するなどの更新処理を実行する場合はここで行う
   } catch (error) {
     console.error(error);

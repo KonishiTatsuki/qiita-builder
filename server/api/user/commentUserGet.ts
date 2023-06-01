@@ -31,7 +31,6 @@ export default defineEventHandler(async (event) => {
         .from("profiles")
         .select("*")
         .eq("id", item.userId);
-      console.log("users11111", users);
       if (users) {
         item.username = users[0].username;
       }
