@@ -5,7 +5,7 @@ import { serverSupabaseClient } from "#supabase/server";
 export default defineEventHandler(async (event) => {
   const supabase = serverSupabaseClient(event);
   const user = useSupabaseUser();
-  const myObj: { publish: boolean; publishDate: string; bannerId: number; } = {
+  const myObj: { publish?: boolean; publishDate?: string; bannerId?: number; } = {
     publish: true,
     publishDate: '2022-01-01',
     bannerId: 1234

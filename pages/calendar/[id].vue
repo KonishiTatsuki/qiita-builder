@@ -19,26 +19,33 @@
           <tr v-for="(week, index) in calendarChunks" :key="index" class="p">
             <td v-for="day in week" :key="day.date" class="pt-2 pb-7 pl-7 pr-7">
               <div class="text-lg text-center mt-2 mb-5">{{ day.date }}</div>
-              <NuxtLink :to="{ path: `/advents/${id}/${day.date}` }">
-                <button
-                  v-if="day.isCurrentMonth && day.period"
-                  class="bg-blue-200 hover:bg-blue-400 text-black py-2 px-4 rounded"
-                >
-                  参加する
-                </button>
-              </NuxtLink>
               <div>
                 <div
                   v-for="article in matchingArticles(day.date)"
                   :key="article.id"
                 >
                   <div class="text-center">{{ article.userId.username }}</div>
-                  <div>{{ article.publishDate }}</div>
+                  <div>{{ article.adventDate }}</div>
                   <NuxtLink :to="`/articleDetail/${article.id}`">
-                    <div class="text-center">{{ article.title }}</div>
+                    <div class="text-center">
+                      {{ article.title }}
+                    </div>
                   </NuxtLink>
                 </div>
               </div>
+
+              <NuxtLink :to="{ path: `/advents/${id}/${day.date}` }">
+                <button
+                  v-if="
+                    day.isCurrentMonth &&
+                    day.period &&
+                    matchingArticles(day.date).length === 0
+                  "
+                  class="bg-blue-200 hover:bg-blue-400 text-black py-2 px-4 rounded"
+                >
+                  参加する
+                </button>
+              </NuxtLink>
             </td>
           </tr>
         </tbody>
@@ -75,10 +82,10 @@ managerName.value = data.value[0].userId.username;
 const { data: articleData } = await useFetch(
   `/api/advent/articleGet?bannerId=${id}`
 );
-console.log("articleData.value", articleData);
+// console.log("articleData.value", articleData);
 const articleList = articleData.value;
-console.log("articleList", articleList);
-console.log("articleList[0]", articleList[0].id);
+// console.log("articleList", articleList);
+// console.log("articleList[0]", articleList[0].id);
 
 // ここからカレンダーの処理
 // startDateとendDateをDate型に変換
@@ -143,11 +150,17 @@ const calendarChunks = computed(() => {
 
 // 曜日の配列
 const daysOfWeek = ["日", "月", "火", "水", "木", "金", "土"];
+
+// カレンダーの日付にマッチする記事のフィルタリング
 // カレンダーの日付にマッチする記事のフィルタリング
 const matchingArticles = (date) => {
-  return articleList.filter((article) => article.publishDate === date);
+  let result = articleList.filter((article) => {
+    const articleDate = article.publishDate.slice(-2); // publishDateの末尾2文字を取得
+    const formattedDate = parseInt(articleDate, 10).toString(); // 数値に変換してから文字列に変換
+    return formattedDate === date.toString(); // 末尾の1桁を数値と比較
+  });
+  return result; // 結果を返す
 };
-console.log("matchingArticles", matchingArticles());
 </script>
 
 <style scoped>

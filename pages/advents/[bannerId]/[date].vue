@@ -79,7 +79,7 @@ const submitHandler = async () => {
   // bannerIdとdateをarticleテーブルにデータを追加する
   const { data, error } = await supabase.from("article").update({
     bannerId: bannerId.value,
-    publish: date.value,
+    adventDate: date.value,
   });
   console.log("data", data);
   console.log("error", error);
