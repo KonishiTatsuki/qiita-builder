@@ -8,12 +8,14 @@
             <FormKit
               type="form"
               @submit="submit"
-              submit-label="パスワード再設定用メール送付"
+              :actions="false"
+              incomplete-message=" "
             >
               <div class="mb-5 text-center">
                 <FormKit
                   :classes="{
                     input: 'border border-black py-1 px-2 rounded-md',
+                    message: 'text-red-500',
                   }"
                   type="email"
                   label=" メールアドレス"
@@ -27,22 +29,25 @@
                   }"
                 />
               </div>
+              <div class="flex mb-4 justify-center">
+                <button class="btn">送信</button>
+              </div>
+              <p>上記メールアドレスに再設定用のURLを送付します。</p>
             </FormKit>
           </div>
-          <p>上記メールアドレスに再設定用のURLを送付します。</p>
         </div>
       </div>
     </div>
   </div>
 </template>
 
-<script setup>
+<script setup lang="ts">
 const router = useRouter();
 const supabase = useSupabaseClient();
 
 const email = ref("");
 
-const submit = async (submit) => {
+const submit = async (submit: { email: string }) => {
   await supabase.auth.resetPasswordForEmail(submit.email, {
     redirectTo: "http://localhost:3000/passwordReset",
   });

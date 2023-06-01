@@ -19,22 +19,36 @@
           <tr v-for="(week, index) in calendarChunks" :key="index" class="p">
             <td v-for="day in week" :key="day.date" class="pt-2 pb-7 pl-7 pr-7">
               <div class="text-lg text-center mt-2 mb-5">{{ day.date }}</div>
+              <div>
+                <div
+                  v-for="article in matchingArticles(day.date)"
+                  :key="article.id"
+                >
+                  <div class="text-center">{{ article.userId.username }}</div>
+                  <div>{{ article.adventDate }}</div>
+                  <NuxtLink
+                    :to="`/articleDetail/${article.id}`"
+                    :class="{ 'disabled-link': isDatePast(day.date) }"
+                  >
+                    <div class="text-center">
+                      {{ article.title }}
+                    </div>
+                  </NuxtLink>
+                </div>
+              </div>
+
               <NuxtLink :to="{ path: `/advents/${id}/${day.date}` }">
                 <button
-                  v-if="day.isCurrentMonth && day.period"
+                  v-if="
+                    day.isCurrentMonth &&
+                    day.period &&
+                    matchingArticles(day.date).length === 0
+                  "
                   class="bg-blue-200 hover:bg-blue-400 text-black py-2 px-4 rounded"
                 >
                   参加する
                 </button>
               </NuxtLink>
-              <div>
-                <div v-if="day.isCurrentMonth && day.period">
-                  <div v-for="post in day.postDate" :key="post.id">
-                    <div class="text-center">{{ post.title }}</div>
-                    <div class="text-center">{{ post.userId.username }}</div>
-                  </div>
-                </div>
-              </div>
             </td>
           </tr>
         </tbody>
@@ -57,9 +71,9 @@ const date = ref("");
 // bannerテーブル情報を取得
 const route = useRoute();
 const { id } = route.params;
-console.log(id);
+// console.log(id);
 const { data } = await useFetch(`/api/advent/get?id=${id}`);
-console.log("data.value[0]", data.value[0]);
+// console.log("data.value[0]", data.value[0]);
 
 adventName.value = data.value[0].adventName;
 description.value = data.value[0].description;
@@ -67,11 +81,20 @@ startDate.value = data.value[0].startDate;
 endDate.value = data.value[0].endDate;
 managerName.value = data.value[0].userId.username;
 
+// articleテーブル情報を取得
+const { data: articleData } = await useFetch(
+  `/api/advent/articleGet?bannerId=${id}`
+);
+// console.log("articleData.value", articleData);
+const articleList = articleData.value;
+// console.log("articleList", articleList);
+// console.log("articleList[0]", articleList[0].id);
+
 // ここからカレンダーの処理
 // startDateとendDateをDate型に変換
 const startD = new Date(startDate.value);
 const endD = new Date(endDate.value);
-console.log("startD：", startD);
+// console.log("startD：", startD);
 
 // startDをもとにカレンダーの配列を作成
 const calendar = [];
@@ -116,7 +139,7 @@ for (let i = 0; i < calendar.length; i++) {
     calendar[i].period = true;
   }
 }
-console.log(calendar);
+// console.log(calendar);
 
 // 週ごとにカレンダーをチャンク分割する
 const calendarChunks = computed(() => {
@@ -130,6 +153,28 @@ const calendarChunks = computed(() => {
 
 // 曜日の配列
 const daysOfWeek = ["日", "月", "火", "水", "木", "金", "土"];
+
+// カレンダーの日付にマッチする記事のフィルタリング
+const matchingArticles = (date) => {
+  let result = articleList.filter((article) => {
+    const articleDate = article.publishDate.slice(-2); // publishDateの末尾2文字を取得
+    const formattedDate = parseInt(articleDate, 10).toString(); // 数値に変換してから文字列に変換
+    return formattedDate === date.toString(); // 末尾の1桁を数値と比較
+  });
+  return result; // 結果を返す
+};
+
+// カレンダーの日付が現在の日付より前かどうかを判定
+const isDatePast = (date) => {
+  const currentDate = new Date();
+  const articleDate = new Date(
+    currentDate.getFullYear(),
+    currentDate.getMonth(),
+    date
+  );
+  console.log("articleDate", articleDate);
+  return articleDate > currentDate;
+};
 </script>
 
 <style scoped>
@@ -155,5 +200,9 @@ const daysOfWeek = ["日", "月", "火", "水", "木", "金", "土"];
 }
 .calendar td:hover {
   background-color: #eee;
+}
+.disabled-link {
+  pointer-events: none;
+  color: gray;
 }
 </style>

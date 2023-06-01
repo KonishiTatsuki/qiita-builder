@@ -57,18 +57,21 @@
               </div>
             </FormKit>
           </div>
+          <NuxtLink to="/userRegister"
+            ><button class="btn mb-2">新規会員登録</button></NuxtLink
+          >
         </div>
       </div>
     </div>
   </div>
 </template>
 
-<script setup>
+<script setup lang="ts">
 definePageMeta({ layout: "login" });
 const router = useRouter();
 const client = useSupabaseClient();
 
-const submit = async (submit) => {
+const submit = async (submit: { email: string; password: string }) => {
   const { data: signInData } = await client.auth.signInWithPassword({
     email: submit.email,
     password: submit.password,

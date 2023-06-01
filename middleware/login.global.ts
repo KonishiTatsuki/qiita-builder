@@ -4,7 +4,12 @@ export default defineNuxtRouteMiddleware(async (to, from) => {
 
   if (!user.value) {
     const path = "/login";
-    if (to.path !== path) {
+    const registerpath = "/userRegister";
+    if (to.path === path) {
+      console.log("ログイン");
+    } else if (to.path === registerpath) {
+      console.log("新規登録");
+    } else {
       return navigateTo("/login");
     }
   } else {

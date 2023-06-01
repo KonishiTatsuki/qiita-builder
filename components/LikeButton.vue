@@ -15,8 +15,14 @@
   </button>
 </template>
 
-<script setup>
-const supabase = useSupabaseClient();
+<script setup lang="ts">
+type Supabase = {
+  userId: String;
+  articleId: Number;
+  showLikeButton: Boolean;
+};
+
+const supabase = useSupabaseClient<Supabase>();
 const router = useRouter();
 const props = defineProps({
   userId: String,
@@ -36,18 +42,20 @@ const countLike = async () => {
       .select("*")
       .eq("userId", userId)
       .eq("articleId", articleId);
-    if (!confirmation.data[0]) {
-      // Likeテーブルにデータを挿入
-      await supabase.from("like").insert({ userId, articleId });
-      router.go();
-    } else {
-      //いいね数を削除する
-      await supabase
-        .from("like")
-        .delete()
-        .eq("userId", userId)
-        .eq("articleId", articleId);
-      router.go();
+    if (!(confirmation.data === null)) {
+      if (!confirmation.data[0]) {
+        // Likeテーブルにデータを挿入
+        await supabase.from("like").insert({ userId, articleId });
+        location.reload();
+      } else {
+        //いいね数を削除する
+        await supabase
+          .from("like")
+          .delete()
+          .eq("userId", userId)
+          .eq("articleId", articleId);
+        location.reload();
+      }
     }
     //likeテーブルから該当する記事のいいね数を取得
     const { data, error } = await supabase
