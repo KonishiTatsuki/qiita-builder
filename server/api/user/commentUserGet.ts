@@ -1,17 +1,40 @@
 import { serverSupabaseClient } from "#supabase/server";
 
+type BodySchema = {
+  id: number;
+  userId: string;
+  articleId: number;
+  comment: string;
+  date: Date;
+  username?: string;
+};
+
+type User = {
+  id: string;
+  username: string;
+  clubid: number;
+  qiitaToken: string;
+  detail: string;
+  email: string;
+  occupation: number;
+  image: null | string;
+  authority: boolean;
+};
+
 export default defineEventHandler(async (event) => {
   const body = await readBody(event);
-  // console.log("body", body);
-  const supabase = serverSupabaseClient(event);
+  const supabase = serverSupabaseClient<User[]>(event);
 
   const data = await Promise.all(
-    body.map(async (item) => {
+    body.map(async (item: BodySchema) => {
       let { data: users } = await supabase
         .from("profiles")
         .select("*")
         .eq("id", item.userId);
-      item.username = users[0].username;
+      console.log("users11111", users);
+      if (users) {
+        item.username = users[0].username;
+      }
       return item;
     })
   );
