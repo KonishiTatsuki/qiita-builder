@@ -57,6 +57,9 @@
               </div>
             </FormKit>
           </div>
+          <NuxtLink to="/userRegister"
+            ><button class="btn mb-2">新規会員登録</button></NuxtLink
+          >
         </div>
       </div>
     </div>
