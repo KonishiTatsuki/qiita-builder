@@ -5,14 +5,14 @@
       <div class="flex items-center mb-4">
         <!-- アイコン -->
         <img
-          v-if="userInfo[0].image"
-          :src="userInfo[0].image"
+          v-if="articleUsers.image"
+          :src="articleUsers.image"
           alt="User"
           class="w-8 h-8 rounded-full mr-2"
         />
         <!-- ユーザ名 -->
-        <span v-if="userInfo" class="text-gray-600 text-sm">{{
-          userInfo[0].username
+        <span v-if="articleUsers" class="text-gray-600 text-sm">{{
+          articleUsers.username
         }}</span>
         <span class="text-gray-400 text-sm mx-2">&nbsp;&nbsp;&nbsp;</span>
         <!-- 投稿日 -->
@@ -23,7 +23,7 @@
       <!-- 記事タイトル -->
       <h1 v-if="articleData" class="text-4xl font-bold mb-2">
         <span  class="break-words">
-          {{ articleData[0].title }}
+           {{ articleData.title }}
         </span>
       </h1>
       <hr class="border-t-2 border-gray-200" />
@@ -38,7 +38,7 @@
       </div>
 
       <div class="text-gray-800 mb-4">
-        <!-- tailwindcssのスタイルを無効化するcustom-proseクラス -->
+        tailwindcssのスタイルを無効化するcustom-proseクラス
         <template v-if="htmlText">
           <span class="custom-prose" v-html="htmlText"></span>
         </template>
@@ -119,13 +119,12 @@
         <button type="submit" class="btn">送信</button>
       </div>
     </form>
-    <!-- <div v-show="result"> -->
     <div>
       <h2 class="text-xl font-bold mb-2">投稿済みのコメント</h2>
       <!-- 過去のコメントを表示するループ -->
       <div
         class="bg-gray-200 p-2 rounded my-3 flex justify-between items-center"
-        v-for="commented in commenteds"
+        v-for="commented in commentDate"
         :key="commented.id"
       >
         <div>
@@ -151,17 +150,57 @@ const supabase = useSupabaseClient();
 const users = useSupabaseUser();
 const router = useRouter();
 
-const userId = users.value?.id;
+//ユーザーIdを取得
+const userId = users.value.id;
+//ユーザー情報取得
 let userInfo = ref();
-let articleId = route.params.id;
+const { data: userData } = await useFetch("/api/user/userGet", {
+  method: "POST",
+  body: userId,
+});
+userInfo.value = userData.value;
+//現在の日付取得
+let date = new Date();
+const year = date.getFullYear();
+const month = date.getMonth() + 1;
+const day = date.getDate();
+//自動投稿用
+const dateString = `${year}/${month}/${day}`;
 
+//記事IDを取得
+let articleId = route.params.id;
+//投稿者の情報を取得
+let articleUsers = ref();
 // 記事情報を取得[始まり]
 let articleData = ref();
 let htmlText = ref();
 let formattedDate = ref();
-let tagNames = ref([]);
+let articleTagIds = [];
+let tagNames = ref();
 const goalLike = ref(0);
+const { data: articleDatas } = await useFetch("/api/article/articleDateGet", {
+  method: "POST",
+  body: articleId,
+});
+const { data: articleUser } = await useFetch("/api/user/userGet", {
+  method: "POST",
+  body: articleDatas.value[0].userId,
+});
+articleUsers.value = articleUser.value[0];
+articleData.value = articleDatas.value[0];
+//記事の公開日判定
+//公開日のミリ秒取得
+const display = ref(false);
+let articleDate = articleData.value.publishDate;
+articleDate = new Date(articleDate);
+const articleDateMs = articleDate.getTime();
+//現在のミリ秒取得
+const dateMs = date.getTime();
+if (articleDateMs - dateMs > 0) {
+  router.push("/");
+}
 
+htmlText.value = marked.parse(articleDatas.value[0].body);
 // 日時のフォーマットを設定
 const options = {
   year: "numeric",
@@ -172,129 +211,70 @@ const options = {
   second: "2-digit",
   timeZone: "UTC",
 };
-
-(async () => {
-  //記事ID取得
-  let dynamicPageId = await route.params.id;
-
-  let { data } = await supabase
-    .from("article")
-    .select("*")
-    .eq("id", dynamicPageId);
-  articleData.value = await data;
-  htmlText.value = await marked.parse(articleData.value[0].body);
-  const dateObject = await new Date(articleData.value[0].date);
-  // フォーマットを適用
-  formattedDate.value = await dateObject.toLocaleString("ja-JP", options);
-
-  // taggingテーブルからarticleIdを基にtagIdの配列を取ってくる
-  let { data: tagId } = await supabase
-    .from("tagging")
-    .select("tagId")
-    .eq("articleId", dynamicPageId);
-
-  // 各IDに対応するタグ名を取得
-  tagId.forEach(async (tag) => {
-    const { data, error } = await supabase
-      .from("tag")
-      .select("name")
-      .eq("id", tag.tagId);
-
-    if (error) {
-      console.error(error);
-      return;
-    }
-
-    if (data.length > 0) {
-      tagNames.value.push(data[0].name);
-    }
-  });
-
-  let userId = await articleData.value[0].userId;
-  let { data: userData } = await supabase
-    .from("profiles")
-    .select("username,image")
-    .eq("id", userId);
-  userInfo.value = userData;
-})();
+const dateObject = new Date(articleDatas.value[0].date);
+// フォーマットを適用
+formattedDate.value = dateObject.toLocaleString("ja-JP", options);
+//タグ取得
+const { data: tagIds } = await useFetch("/api/tagging/get", {
+  method: "POST",
+  body: articleId,
+});
+const { data: tags } = await useFetch("/api/tag/get", {
+  method: "POST",
+  body: tagIds.value,
+});
+tagNames.value = tags.value;
 
 //　　　　　　　おすすめ数表示機能　　　　　　　　　　//
 const recommendCount = ref(0);
 const showRecommendButton = ref(false);
-
-//おすすめ数を取得する関数
-const Recommend = async () => {
-  let { data } = await supabase
-    .from("recommend")
-    .select("*")
-    .eq("articleId", articleId);
-
-  const confirmation = await supabase
-    .from("recommend")
-    .select("*")
-    .eq("userId", userId);
-  if (confirmation.data[0]) {
-    showRecommendButton.value = true;
-  }
-
-  return data.length;
-};
-recommendCount.value = await Recommend();
+// おすすめ数取得;
+const { data: recommends } = await useFetch("/api/recommend/articleGet", {
+  method: "POST",
+  body: articleId,
+});
+recommendCount.value = recommends.value.length;
+//おすすめボタンクリック済みか確認
+const { data: recommendUsers } = await useFetch("/api/recommend/get", {
+  method: "POST",
+  body: { articleId, userId },
+});
+if (recommendUsers.value[0]) {
+  showRecommendButton.value = true;
+}
 
 //　　　　　　　いいね数表示機能　　　　　　　　　　//
 // いいねの件数を表示するためのリアクティブな変数
 const likeCount = ref(0);
 const showLikeButton = ref(false);
 //Qiita投稿に必要な情報取得
-let { data: user } = await supabase
-  .from("profiles")
-  .select("*")
-  .eq("id", userId);
-
-let { data: article } = await supabase
-  .from("article")
-  .select("*")
-  .eq("id", articleId);
-
-let { data: articleUserDate } = await supabase
-  .from("profiles")
-  .select("*")
-  .eq("id", article[0].userId);
-
-const articleQiitaToken = articleUserDate[0].qiitaToken;
-const qiitaToken = user[0].qiitaToken;
-const articleBody = article[0].body;
-const articleTitle = article[0].title;
-const articleQiitaPost = article[0].qiitaPost;
+const articleQiitaToken = articleUsers.value.qiitaToken;
+const articleBody = articleData.value.body;
+const articleTitle = articleData.value.title;
+const articleQiitaPost = articleData.value.qiitaPost;
 const articleTag = Object.keys(tagNames.value).map((key) => {
   return { name: tagNames.value[key] };
 });
-
-//いいね数を取得する関数
-const Like = async () => {
-  let { data } = await supabase
-    .from("like")
-    .select("*")
-    .eq("articleId", articleId);
-
-  //ユーザーがいいねしているかどうかの確認
-  const confirmation = await supabase
-    .from("like")
-    .select("*")
-    .eq("userId", userId);
-
-  if (confirmation.data[0]) {
-    showLikeButton.value = true;
-  }
-  return data.length;
-};
-likeCount.value = await Like();
+// いいね数の取得
+const { data: likes } = await useFetch("/api/like/likeNumberGet", {
+  method: "POST",
+  body: articleId,
+});
+// ユーザーがいいねしているかどうかの確認
+const { data: likeschecks } = await useFetch("/api/like/likeCheckGet", {
+  method: "POST",
+  body: { userId, articleId },
+});
+if (("likes.value", likes.value[0])) {
+  showLikeButton.value = true;
+}
+likeCount.value = likes.value.length;
 
 //目標いいねに到達してたら「達成」。それ以外は残り件数表示する
-const articleDataGoalLike = Number(articleData.value[0].goalLike);
+const articleDataGoalLike = Number(articleData.value.goalLike);
 goalLike.value =
-  Number(articleData.value[0].goalLike) - likeCount.value > 0
-    ? `${Number(articleData.value[0].goalLike) - likeCount.value}`
+  Number(articleData.value.goalLike) - likeCount.value > 0
+    ? `${Number(articleData.value.goalLike) - likeCount.value}`
     : "達成";
 
 //いいね数が目標いいねに到達した場合
@@ -330,52 +310,46 @@ if (goalLike.value <= 0 && articleQiitaPost === false) {
       });
   };
   fetchData();
-  await supabase
-    .from("article")
-    .update({ qiitaPost: true })
-    .match({ id: articleId });
+  const { data: qiitaPosts } = await useFetch("/api/article/qiitaPostUpdate", {
+    method: "POST",
+    body: articleId,
+  });
 } else {
   console.log("まだ達成してないよ/もしくはQiitaに投稿済み");
 }
 
 //　　　　　　　　コメント機能　　　　　　　　　//
 //投稿済みコメントを取得
-const commentData = async () => {
-  let { data } = await supabase
-    .from("comment")
-    .select("*")
-    .eq("articleId", articleId);
-  // dataのループ処理 map
-  if (data) {
-    await Promise.all(
-      data.map(async (item) => {
-        let { data: users } = await supabase
-          .from("profiles")
-          .select("*")
-          .eq("id", item.userId);
-        item.username = users[0].username;
-      })
-    );
-  } else {
-    console.log("投稿済みコメントなし");
-  }
-  return data;
-};
-const commenteds = await commentData();
+const commentDate = ref();
+const { data: commentDates } = await useFetch("/api/comment/get", {
+  method: "POST",
+  body: articleId,
+});
+if (commentDates.value) {
+  const { data: commentItem } = await useFetch("/api/user/commentUserGet", {
+    method: "POST",
+    body: commentDates.value,
+  });
+  commentDate.value = commentItem.value;
+} else {
+  console.log("投稿済みコメントなし");
+}
 
 //コメント投稿機能
-let date = new Date();
-const year = date.getFullYear();
-const month = date.getMonth() + 1;
-const day = date.getDate();
-//投稿日
-date = `${year}/${month}/${day}`;
 //コメント
 let comment = ref("");
 comment = comment.value;
-
+//コメント送信
 const submit = async () => {
-  await supabase.from("comment").insert({ date, userId, comment, articleId });
+  const { data: articleUser } = await useFetch("/api/comment/insert", {
+    method: "POST",
+    body: {
+      date: dateString,
+      userId: userId,
+      comment: comment,
+      articleId: articleId,
+    },
+  });
   router.go();
 };
 
@@ -383,7 +357,10 @@ const submit = async () => {
 const deleteComment = async (commentId) => {
   try {
     // 削除処理の実行
-    await supabase.from("comment").delete().eq("id", commentId);
+    const { data: articleUser } = await useFetch("/api/comment/delete", {
+      method: "POST",
+      body: commentId,
+    });
     router.go();
     // 削除後にコメントを再取得するなどの更新処理を実行する場合はここで行う
   } catch (error) {
