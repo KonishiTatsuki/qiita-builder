@@ -67,6 +67,25 @@ const { data: articles } = await supabase
 console.log("articles", articles);
 
 // 投稿ボタンを押した時の処理
+const submitHandler = async () => {
+  // articleIdを取得する
+  const { data: articleId } = await supabase
+    .from("article")
+    .select("id")
+    .eq("userId", userId)
+    .eq("id", selectedArticleId.value);
+  console.log("articleId", articleId[0].id);
+
+  // bannerIdとdateをarticleテーブルにデータを追加する
+  const { data, error } = await supabase.from("article").update({
+    bannerId: bannerId.value,
+    publish: date.value,
+  });
+  console.log("data", data);
+  console.log("error", error);
+  // ページをリロードする
+  router.go(0);
+};
 
 console.log("selectedArticle", selectedArticleId.value);
 </script>
