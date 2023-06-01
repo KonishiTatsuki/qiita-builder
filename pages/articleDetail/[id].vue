@@ -139,7 +139,7 @@
   </div>
 </template>
 
-<script setup>
+<script setup lang="ts">
 import LikeButton from "~/components/LikeButton.vue";
 import RecommendButton from "~/components/RecommendButton.vue";
 import { ref, onMounted } from "vue";

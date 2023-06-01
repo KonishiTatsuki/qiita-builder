@@ -58,14 +58,14 @@
   </div>
 </template>
 
-<script setup>
+<script setup lang="ts">
 const router = useRouter();
 const supabase = useSupabaseClient();
 
 const email = ref("");
 const password = ref("");
 
-const submit = async (submit) => {
+const submit = async (submit: { password: string }) => {
   await supabase.auth.updateUser({ password: submit.password });
 };
 </script>

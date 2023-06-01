@@ -33,7 +33,7 @@
   </div>
 </template>
 
-<script setup>
+<script setup lang="ts">
 const router = useRouter();
 const supabase = useSupabaseClient();
 const user = useSupabaseUser();
