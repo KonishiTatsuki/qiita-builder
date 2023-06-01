@@ -246,7 +246,7 @@
   </div>
 </template>
 
-<script setup>
+<script setup lang="ts">
 import { ref, onMounted } from "vue";
 import { useRouter } from "vue-router";
 import { HeartIcon } from "@heroicons/vue/outline";
@@ -256,12 +256,15 @@ const supabase = useSupabaseClient();
 const userss = useSupabaseUser();
 const userId = userss.value?.id;
 
+//現在の日付取得
+let date = new Date();
+
 //管理者権限があるか確認
-const { data: userAuthority } = await supabase
-  .from("profiles")
-  .select("authority")
-  .eq("id", userId);
-const authority = userAuthority[0].authority;
+let { data: auth } = await useFetch("/api/user/getAdminUser", {
+  method: "POST",
+  body: userId,
+});
+const authority = auth.value[0].authority;
 
 // Supabaseからプログラミング言語名(display:trueのみ)を取得
 let tagName = ref("");
@@ -275,11 +278,11 @@ let visibleClubItems = ref(10);
 let showAllClubItems = ref(false);
 let bannerData = ref([]);
 
-//articleデータ取得
 (async () => {
   let { data } = await supabase
     .from("article")
     .select("body, clubTagId, date, delete, id, occupationTagId, title, userId")
+    .lt("publishDate", date.toISOString())
     .eq("delete", false)
     .order("date", { ascending: false });
 
@@ -287,10 +290,12 @@ let bannerData = ref([]);
   const userIds = data
     .filter((article) => article.userId !== null) // nullを除外
     .map((article) => article.userId);
+
   const { data: users } = await supabase
     .from("profiles")
     .select("id, username,image")
     .in("id", userIds);
+
   const userMap = {};
   for (const user of users) {
     userMap[user.id] = { username: user.username, image: user.image };
