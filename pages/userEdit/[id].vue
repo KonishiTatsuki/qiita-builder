@@ -178,7 +178,7 @@
     </div>
   </div>
   <div class="border border-black m-4 p-3">
-    QiitaユーザID:{{ data[0].qiitaToken }}
+    QiitaユーザID:{{ data[0].qiitaToken && data[0].qiitaToken }}
     <NuxtLink to="/qiitaCoordination">
       <button class="btn">Qiitaと連携する</button></NuxtLink
     >
@@ -186,14 +186,21 @@
 </template>
 
 <script setup>
-const editbool = ref(false);
-const iconeditbool = ref(false);
-
 const occupation = [];
 const route = useRoute();
 const router = useRouter();
 const club = [];
 const client = useSupabaseClient();
+//profile取得
+const { data } = useFetch("/api/user/get", {
+  method: "POST",
+  body: route.params.id,
+});
+console.log(data[0]);
+
+const editbool = ref(false);
+const iconeditbool = ref(false);
+
 const { data: clubb } = await useFetch("/api/club/get");
 const { data: occupationn } = await useFetch("/api/occupation/get");
 
@@ -247,10 +254,4 @@ const post = async (credentials) => {
 const edit = () => {
   editbool.value = !editbool.value;
 };
-
-//profile取得
-const { data } = useFetch("/api/user/get", {
-  method: "POST",
-  body: route.params.id,
-});
 </script>
