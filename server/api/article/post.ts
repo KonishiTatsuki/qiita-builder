@@ -1,6 +1,31 @@
 import { serverSupabaseClient } from "#supabase/server";
 import { PostgrestSingleResponse } from "@supabase/supabase-js";
-import { Article, Tag, Tagging } from "~/types";
+
+type Article = {
+  id: number;
+  title: string;
+  body: string;
+  goalLike: number;
+  date: Date;
+  userId: string;
+  clubTagId: number;
+  occupationTagId: number;
+  bannerId: number | null;
+  qiitaPost: boolean;
+  delete: boolean;
+  publishDate: Date;
+  publish: boolean;
+};
+type Tag = {
+  id: number;
+  name: string;
+  display: boolean;
+};
+type Tagging = {
+  id: number;
+  articleId: number;
+  tagId: number;
+};
 
 export default defineEventHandler(async (event) => {
   const supabase = serverSupabaseClient(event);
