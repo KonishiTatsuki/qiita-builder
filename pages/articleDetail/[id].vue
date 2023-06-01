@@ -22,8 +22,8 @@
       </div>
       <!-- 記事タイトル -->
       <h1 v-if="articleData" class="text-4xl font-bold mb-2">
-        <span  class="break-words">
-           {{ articleData.title }}
+        <span class="break-words">
+          {{ articleData.title }}
         </span>
       </h1>
       <hr class="border-t-2 border-gray-200" />
@@ -325,6 +325,7 @@ const { data: commentDates } = await useFetch("/api/comment/get", {
   method: "POST",
   body: articleId,
 });
+console.log(commentDates.value);
 if (commentDates.value) {
   const { data: commentItem } = await useFetch("/api/user/commentUserGet", {
     method: "POST",
