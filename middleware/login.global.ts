@@ -10,7 +10,7 @@ export default defineNuxtRouteMiddleware(async (to, from) => {
     } else if (to.path === registerpath) {
       console.log("新規登録");
     } else {
-      // return navigateTo("/login");
+      return navigateTo("/login");
     }
   } else {
     const userId = user.value?.id;
