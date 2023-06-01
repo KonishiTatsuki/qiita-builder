@@ -5,6 +5,7 @@
     #default="{ value }"
     id="register"
     :actions="false"
+    incomplete-message=" "
   >
     <div class="h-1/5">
       <div>

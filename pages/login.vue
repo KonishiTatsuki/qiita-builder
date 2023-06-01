@@ -5,11 +5,17 @@
         <div class="text-center">
           <h1 class="title">ログイン</h1>
           <div class="flex justify-center">
-            <FormKit type="form" @submit="submit" submit-label="ログイン">
+            <FormKit
+              type="form"
+              @submit="submit"
+              :actions="false"
+              incomplete-message=" "
+            >
               <div class="mb-2 text-center">
                 <FormKit
                   :classes="{
                     input: 'border border-black py-1 px-2 rounded-md',
+                    message: 'text-red-500',
                   }"
                   type="email"
                   label=" メールアドレス"
@@ -27,6 +33,7 @@
                 <FormKit
                   :classes="{
                     input: 'border border-black py-1 px-2 rounded-md',
+                    message: 'text-red-500',
                   }"
                   type="password"
                   label=" パスワード"
@@ -45,6 +52,9 @@
                   }"
                 />
               </div>
+              <div class="flex mb-4 justify-center">
+                <button class="btn">ログイン</button>
+              </div>
             </FormKit>
           </div>
         </div>
@@ -59,13 +69,12 @@ const router = useRouter();
 const client = useSupabaseClient();
 
 const submit = async (submit) => {
-  const { data } = await client.auth.signInWithPassword({
+  const { data: signInData } = await client.auth.signInWithPassword({
     email: submit.email,
     password: submit.password,
   });
-  console.log(data.session);
-  if (data.session) {
-    location.href = "/";
+  if (signInData && signInData.session) {
+    router.push("/");
   } else {
     console.log("失敗");
   }
