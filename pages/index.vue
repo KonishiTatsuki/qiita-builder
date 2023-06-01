@@ -256,6 +256,9 @@ const supabase = useSupabaseClient();
 const userss = useSupabaseUser();
 const userId = userss.value?.id;
 
+//現在の日付取得
+let date = new Date();
+
 //管理者権限があるか確認
 const { data: userAuthority } = await supabase
   .from("profiles")
@@ -280,6 +283,7 @@ let bannerData = ref([]);
   let { data } = await supabase
     .from("article")
     .select("body, clubTagId, date, delete, id, occupationTagId, title, userId")
+    .lt("publishDate", date.toISOString())
     .eq("delete", false)
     .order("date", { ascending: false });
 

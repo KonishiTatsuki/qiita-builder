@@ -38,7 +38,7 @@
       </div>
 
       <div class="text-gray-800 mb-4">
-        tailwindcssのスタイルを無効化するcustom-proseクラス
+        <!-- tailwindcssのスタイルを無効化するcustom-proseクラス -->
         <template v-if="htmlText">
           <span class="custom-prose" v-html="htmlText"></span>
         </template>
@@ -370,10 +370,6 @@ const deleteComment = async (commentId) => {
 </script>
 
 <style>
-/* .custom-prose :is(h1, h2, h3, h4, h5, h6, ul, ol, li) {
-  all: revert;
-} */
-
 .custom-prose * {
   all: revert;
 }
