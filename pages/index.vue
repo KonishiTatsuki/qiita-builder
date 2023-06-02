@@ -192,9 +192,11 @@
                         alt="Icon"
                         class="w-8 h-8 rounded-full mr-2"
                       />
-                      <span class="font-semibold title-font text-gray-700">{{
-                        article.username
-                      }}</span>
+                      <span class="font-semibold title-font text-gray-700 mr-1"
+                        >{{ article.username }}&nbsp;({{
+                          getOccupationName(article.occupationTagId)
+                        }})</span
+                      >
                     </div>
                     <span class="mt-1 text-gray-500 text-sm">{{
                       formatDateTime(article.date)
@@ -354,7 +356,7 @@ let bannerData = ref([]);
       article.tags.push(tag.tagId);
     }
   });
-  console.log(articleData.value);
+  console.log("console.log(articleData.value)", articleData.value);
 })();
 
 // Supabaseからtagテーブルデータを取得
@@ -382,6 +384,7 @@ let bannerData = ref([]);
   occupationName.value.forEach((occupation) => {
     occupation.checked = false;
   });
+  console.log("occupationName.value", occupationName.value);
 })();
 
 // Supabaseからサークルテーブルデータを取得
@@ -534,6 +537,14 @@ const toggleShowAllClubItems = () => {
     showAllClubItems.value = true;
   }
 };
+
+// 職種の名称表示
+function getOccupationName(occupationTagId) {
+  const occupation = occupationName.value.find(
+    (item) => item.id === occupationTagId
+  );
+  return occupation ? occupation.occupationName : "";
+}
 
 //日時のスタイル変更
 function formatDateTime(dateString) {
