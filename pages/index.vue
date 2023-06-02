@@ -6,7 +6,7 @@
         <!-- プログラミング言語 -->
         <div class="pt-12 mr-5">
           <h3 class="mb-4 font-semibold text-gray-900 dark:text-white">
-            プログラミング言語
+            プログラミング言語だ
           </h3>
           <ul
             class="w-48 text-sm font-medium text-gray-900 bg-white border border-gray-200 rounded-lg dark:bg-gray-700 dark:border-gray-600 dark:text-white"
@@ -22,13 +22,13 @@
                   :id="'tag-checkbox-' + index"
                   type="checkbox"
                   value="tag"
-                  class="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-700 dark:focus:ring-offset-gray-700 focus:ring-2 dark:bg-gray-600 dark:border-gray-500"
+                  class="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-700 dark:focus:ring-offset-gray-700 focus:ring-2 dark:bg-gray-600 dark:border-gray-500 cursor-pointer"
                   v-model="tag.checked"
                   @change="filterArticlesByTag"
                 />
                 <label
                   :for="'tag-checkbox-' + index"
-                  class="w-full py-3 ml-2 text-sm font-medium text-gray-900 dark:text-gray-300"
+                  class="w-full py-3 ml-2 text-sm font-medium text-gray-900 dark:text-gray-300 cursor-pointer"
                   >{{ tag.name }}</label
                 >
               </div>
@@ -59,13 +59,13 @@
                   :id="'occupation-checkbox-' + index"
                   type="checkbox"
                   :value="occupation"
-                  class="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-700 dark:focus:ring-offset-gray-700 focus:ring-2 dark:bg-gray-600 dark:border-gray-500"
+                  class="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-700 dark:focus:ring-offset-gray-700 focus:ring-2 dark:bg-gray-600 dark:border-gray-500 cursor-pointer"
                   v-model="occupation.checked"
                   @change="filterArticlesByOccupation"
                 />
                 <label
                   :for="'occupation-checkbox-' + index"
-                  class="w-full py-3 ml-2 text-sm font-medium text-gray-900 dark:text-gray-300"
+                  class="w-full py-3 ml-2 text-sm font-medium text-gray-900 dark:text-gray-300 cursor-pointer"
                   >{{ occupation.occupationName }}</label
                 >
               </div>
@@ -91,13 +91,13 @@
                   :id="'club-checkbox-' + index"
                   type="checkbox"
                   value="club"
-                  class="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-700 dark:focus:ring-offset-gray-700 focus:ring-2 dark:bg-gray-600 dark:border-gray-500"
+                  class="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-700 dark:focus:ring-offset-gray-700 focus:ring-2 dark:bg-gray-600 dark:border-gray-500 cursor-pointer"
                   v-model="club.checked"
                   @change="filterArticlesByClub"
                 />
                 <label
                   :for="'club-checkbox-' + index"
-                  class="w-full py-3 ml-2 text-sm font-medium text-gray-900 dark:text-gray-300"
+                  class="w-full py-3 ml-2 text-sm font-medium text-gray-900 dark:text-gray-300 cursor-pointer"
                   >{{ club.clubName }}</label
                 >
               </div>
@@ -166,7 +166,7 @@
           <div class="container px-5 pb-24 mx-auto">
             <div class="-my-8 divide-y-2 divide-gray-100">
               <div
-                class="py-8 flex flex-wrap md:flex-nowrap"
+                class="flex flex-wrap md:flex-nowrap rounded-lg px-6 pt-6 pb-3 m-8 shadow-md"
                 v-for="article in articleData"
                 :key="article.id"
                 v-show="
@@ -178,41 +178,59 @@
               >
                 <div class="flex">
                   <div class="md:w-64 md:mb-0 mb-6 flex-shrink-0 flex flex-col">
-                    <span class="font-semibold title-font text-gray-700">{{
-                      article.username
-                    }}</span>
+                    <div class="flex items-center">
+                      <!-- アイコン -->
+                      <img
+                        v-if="article.image"
+                        :src="article.image"
+                        alt="Icon"
+                        class="w-8 h-8 rounded-full mr-2"
+                      />
+                      <span class="font-semibold title-font text-gray-700">{{
+                        article.username
+                      }}</span>
+                    </div>
                     <span class="mt-1 text-gray-500 text-sm">{{
                       formatDateTime(article.date)
                     }}</span>
+                    <div class="flex mt-3">
+                      <HeartIcon class="h-6 w-6" />
+                      <span class="font-semibold title-font text-gray-700 ml-1">
+                        {{ article.like }}
+                      </span>
+                    </div>
                   </div>
                   <div class="md:flex-grow">
-                    <h2
-                      class="text-4xl font-medium text-gray-900 title-font mb-2"
+                    <router-link
+                      :to="`/articleDetail/${article.id}`"
+                      class="hover:underline"
                     >
-                      {{
-                        article.title.length > 30
-                          ? article.title.slice(0, 30) + "..."
-                          : article.title
-                      }}
-                    </h2>
-                    <p class="leading-relaxed" id="custom-prose">
-                      {{
-                        article.body.length > 100
-                          ? article.body.slice(0, 100) + "..."
-                          : article.body
-                      }}
-                    </p>
-                    <div class="mt-4">
-                      <router-link
-                        :to="`/articleDetail/${article.id}`"
-                        class="text-indigo-500"
+                      <h2
+                        class="text-4xl font-medium text-gray-900 title-font mb-2"
                       >
-                        記事詳細&nbsp;→
-                      </router-link>
+                        {{
+                          article.title.length > 30
+                            ? article.title.slice(0, 30) + "..."
+                            : article.title
+                        }}
+                      </h2>
+                    </router-link>
+                    <router-link
+                      :to="`/articleDetail/${article.id}`"
+                      class="hover:underline"
+                    >
+                      <p class="leading-relaxed" id="custom-prose">
+                        {{
+                          article.body.length > 100
+                            ? article.body.slice(0, 100) + "..."
+                            : article.body
+                        }}
+                      </p>
+                    </router-link>
+                    <div class="mt-4" v-if="authority">
                       <button
                         class="btn block mt-4"
                         @click="deleteArticle(article.id)"
-                        v-if="authority"
                       >
                         削除
                       </button>
@@ -228,21 +246,25 @@
   </div>
 </template>
 
-<script setup>
+<script setup lang="ts">
 import { ref, onMounted } from "vue";
 import { useRouter } from "vue-router";
+import { HeartIcon } from "@heroicons/vue/outline";
 
 const route = useRouter();
 const supabase = useSupabaseClient();
 const userss = useSupabaseUser();
 const userId = userss.value?.id;
 
+//現在の日付取得
+let date = new Date();
+
 //管理者権限があるか確認
-const { data: userAuthority } = await supabase
-  .from("profiles")
-  .select("authority")
-  .eq("id", userId);
-const authority = userAuthority[0].authority;
+let { data: auth } = await useFetch("/api/user/getAdminUser", {
+  method: "POST",
+  body: userId,
+});
+const authority = auth.value[0].authority;
 
 // Supabaseからプログラミング言語名(display:trueのみ)を取得
 let tagName = ref("");
@@ -256,11 +278,11 @@ let visibleClubItems = ref(10);
 let showAllClubItems = ref(false);
 let bannerData = ref([]);
 
-//articleデータ取得
 (async () => {
   let { data } = await supabase
     .from("article")
     .select("body, clubTagId, date, delete, id, occupationTagId, title, userId")
+    .lt("publishDate", date.toISOString())
     .eq("delete", false)
     .order("date", { ascending: false });
 
@@ -268,19 +290,22 @@ let bannerData = ref([]);
   const userIds = data
     .filter((article) => article.userId !== null) // nullを除外
     .map((article) => article.userId);
+
   const { data: users } = await supabase
     .from("profiles")
-    .select("id, username")
+    .select("id, username,image")
     .in("id", userIds);
-  const usernameMap = {};
+
+  const userMap = {};
   for (const user of users) {
-    usernameMap[user.id] = user.username;
+    userMap[user.id] = { username: user.username, image: user.image };
   }
 
-  // data配列にusernameを追加
+  // data配列にusernameとimageを追加
   articleData.value = data.map((article) => ({
     ...article,
-    username: usernameMap[article.userId],
+    username: userMap[article.userId]?.username || "",
+    image: userMap[article.userId]?.image || "",
   }));
 
   // likeテーブルを取得し、articleData配列にいいね数が表示されたlikeプロパティを持たせる
@@ -322,6 +347,7 @@ let bannerData = ref([]);
       article.tags.push(tag.tagId);
     }
   });
+  console.log(articleData.value);
 })();
 
 // Supabaseからtagテーブルデータを取得

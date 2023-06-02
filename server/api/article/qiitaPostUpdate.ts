@@ -3,10 +3,10 @@ import { Database } from "~/types/database.types";
 
 export default defineEventHandler(async (event) => {
   const body = await readBody(event);
-  const client = serverSupabaseClient<Database>(event);
-  const { data } = await client
-    .from("profiles")
-    .update({ qiitaToken: body.qiitaToken })
-    .eq("id", body.userId);
+  const spabase = serverSupabaseClient<Database>(event);
+  const { data } = await spabase
+    .from("article")
+    .update({ qiitaPost: true })
+    .match({ id: body });
   return data;
 });

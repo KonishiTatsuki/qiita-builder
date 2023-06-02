@@ -18,22 +18,15 @@
               <p v-if="errorMessage" class="text-red-500">{{ errorMessage }}</p>
             </div>
           </div>
-          <NuxtLink to="/userRegister">
-            <button
-              type="submit"
-              class="px-5 py-2 rounded-md text-base border hover:bg-[#1D8EB9] hover:border-indigo-700 hover:text-white mr-5"
-            >
-              ← 戻る
-            </button>
-          </NuxtLink>
-          <button type="submit" class="btn">ログイン</button>
+
+          <button type="submit" class="btn">登録</button>
         </form>
       </div>
     </div>
   </div>
 </template>
 
-<script setup>
+<script setup lang="ts">
 const router = useRouter();
 const supabase = useSupabaseClient();
 const user = useSupabaseUser();
