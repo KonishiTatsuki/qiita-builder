@@ -198,22 +198,37 @@
   </div>
 </template>
 
-<script setup>
+<script setup lang="ts">
 import { submitForm } from "@formkit/core";
+import { Occupation, Club } from "~/types";
+import { Database } from "~/types/database.types";
+type useClub = {
+  label: string;
+  value: number;
+};
+
+type useOccupation = {
+  label: string;
+  value: number;
+};
 const errormesssage = ref("");
-const club = [{ label: "その他(右フォームに記入)", value: "others" }];
-const occupation = [];
+const club: useClub[] = [{ label: "その他(右フォームに記入)", value: 0 }];
+const occupation: useOccupation[] = [];
 const { data: clubb } = await useFetch("/api/club/get");
 const { data: occupationn } = await useFetch("/api/occupation/get");
 const router = useRouter();
 const succes = ref();
-occupationn.value.map((c) => {
+occupationn.value?.map((c: Occupation) => {
   occupation.push({ label: c.occupationName, value: c.id });
 });
-clubb.value.map((c) => {
+clubb.value?.map((c: Club) => {
   club.push({ label: c.clubName, value: c.id });
 });
-const client = useSupabaseClient();
+const client = useSupabaseClient<Database>();
+
+type ClubName = {
+  clubName: string;
+};
 
 //登録する押下
 const submitRegister = async () => {
@@ -231,17 +246,35 @@ const connectQitta = () => {
   }
 };
 
+type Credentials = {
+  userName: string;
+  club: number;
+  detail: string;
+  email: string;
+  occupation: number;
+  image: string;
+  password: string;
+  password_confirm: string;
+  addClub: string;
+  file: any;
+};
+
 //supabaseへのデータ保存
-const submitHandler = async (credentials) => {
+const submitHandler = async (credentials: Credentials) => {
   console.log(credentials);
   let clubId = credentials.club;
+
   if (credentials.addClub) {
     //追加クラブをdisplay:falseで登録
     await client.from("club").insert({
       clubName: credentials.addClub,
     });
 
-    await client.from("club").select("id").eq("clubName", body.addClub);
+    const { data } = await client
+      .from("club")
+      .select("id")
+      .eq("clubName", credentials.addClub);
+
     clubId = data[0].id;
   }
   //アイコン画像を保存
