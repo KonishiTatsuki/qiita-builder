@@ -2,10 +2,11 @@ import { serverSupabaseClient } from "#supabase/server";
 
 type BodySchema = {
   userId: string;
-  qiitaToken: string;
+  qiitaToken: number;
 };
+
 export default defineEventHandler(async (event) => {
-  const body = await readBody(event);
+  const body = await readBody<BodySchema>(event);
   const client = serverSupabaseClient<BodySchema>(event);
   const { data } = await client
     .from("profiles")
