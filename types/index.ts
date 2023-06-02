@@ -2,15 +2,16 @@ type Article = {
   id: number;
   date: string;
   title: string;
-  clubId: number;
-  occupationId: number;
+  clubTagId: number;
+  occupationTagId: number;
   body: string;
   qiitaPost: boolean;
   publishDate: string;
+  publish: boolean;
   bannerId: number;
+  delete: boolean;
   userId: string;
   goalLike: string;
-  adventDate: Date;
 };
 
 type Tagging = {
@@ -66,11 +67,11 @@ type Occupation = {
 type Profile = {
   id: string;
   username: string;
-  clubid: number;
+  clubid: { id: number; display: boolean; clubName: string };
   qiitaToken: string;
   detail: string;
   email: string;
-  occupation: number;
+  occupation: { id: number; occupationName: string };
   image: string;
   authority: boolean;
 };

@@ -4,9 +4,9 @@
       <div class="flex justify-between">
         <div class="w-full pr-[100px]">
           <div>
-            <ul class="min-h-[300px]">
-              <li>投稿記事一覧</li>
-              <hr class="mb-[20px]" />
+            <p>投稿記事一覧</p>
+            <hr class="mb-[20px]" />
+            <ul class="min-h-[250px]">
               <li
                 v-for="article in myArticleArray"
                 class="flex items-center justify-between mb-[10px]"
@@ -26,11 +26,12 @@
                 </div>
               </li>
             </ul>
-            <ul class="my-10">
-              <p>いいねした記事一覧</p>
-              <hr class="mb-5" />
+
+            <p>いいねした記事一覧</p>
+            <hr class="mb-5" />
+            <ul class="min-h-[250px]">
               <li
-                v-for="article in likeArticleArray"
+                v-for="article in myLikeArray"
                 class="my-4 flex justify-between"
               >
                 <p class="ml-[10px] mr-5 font-bold">{{ article.title }}</p>
@@ -62,9 +63,9 @@
   </div>
 </template>
 
-<script setup>
+<script setup lang="ts">
 const users = useSupabaseUser();
-const userId = users.value.id;
+const userId = users.value?.id;
 
 //ユーザー情報を取得
 const { data: user } = await useFetch("/api/user/get", {
@@ -77,6 +78,7 @@ const authority = user.value[0].authority;
 const { data: likeArticleArray } = await useFetch(
   `/api/like/get?userId=${userId}`
 );
+const myLikeArray = likeArticleArray.value;
 
 //自分が書いた記事を取得
 const { data: myArticle } = await useFetch(

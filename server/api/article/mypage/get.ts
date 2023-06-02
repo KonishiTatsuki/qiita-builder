@@ -11,6 +11,6 @@ export default defineEventHandler(async (event) => {
   const { data: article }: PostgrestSingleResponse<Article[]> = await supabase
     .from("article")
     .select("*")
-    .eq("userId", queryNumber);
+    .match({ userId: queryNumber, delete: false });
   return article;
 });
