@@ -139,7 +139,7 @@
   </div>
 </template>
 
-<script setup>
+<script setup lang="ts">
 import LikeButton from "~/components/LikeButton.vue";
 import RecommendButton from "~/components/RecommendButton.vue";
 import { ref, onMounted } from "vue";
@@ -180,17 +180,34 @@ let formattedDate = ref();
 let articleTagIds = [];
 let tagNames = ref();
 const goalLike = ref(0);
-const { data: articleDatas } = await useFetch("/api/article/articleDateGet", {
+
+type Article = {
+  id: number;
+  date: string;
+  title: string;
+  clubTagId: number;
+  occupationTagId: number;
+  body: string;
+  qiitaPost: boolean;
+  publishDate: string;
+  bannerId: number;
+  userId: string;
+  goalLike: string;
+  adventDate: Date;
+};
+
+const { data:articleDatas } = await useFetch("/api/article/articleDateGet", {
   method: "POST",
   body: articleId,
 });
-console.log("articleDatas", articleDatas.value);
+
 const { data: articleUser } = await useFetch("/api/user/userGet", {
   method: "POST",
   body: articleDatas.value[0].userId,
 });
 articleUsers.value = articleUser.value[0];
 articleData.value = articleDatas.value[0];
+
 //記事の公開日判定
 //公開日のミリ秒取得
 const display = ref(false);

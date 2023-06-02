@@ -164,6 +164,12 @@
         <!-- 記事一覧 -->
         <section class="text-gray-600 body-font overflow-hidden">
           <div class="container px-5 pb-24 mx-auto">
+            <div
+              v-if="!hasVisibleArticles"
+              class="text-center text-gray-500 py-8"
+            >
+              申し訳ございません。記事が見つかりませんでした。
+            </div>
             <div class="-my-8 divide-y-2 divide-gray-100">
               <div
                 class="flex flex-wrap md:flex-nowrap rounded-lg px-6 pt-6 pb-3 m-8 shadow-md"
@@ -247,41 +253,28 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from "vue";
+import { ref, computed } from "vue";
 import { useRouter } from "vue-router";
 import { HeartIcon } from "@heroicons/vue/outline";
+import { Profile } from "../types/index/profileAuth";
 
 const route = useRouter();
 const supabase = useSupabaseClient();
 const userss = useSupabaseUser();
 const userId = userss.value?.id;
-
-//現在の日付取得
-let date = new Date();
-
-interface Profile {
-  authority: boolean;
-}
+let date = new Date(); //現在の日付取得
 
 // 管理者権限があるか確認
 let authData = await useFetch("/api/user/getAdminUser", {
   method: "POST",
   body: userId,
 });
-
 let auth: Profile | null = null;
-if (
-  authData &&
-  authData.data &&
-  Array.isArray(authData.data) &&
-  authData.data.length > 0
-) {
+if (authData && Array.isArray(authData.data) && authData.data.length > 0) {
   auth = authData.data[0];
 }
-
 const authority: boolean | null = auth ? auth.authority : null;
 
-// Supabaseからプログラミング言語名(display:trueのみ)を取得
 let tagName = ref("");
 let visibleTagItems = ref(10);
 let showAllTagItems = ref(false);
@@ -305,7 +298,6 @@ let bannerData = ref([]);
   const userIds = data
     .filter((article) => article.userId !== null) // nullを除外
     .map((article) => article.userId);
-
   const { data: users } = await supabase
     .from("profiles")
     .select("id, username,image")
@@ -502,8 +494,6 @@ const filterArticlesByTag = () => {
       article.hideByTag = false;
     } else {
       // 選択されたサークルと同じidの記事のみ表示
-      // article.hideByTag = !selectedTags.includes(article.tags);
-      // ↑ここ問題
       article.hideByTag = !article.tags.some((tag) =>
         selectedTags.includes(tag)
       );
@@ -511,6 +501,19 @@ const filterArticlesByTag = () => {
   });
 };
 
+// 記事があるかどうかを判定する
+const hasVisibleArticles = computed(() => {
+  return articleData.value.some((article) => {
+    return (
+      !article.hideByOccupation &&
+      !article.hideByClub &&
+      !article.hideByTag &&
+      !article.hide
+    );
+  });
+});
+
+// プログラミング言語の表示数を変更する
 const toggleShowAllTagItems = () => {
   if (showAllTagItems.value) {
     visibleTagItems.value = 10;
@@ -521,6 +524,7 @@ const toggleShowAllTagItems = () => {
   }
 };
 
+// サークルの表示数を変更する
 const toggleShowAllClubItems = () => {
   if (showAllClubItems.value) {
     visibleClubItems.value = 10;
