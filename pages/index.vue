@@ -247,7 +247,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted } from "vue";
+import { ref } from "vue";
 import { useRouter } from "vue-router";
 import { HeartIcon } from "@heroicons/vue/outline";
 
@@ -259,12 +259,27 @@ const userId = userss.value?.id;
 //現在の日付取得
 let date = new Date();
 
-//管理者権限があるか確認
-let { data: auth } = await useFetch("/api/user/getAdminUser", {
+interface Profile {
+  authority: boolean;
+}
+
+// 管理者権限があるか確認
+let authData = await useFetch("/api/user/getAdminUser", {
   method: "POST",
   body: userId,
 });
-const authority = auth.value[0].authority;
+
+let auth: Profile | null = null;
+if (
+  authData &&
+  authData.data &&
+  Array.isArray(authData.data) &&
+  authData.data.length > 0
+) {
+  auth = authData.data[0];
+}
+
+const authority: boolean | null = auth ? auth.authority : null;
 
 // Supabaseからプログラミング言語名(display:trueのみ)を取得
 let tagName = ref("");
