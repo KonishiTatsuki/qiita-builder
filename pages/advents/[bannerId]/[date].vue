@@ -2,6 +2,7 @@
   <div>
     <h1 class="title">アドベントカレンダーに投稿</h1>
     <p class="text-red-500">※投稿や編集、削除ができるのは期間までです。</p>
+    <div>選択した日付{{ selectDate }}</div>
     <div>
       <p>選択した日付: {{ date }}日</p>
       <!-- <p>入力したタイトル: {{ title }}</p> -->
@@ -38,7 +39,9 @@
 
 <script setup>
 // 取得したuserIdを使って、articleテーブルからuserIdが一致するものを取得してタイ
-import { ref } from "vue";
+import { ref, onMounted } from "vue";
+import { useRoute } from "vue-router";
+import dayjs from "dayjs";
 
 // 引数を受け取る変数
 const bannerId = ref(null);
@@ -49,15 +52,21 @@ const supabase = useSupabaseClient();
 const user = useSupabaseUser();
 const userId = user.value?.id;
 const title = ref("");
-
-// ルート情報を取得してadventの引数を代入
 const route = useRoute();
-console.log("routeの結果", route);
-bannerId.value = route.params.bannerId;
-date.value = route.params.date;
 
-console.log("bannerIdの結果", bannerId.value);
-console.log("dateの結果", date.value);
+onMounted(() => {
+  const route = useRoute();
+  const bannerId = ref(route.params.bannerId);
+  const selectDate = ref(route.params.date);
+
+  console.log("bannerIdの結果", bannerId.value);
+  console.log("selectDateの結果", selectDate.value);
+});
+
+// const formattedDate = route.params.date;
+// const formattedDate = dayjs(route.params.date, "YYYY-MM-DD").format(
+//   "YYYY-MM-DD"
+// );
 
 // user.idをもとにarticleテーブルから記事を全部取得する
 const { data: articles } = await supabase
@@ -86,6 +95,24 @@ const submitHandler = async () => {
   // ページをリロードする
   router.go(0);
 };
+
+// 投稿ボタンを押した時の処理
+// const submitHandler = async () => {
+//   const { data } = await useFetch("/api/advent/join", {
+//     method: "POST",
+//     headers: {
+//       "Content-Type": "application/json",
+//     },
+//     body: JSON.stringify({
+//       bannerId: id,
+//     }),
+//   });
+//   if (data.status === "success") {
+//     alert("参加しました");
+//   } else {
+//     alert("参加できませんでした");
+//   }
+// };
 
 console.log("selectedArticle", selectedArticleId.value);
 </script>
