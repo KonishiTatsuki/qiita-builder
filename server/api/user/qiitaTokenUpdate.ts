@@ -1,13 +1,9 @@
 import { serverSupabaseClient } from "#supabase/server";
-
-type BodySchema = {
-  userId: string;
-  qiitaToken: number;
-};
+import { Database } from "~/types/database.types";
 
 export default defineEventHandler(async (event) => {
-  const body = await readBody<BodySchema>(event);
-  const client = serverSupabaseClient<BodySchema>(event);
+  const body = await readBody(event);
+  const client = serverSupabaseClient<Database>(event);
   const { data } = await client
     .from("profiles")
     .update({ qiitaToken: body.qiitaToken })

@@ -184,7 +184,6 @@ const { data: articleDatas } = await useFetch("/api/article/articleDateGet", {
   method: "POST",
   body: articleId,
 });
-console.log("articleDatas", articleDatas.value);
 const { data: articleUser } = await useFetch("/api/user/userGet", {
   method: "POST",
   body: articleDatas.value[0].userId,
@@ -199,7 +198,11 @@ articleDate = new Date(articleDate);
 const articleDateMs = articleDate.getTime();
 //現在のミリ秒取得
 const dateMs = date.getTime();
-if (articleDateMs - dateMs > 0) {
+//記事詳細画面表示条件
+if (
+  articleDateMs - dateMs > 0 &&
+  articleUsers.value.id !== userInfo.value[0].id
+) {
   router.push("/");
 }
 
@@ -374,6 +377,10 @@ const deleteComment = async (commentId) => {
 </script>
 
 <style>
+/* .custom-prose :is(h1, h2, h3, h4, h5, h6, ul, ol, li) {
+  all: revert;
+} */
+
 .custom-prose * {
   all: revert;
 }
