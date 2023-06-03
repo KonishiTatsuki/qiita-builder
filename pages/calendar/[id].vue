@@ -19,22 +19,31 @@
           <tr v-for="(week, index) in calendarChunks" :key="index" class="p">
             <td v-for="day in week" :key="day.date" class="pt-2 pb-7 pl-7 pr-7">
               <div class="text-lg text-center mt-2 mb-5">
-                {{ day.isCurrentMonth ? dayjs(day.date).format("DD") : "" }}
+                {{
+                  day.isCurrentMonth && day.date
+                    ? dayjs(day.date).format("DD")
+                    : ""
+                }}
               </div>
               <div>
                 <div
-                  v-for="article in matchingArticles(day.date)"
-                  :key="article.id"
+                  v-if="
+                    (day.isCurrentMonth && day.period) ||
+                    matchingArticles(day.date).length > 0
+                  "
                 >
-                  <div class="text-center">{{ article.userId.username }}</div>
-                  <NuxtLink
-                    :to="`/articleDetail/${article.id}`"
-                    :class="{ 'disabled-link': !isDatePast(day.date) }"
+                  <div
+                    v-for="article in matchingArticles(day.date)"
+                    :key="article.id"
                   >
-                    <div class="text-center">
-                      {{ article.title }}
-                    </div>
-                  </NuxtLink>
+                    <div class="text-center">{{ article.userId.username }}</div>
+                    <NuxtLink
+                      :to="`/articleDetail/${article.id}`"
+                      :class="{ 'disabled-link': !isDatePast(day.date) }"
+                    >
+                      <div class="text-center">{{ article.title }}</div>
+                    </NuxtLink>
+                  </div>
                 </div>
               </div>
               <NuxtLink :to="`/advents/${id}/${day.date}`">
@@ -43,7 +52,8 @@
                     day.isCurrentMonth &&
                     day.period &&
                     matchingArticles(day.date).length === 0 &&
-                    !isDatePast(day.date)
+                    !isDatePast(day.date) &&
+                    day.date !== dayjs().format('YYYY-MM-DD')
                   "
                   class="bg-blue-200 hover:bg-blue-400 text-black py-2 px-4 rounded"
                 >
@@ -68,11 +78,7 @@ const description = ref("");
 const startDate = ref("");
 const endDate = ref("");
 const managerName = ref("");
-const selectDate = ref();
-const formattedDate = ref("");
-const router = useRouter();
 const route = useRoute();
-const date = ref("");
 
 // bannerテーブル情報を取得
 const { id } = route.params;
@@ -80,6 +86,7 @@ const { data: bannerData } = await useFetch(`/api/advent/get?id=${id}`);
 const { data: articleData } = await useFetch(
   `/api/advent/articleGet?bannerId=${id}`
 );
+console.log("articleData", articleData);
 console.log("bannerData", bannerData);
 adventName.value = bannerData.value[0].adventName;
 description.value = bannerData.value[0].description;
@@ -125,8 +132,8 @@ const calendarChunks = computed(() => {
     const year = startD.getFullYear();
     const month = String(startD.getMonth() + 1).padStart(2, "0");
     const day = String(i).padStart(2, "0");
-    const formattedDate = `${year}-${month}-${day}`;
-    calendar.push({ date: formattedDate, isCurrentMonth: true });
+    const currentDate = `${year}-${month}-${day}`;
+    calendar.push({ date: currentDate, isCurrentMonth: true });
   }
   // 月の最後の日の曜日まで空の配列を作成
   for (let i = 0; i < 6 - lastDayOfWeek; i++) {
@@ -150,18 +157,30 @@ const calendarChunks = computed(() => {
 });
 console.log("calendarChunks", calendarChunks.value);
 
-// カレンダーの日付とマッチする記事を抽出
+const isDateBetween = (date, startDate, endDate) => {
+  const articleDate = new Date(date);
+  const startD = new Date(startDate);
+  const endD = new Date(endDate);
+
+  return articleDate >= startD && articleDate <= endD;
+};
+
+// カレンダーの日付にマッチする記事のフィルタリング
 const matchingArticles = (date) => {
   return articleList.filter((article) => {
-    return article.publishDate === date;
+    const articleDate = dayjs(article.publishDate).format("YYYY-MM-DD");
+    return (
+      date === articleDate &&
+      isDateBetween(articleDate, startDate.value, endDate.value)
+    );
   });
 };
 
 // カレンダーの日付が現在の日付より前かどうかを判定
 const isDatePast = (date) => {
-  const todayDate = new Date();
-  const calendarDate = new Date(date);
-  return calendarDate < todayDate;
+  const todayDate = dayjs().startOf("day");
+  const calendarDate = dayjs(date);
+  return calendarDate.isBefore(todayDate, "day");
 };
 </script>
 

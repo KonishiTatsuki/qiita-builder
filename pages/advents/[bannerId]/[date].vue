@@ -87,7 +87,7 @@ const submitHandler = async () => {
   console.log("data", data);
   console.log("error", error);
   // ページをリロードする
-  // router.go(0);
+  // router.go(-1);
 };
 const deleteHandler = async () => {
   const { data: articleId } = await supabase
