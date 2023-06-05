@@ -4,10 +4,8 @@
     <p class="text-red-500">※投稿や編集、削除ができるのは期間までです。</p>
     <div>
       <p>選択した日付: {{ date }}日</p>
-      <!-- <p>入力したタイトル: {{ title }}</p> -->
     </div>
     <h2 class="subtitle">投稿する記事の選択</h2>
-    <!-- articleの記事タイトルをプルダウンで表示する -->
     <label
       for="countries"
       class="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
@@ -30,15 +28,17 @@
   <div class="flex justify-end">
     <div>
       <button class="btn m-3 block" @click="submitHandler">投稿</button>
-      <button class="btn m-3 block">編集</button>
-      <button class="btn m-3 block">削除</button>
+      <button class="btn m-3 block" @click="deleteHandler">削除</button>
     </div>
   </div>
 </template>
 
 <script setup>
 // 取得したuserIdを使って、articleテーブルからuserIdが一致するものを取得してタイ
-import { ref } from "vue";
+import { ref, onMounted } from "vue";
+import { useRoute, useRouter } from "vue-router";
+
+import dayjs from "dayjs";
 
 // 引数を受け取る変数
 const bannerId = ref(null);
@@ -49,15 +49,15 @@ const supabase = useSupabaseClient();
 const user = useSupabaseUser();
 const userId = user.value?.id;
 const title = ref("");
-
-// ルート情報を取得してadventの引数を代入
 const route = useRoute();
-console.log("routeの結果", route);
-bannerId.value = route.params.bannerId;
-date.value = route.params.date;
 
-console.log("bannerIdの結果", bannerId.value);
-console.log("dateの結果", date.value);
+onMounted(() => {
+  bannerId.value = route.params.bannerId;
+  date.value = route.params.date;
+
+  console.log("bannerIdの結果", bannerId.value);
+  console.log("selectDateの結果", date.value);
+});
 
 // user.idをもとにarticleテーブルから記事を全部取得する
 const { data: articles } = await supabase
@@ -74,18 +74,50 @@ const submitHandler = async () => {
     .select("id")
     .eq("userId", userId)
     .eq("id", selectedArticleId.value);
-  console.log("articleId", articleId[0].id);
+  console.log("articleId", articleId);
 
-  // bannerIdとdateをarticleテーブルにデータを追加する
-  const { data, error } = await supabase.from("article").update({
-    bannerId: bannerId.value,
-    adventDate: date.value,
-  });
+  // bannerIdとpublishDateをarticleテーブルにデータを更新する
+  const { data, error } = await supabase
+    .from("article")
+    .update({
+      bannerId: bannerId.value,
+      publishDate: date.value,
+    })
+    .eq("id", articleId[0].id);
   console.log("data", data);
   console.log("error", error);
   // ページをリロードする
-  router.go(0);
+  // router.go(-1);
 };
+const deleteHandler = async () => {
+  const { data: articleId } = await supabase
+    .from("article")
+    .select("id")
+    .eq("userId", userId)
+    .eq("id", selectedArticleId.value);
+
+  const { data, error } = await supabase
+    .from("article")
+    .update({ bannerId: null })
+    .eq("id", articleId[0].id);
+  console.log("data", data);
+  console.log("error", error);
+};
+
+// 投稿ボタンを押した時の処理
+// const postHandler = async () => {
+//   const { data } = await useFetch("/api/advent/join", {
+//     method: "POST",
+//     body: JSON.stringify({
+//       bannerId: id,
+//     }),
+//   });
+//   if (data.status === "success") {
+//     alert("参加しました");
+//   } else {
+//     alert("参加できませんでした");
+//   }
+// };
 
 console.log("selectedArticle", selectedArticleId.value);
 </script>
