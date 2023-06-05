@@ -1,7 +1,7 @@
 <template>
-  <header class="text-white bg-[#1D8EB9] body-font max-w-full mx-auto">
+  <header class="text-white bg-[#1D8EB9] body-font max-w-full mx-auto h-[68px] flex items-center">
     <div
-      class="container mx-auto flex flex-wrap p-5 flex-col md:flex-row items-center relative"
+      class="container mx-auto flex flex-wrap flex-col md:flex-row items-center"
     >
       <NuxtLink
         to="/"
@@ -37,8 +37,8 @@
     <slot />
   </div>
 
-  <footer class="bg-[#1D8EB9] py-4 mt-14">
-    <div class="container mx-auto px-4">
+  <footer class="bg-[#1D8EB9] h-[56px] mt-[44px] flex items-center">
+    <div class="container mx-auto ">
       <p class="text-center text-white">&copy; 2023 Qiita builder.</p>
     </div>
   </footer>
@@ -51,6 +51,6 @@ const client = useSupabaseClient();
 const logout = async () => {
   const { error } = await client.auth.signOut();
   console.log("ログアウト", error);
-  router.go();
+  router.push("/login");
 };
 </script>
