@@ -180,7 +180,8 @@ let formattedDate = ref();
 let articleTagIds = [];
 let tagNames = ref();
 const goalLike = ref(0);
-const { data: articleDatas } = await useFetch("/api/article/articleDateGet", {
+
+const { data:articleDatas } = await useFetch("/api/article/articleDateGet", {
   method: "POST",
   body: articleId,
 });
@@ -190,6 +191,7 @@ const { data: articleUser } = await useFetch("/api/user/userGet", {
 });
 articleUsers.value = articleUser.value[0];
 articleData.value = articleDatas.value[0];
+
 //記事の公開日判定
 //公開日のミリ秒取得
 const display = ref(false);
