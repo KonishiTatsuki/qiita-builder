@@ -1,27 +1,25 @@
 <template>
-  <div class="flex main">
-    <div class="flex-auto my-auto">
-      <div class="flex justify-center">
-        <form @submit.prevent="submit" class="text-center">
-          <h1 class="title">Qiita連携</h1>
-          <div class="flex justify-center">
-            <div class="pb-[30px] text-left">
-              Qiita個人用アクセストークン
-              <div>
-                <input
-                  type="text"
-                  maxlength="40"
-                  class="border rounded border-black w-[300px]"
-                  v-model="text"
-                />
-              </div>
-              <p v-if="errorMessage" class="text-red-500">{{ errorMessage }}</p>
+  <div class="flex main justify-center">
+    <div class="my-auto text-center">
+      <h1 class="title">Qiita連携</h1>
+      <form @submit.prevent="submit" class="text-center">
+        <div class="flex justify-center">
+          <div class="pb-[30px] text-left">
+            Qiita個人用アクセストークン
+            <div>
+              <input
+                type="text"
+                maxlength="40"
+                class="border rounded border-black w-[300px]"
+                v-model="text"
+              />
             </div>
+            <p v-if="errorMessage" class="text-red-500">{{ errorMessage }}</p>
           </div>
+        </div>
 
-          <button type="submit" class="btn">登録</button>
-        </form>
-      </div>
+        <button type="submit" class="btn">登録</button>
+      </form>
     </div>
   </div>
 </template>

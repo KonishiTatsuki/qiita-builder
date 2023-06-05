@@ -62,7 +62,6 @@
           <v-col>
             <v-combobox
               v-model="select"
-              :items="items"
               label="タグを設定してください"
               multiple
               chips
@@ -91,27 +90,24 @@
   </div>
 </template>
 
-<script lang="ts" setup>
+<script setup lang="ts">
+import type EasyMDE from "easymde";
 const route = useRoute();
 // パスパラメータよりid取得
 const { id } = route.params;
 const { data } = await useFetch(`/api/article/get?id=${id}`);
-import type EasyMDE from "easymde";
 
 let mde: InstanceType<typeof EasyMDE> | null = null;
-const content = ref(data.value.article[0].body);
+const content = ref(data.value?.article[0].body);
 const contentArea = ref();
-const title = ref(data.value.article[0].title);
-const select = ref(data.value.tag);
-const goalLike = ref(data.value.article[0].goalLike);
-const publishDate = ref(data.value.article[0].publishDate);
+const title = ref(data.value?.article[0].title);
+const select = ref(data.value?.tag);
+const goalLike = ref(data.value?.article[0].goalLike);
+const publishDate = ref(data.value?.article[0].publishDate);
 const router = useRouter();
 let errorTitle = ref(false);
 let errorContent = ref(false);
 let errorGoalLike = ref(false);
-console.log(errorTitle);
-console.log(errorContent);
-console.log(content.value);
 
 const goalLikeArray = [
   {

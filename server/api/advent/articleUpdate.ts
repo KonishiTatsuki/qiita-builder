@@ -1,17 +1,18 @@
 import { serverSupabaseClient } from "#supabase/server";
 
-
+type BodySchema = {
+  publish: boolean,
+  publishDate: Date,
+  bannerId: Number
+};
 
 export default defineEventHandler(async (event) => {
-  const supabase = serverSupabaseClient(event);
+  const supabase = serverSupabaseClient<BodySchema>(event);
+  const body = await readBody(event);
   const user = useSupabaseUser();
-  const myObj: { publish?: boolean; publishDate?: string; bannerId?: number; } = {
-    publish: true,
-    publishDate: '2022-01-01',
-    bannerId: 1234
-  };
-  const { error } = await supabase
+  const { data } = await supabase
     .from('article')
-    .update(myObj)
-    .eq('id', 1)
+    .update({ publish: true, publishDate: body.date, bannerId: body.bannerId })
+    .eq('id', body.id)
+  return data;
 });

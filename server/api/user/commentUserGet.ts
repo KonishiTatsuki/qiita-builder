@@ -1,4 +1,5 @@
 import { serverSupabaseClient } from "#supabase/server";
+import { Database } from "~/types/database.types";
 
 type BodySchema = {
   id: number;
@@ -9,21 +10,9 @@ type BodySchema = {
   username?: string;
 };
 
-type User = {
-  id: string;
-  username: string;
-  clubid: number;
-  qiitaToken: string;
-  detail: string;
-  email: string;
-  occupation: number;
-  image: null | string;
-  authority: boolean;
-};
-
 export default defineEventHandler(async (event) => {
   const body = await readBody(event);
-  const supabase = serverSupabaseClient<User[]>(event);
+  const supabase = serverSupabaseClient<Database>(event);
 
   const data = await Promise.all(
     body.map(async (item: BodySchema) => {

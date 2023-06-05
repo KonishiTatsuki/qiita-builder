@@ -5,11 +5,17 @@
         <div class="text-center">
           <h1 class="title">パスワード再設定</h1>
           <div class="flex justify-center">
-            <FormKit type="form" @submit="submit" submit-label="登録">
+            <FormKit
+              type="form"
+              @submit="submit"
+              :actions="false"
+              incomplete-message=" "
+            >
               <div class="mb-5 text-center">
                 <FormKit
                   :classes="{
                     input: 'border border-black py-1 px-2 rounded-md',
+                    message: 'text-red-500',
                   }"
                   type="password"
                   label="新パスワード"
@@ -32,24 +38,23 @@
                 <FormKit
                   :classes="{
                     input: 'border border-black py-1 px-2 rounded-md',
+                    message: 'text-red-500',
                   }"
                   type="password"
-                  label="確認用パスワード"
-                  name="confirmPassword"
-                  validation="required|length:8,30|contains_numeric|contains_lowercase|contains_uppercase"
+                  label=" パスワード確認用"
+                  name="password_confirm"
+                  validation="required|confirm"
                   autocomplete="off"
                   :validation-messages="{
                     required: 'パスワードを入力してください',
-                    length: '8文字以上30文字以内で入力してください',
-                    contains_numeric:
-                      '半角英小文字・大文字・数字をそれぞれ1種類以上含んでください',
-                    contains_lowercase:
-                      '半角英小文字・大文字・数字をそれぞれ1種類以上含んでください',
-                    contains_uppercase:
-                      '半角英小文字・大文字・数字をそれぞれ1種類以上含んでください',
+                    confirm: 'パスワードが一致しません',
                   }"
                 />
               </div>
+              <div class="flex mb-4 justify-center">
+                <button class="btn">登録</button>
+              </div>
+              <p>{{ success }}</p>
             </FormKit>
           </div>
         </div>
@@ -60,13 +65,18 @@
 
 <script setup lang="ts">
 const router = useRouter();
+const route = useRoute();
 const supabase = useSupabaseClient();
 
 const email = ref("");
 const password = ref("");
+const success = ref("");
 
 const submit = async (submit: { password: string }) => {
-  await supabase.auth.updateUser({ password: submit.password });
+  const { data, error } = await supabase.auth.updateUser({
+    password: submit.password,
+  });
+  success.value = "パスワードを再設定しました。";
 };
 </script>
 
