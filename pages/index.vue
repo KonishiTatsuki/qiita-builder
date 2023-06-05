@@ -241,6 +241,14 @@
                         }}
                       </p>
                     </router-link>
+                    <div class="flex space-x-2 m-4">
+                      <span
+                        class="bg-blue-100 text-blue-600 px-2 py-1 rounded"
+                        v-for="tag in article.tags"
+                        :key="tag"
+                        >{{ getTagsName(tag) }}</span
+                      >
+                    </div>
                     <div class="mt-4" v-if="authority">
                       <button
                         class="btn block mt-4"
@@ -293,6 +301,7 @@ let clubName = ref([]);
 let visibleClubItems = ref(10);
 let showAllClubItems = ref(false);
 let bannerData = ref([]);
+let tags = ref([]);
 
 (async () => {
   let { data } = await supabase
@@ -362,10 +371,10 @@ let bannerData = ref([]);
       article.tags.push(tag.tagId);
     }
   });
-  console.log("console.log(articleData.value)", articleData.value);
+  console.log("articleData.value", articleData.value);
 })();
 
-// Supabaseからtagテーブルデータを取得
+// Supabaseからtagテーブルデータ（display：trueのみ）を取得
 (async function () {
   let { data: name, error } = await supabase
     .from("tag")
@@ -377,6 +386,12 @@ let bannerData = ref([]);
   tagName.value.forEach((tag) => {
     tag.checked = false;
   });
+})();
+
+// Supabaseからtagテーブルデータ（全て）を取得
+(async function () {
+  let { data: t } = await supabase.from("tag").select("id,name");
+  tags.value = t;
 })();
 
 // Supabaseから職種テーブルデータを取得
@@ -570,6 +585,12 @@ function getOccupationName(occupationTagId) {
     (item) => item.id === occupationTagId
   );
   return occupation ? occupation.occupationName : "";
+}
+
+// タグの名称表示
+function getTagsName(tagId) {
+  const tag = tags.value.find((item) => item.id === tagId);
+  return tag ? tag.name : "";
 }
 
 //日時のスタイル変更
