@@ -205,7 +205,7 @@
                       >
                     </div>
                     <span class="mt-1 text-gray-500 text-sm">{{
-                      formatDateTime(article.date)
+                      formatDate(article.date)
                     }}</span>
                     <div class="flex mt-3">
                       <HeartIcon class="h-6 w-6" />
@@ -594,20 +594,10 @@ function getTagsName(tagId) {
 }
 
 //日時のスタイル変更
-function formatDateTime(dateString) {
-  const options = {
-    year: "numeric",
-    month: "2-digit",
-    day: "2-digit",
-    hour: "2-digit",
-    minute: "2-digit",
-    second: "2-digit",
-    timeZone: "UTC",
-  };
-  const dateObject = new Date(dateString);
-  const formattedDate = dateObject.toLocaleString("ja-JP", options);
-  return formattedDate;
-}
+const formatDate = (date) => {
+  const options = { year: 'numeric', month: '2-digit', day: '2-digit' };
+  return new Date(date).toLocaleDateString('ja-JP', options);
+};
 
 // 管理者による記事削除
 const router = useRouter();
