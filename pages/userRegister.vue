@@ -226,10 +226,6 @@ clubb.value?.map((c: Club) => {
 });
 const client = useSupabaseClient<Database>();
 
-type ClubName = {
-  clubName: string;
-};
-
 //登録する押下
 const submitRegister = async () => {
   submitForm("register");
@@ -275,7 +271,9 @@ const submitHandler = async (credentials: Credentials) => {
       .select("id")
       .eq("clubName", credentials.addClub);
 
-    clubId = data[0].id;
+    if (data !== null) {
+      clubId = data[0].id;
+    }
   }
   //アイコン画像を保存
   const file = credentials.file[0].file; // 選択された画像を取得
