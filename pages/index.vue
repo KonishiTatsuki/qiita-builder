@@ -280,16 +280,12 @@ const userss = useSupabaseUser();
 const userId = userss.value?.id;
 let date = new Date(); //現在の日付取得
 
-// 管理者権限があるか確認
-let authData = await useFetch("/api/user/getAdminUser", {
+//管理者権限があるか確認
+let { data: auth } = await useFetch("/api/user/getAdminUser", {
   method: "POST",
   body: userId,
 });
-let auth: Profile | null = null;
-if (authData && Array.isArray(authData.data) && authData.data.length > 0) {
-  auth = authData.data[0];
-}
-const authority: boolean | null = auth ? auth.authority : null;
+const authority = auth.value[0].authority;
 
 let tagName = ref([]);
 let visibleTagItems = ref(10);
@@ -595,14 +591,14 @@ function getTagsName(tagId) {
 
 //日時のスタイル変更
 const formatDate = (date) => {
-  const options = { year: 'numeric', month: '2-digit', day: '2-digit' };
-  return new Date(date).toLocaleDateString('ja-JP', options);
+  const options = { year: "numeric", month: "2-digit", day: "2-digit" };
+  return new Date(date).toLocaleDateString("ja-JP", options);
 };
 
 // 管理者による記事削除
 const router = useRouter();
 const deleteArticle = async (id) => {
-  await supabase.from("article").upsert({ id: id, delete: true });
+  await supabase.from("article").update({ delete: true }).eq("id", id);
   router.go();
 };
 </script>
