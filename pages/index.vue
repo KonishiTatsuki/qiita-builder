@@ -198,7 +198,8 @@
                         alt="Icon"
                         class="w-8 h-8 rounded-full mr-2"
                       />
-                      <span class="font-semibold title-font text-gray-700 mr-1"
+                      <span
+                        class="font-semibold title-font text-gray-700 mr-1 tooltip"
                         >{{ article.username }}&nbsp;（{{
                           getOccupationName(article.occupationTagId)
                         }}）</span
@@ -211,6 +212,11 @@
                       <HeartIcon class="h-6 w-6" />
                       <span class="font-semibold title-font text-gray-700 ml-1">
                         {{ article.like }}
+                      </span>
+                    </div>
+                    <div v-if="article.clubTagId" class="mt-3">
+                      <span class="text-gray-500 text-sm">
+                        @{{ getClubsName(article.clubTagId) }}
                       </span>
                     </div>
                   </div>
@@ -415,6 +421,7 @@ let tags = ref([]);
   clubName.value.forEach((club) => {
     club.checked = false;
   });
+  console.log("clubName", clubName.value);
 })();
 
 // Supabaseからbannerテーブルデータを取得
@@ -587,6 +594,19 @@ function getOccupationName(occupationTagId) {
 function getTagsName(tagId) {
   const tag = tags.value.find((item) => item.id === tagId);
   return tag ? tag.name : "";
+}
+
+function getClubName(occupationTagId) {
+  const occupation = occupationName.value.find(
+    (item) => item.id === occupationTagId
+  );
+  return occupation ? occupation.occupationName : "";
+}
+
+// サークルの名称表示
+function getClubsName(clubTagId) {
+  const club = clubName.value.find((item) => item.id === clubTagId);
+  return club ? club.clubName : "";
 }
 
 //日時のスタイル変更
