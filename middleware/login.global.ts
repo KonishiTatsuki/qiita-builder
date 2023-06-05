@@ -20,9 +20,6 @@ export default defineNuxtRouteMiddleware(async (to, from) => {
     }
   } else {
     const userId = user.value?.id;
-    // if (to.path === "/passwordReset") {
-    //   return navigateTo("/");
-    // }
     if (to.path === "/ownerPage") {
       //ログインユーザのauthority取得
       const { data: authority } = await client
