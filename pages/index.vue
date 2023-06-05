@@ -178,7 +178,7 @@
             </div>
             <div class="-my-8 divide-y-2 divide-gray-100">
               <div
-                class="flex flex-wrap md:flex-nowrap rounded-lg px-6 pt-6 pb-3 m-8 shadow-md"
+                class="flex flex-wrap md:flex-nowrap rounded-lg px-6 pt-6 pb-3 m-8 shadow-md relative"
                 v-for="article in articleData"
                 :key="article.id"
                 v-show="
@@ -205,18 +205,16 @@
                         }}）</span
                       >
                     </div>
-                    <span class="mt-1 text-gray-500 text-sm">{{
-                      formatDate(article.date)
-                    }}</span>
-                    <div class="flex mt-3">
+                    <div v-if="article.clubTagId" class="mt-1">
+                      <span class="text-gray-500">
+                        @{{ getClubsName(article.clubTagId) }}
+                      </span>
+                    </div>
+
+                    <div class="flex mt-1">
                       <HeartIcon class="h-6 w-6" />
                       <span class="font-semibold title-font text-gray-700 ml-1">
                         {{ article.like }}
-                      </span>
-                    </div>
-                    <div v-if="article.clubTagId" class="mt-3">
-                      <span class="text-gray-500 text-sm">
-                        @{{ getClubsName(article.clubTagId) }}
                       </span>
                     </div>
                   </div>
@@ -247,13 +245,18 @@
                         }}
                       </p>
                     </router-link>
-                    <div class="flex space-x-2 m-4">
+                    <div v-if="article.tags" class="flex space-x-2 m-4">
                       <span
                         class="bg-blue-100 text-blue-600 px-2 py-1 rounded"
                         v-for="tag in article.tags"
                         :key="tag"
                         >{{ getTagsName(tag) }}</span
                       >
+                    </div>
+                    <div
+                      class="text-gray-500 text-sm absolute bottom-1 right-3"
+                    >
+                      投稿日：{{ formatDate(article.date) }}
                     </div>
                     <div class="mt-4" v-if="authority">
                       <button
