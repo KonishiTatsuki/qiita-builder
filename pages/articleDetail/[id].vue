@@ -196,7 +196,7 @@ type Article = {
   adventDate: Date;
 };
 
-const { data:articleDatas } = await useFetch("/api/article/articleDateGet", {
+const { data: articleDatas } = await useFetch("/api/article/articleDateGet", {
   method: "POST",
   body: articleId,
 });
@@ -223,7 +223,11 @@ if (
   router.push("/");
 }
 
-htmlText.value = marked.parse(articleDatas.value[0].body);
+// mangleパラメータ・headerIdsパラメータを無効化するために{mangle: false, headerIds: false }}を設定
+htmlText.value = marked.parse(articleDatas.value[0].body, {
+  mangle: false,
+  headerIds: false,
+});
 // 日時のフォーマットを設定
 const options = {
   year: "numeric",
