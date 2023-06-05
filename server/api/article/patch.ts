@@ -1,13 +1,24 @@
 import { serverSupabaseClient } from "#supabase/server";
 import { PostgrestSingleResponse } from "@supabase/supabase-js";
 import { Tag, Tagging } from "~/types";
+import { Database } from "~/types/database.types";
 
 type TagId = {
   id: number;
 };
 
+type TagInsert = {
+  name: string;
+  display: boolean;
+};
+
+type TaggingInsert = {
+  articleId: number;
+  tagId: number;
+};
+
 export default defineEventHandler(async (event) => {
-  const supabase = serverSupabaseClient(event);
+  const supabase = serverSupabaseClient<Database>(event);
   const body = await readBody(event);
   const stringBody = JSON.stringify(body.postData);
   const reviver = JSON.parse(stringBody);
@@ -29,12 +40,10 @@ export default defineEventHandler(async (event) => {
         .match({ articleId: reviver.id, tagId: tagId[0].id });
       //タグが存在していて、タギングテーブルにない状態
       if (tagging?.length === 0) {
-        await supabase
-          .from("tagging")
-          .insert<{ articleId: number; tagId: number }>({
-            articleId: reviver.id,
-            tagId: tagId[0].id,
-          });
+        await supabase.from("tagging").insert<TaggingInsert>({
+          articleId: reviver.id,
+          tagId: tagId[0].id,
+        });
         return "新規追加";
       } else {
         // タグが存在していて、タギングテーブルに既にある状態
@@ -44,11 +53,11 @@ export default defineEventHandler(async (event) => {
       // タグが存在しておらず、新規で作る場合
       const { data: newTag }: PostgrestSingleResponse<Tag[]> = await supabase
         .from("tag")
-        .insert<Tag>({ name: tagName, display: false })
+        .insert<TagInsert>({ name: tagName, display: false })
         .select();
       await supabase
         .from("tagging")
-        .insert<Tagging>({ articleId: reviver.id, tagId: tagId[0].id });
+        .insert<TaggingInsert>({ articleId: reviver.id, tagId: tagId[0].id });
       return "新規作成";
     }
   });

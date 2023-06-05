@@ -9,6 +9,7 @@
             <ul class="min-h-[250px]">
               <li
                 v-for="article in myArticleArray"
+                :key="article.id"
                 class="flex items-center justify-between mb-[10px]"
               >
                 <NuxtLink :to="`/articleDetail/${article.id}`">
@@ -32,6 +33,7 @@
             <ul class="min-h-[250px]">
               <li
                 v-for="article in myLikeArray"
+                :key="article.id"
                 class="my-4 flex justify-between"
               >
                 <p class="ml-[10px] mr-5 font-bold">{{ article.title }}</p>
@@ -72,6 +74,8 @@ const { data: user } = await useFetch("/api/user/get", {
   method: "POST",
   body: userId,
 });
+
+//TSのエラー解消しようとするとエラーが起こるので放置
 const authority = user.value[0].authority;
 
 //いいねした記事を取得

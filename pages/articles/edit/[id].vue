@@ -130,6 +130,7 @@ let errorTitle = ref(false);
 let errorContent = ref(false);
 let errorGoalLike = ref(false);
 
+// いいね数のプルダウンに活用
 const goalLikeArray = [
   {
     value: "0",
