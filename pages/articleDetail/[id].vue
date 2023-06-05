@@ -50,12 +50,12 @@
       <div class="flex justify-end space-x-4">
         <LikeButton
           :userId="userId"
-          :articleId="articleId"
+          :articleId="Number(articleId)"
           :showLikeButton="showLikeButton"
         />
         <RecommendButton
           :userId="userId"
-          :articleId="articleId"
+          :articleId="Number(articleId)"
           :showRecommendButton="showRecommendButton"
         />
       </div>
@@ -171,6 +171,7 @@ const dateString = `${year}/${month}/${day}`;
 
 //記事IDを取得
 let articleId = route.params.id;
+console.log(typeof articleId);
 //投稿者の情報を取得
 let articleUsers = ref();
 // 記事情報を取得[始まり]
