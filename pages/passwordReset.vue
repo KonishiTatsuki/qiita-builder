@@ -5,11 +5,17 @@
         <div class="text-center">
           <h1 class="title">パスワード再設定</h1>
           <div class="flex justify-center">
-            <FormKit type="form" @submit="submit" submit-label="登録">
+            <FormKit
+              type="form"
+              @submit="submit"
+              :actions="false"
+              incomplete-message=" "
+            >
               <div class="mb-5 text-center">
                 <FormKit
                   :classes="{
                     input: 'border border-black py-1 px-2 rounded-md',
+                    message: 'text-red-500',
                   }"
                   type="password"
                   label="新パスワード"
@@ -32,6 +38,7 @@
                 <FormKit
                   :classes="{
                     input: 'border border-black py-1 px-2 rounded-md',
+                    message: 'text-red-500',
                   }"
                   type="password"
                   label="確認用パスワード"
@@ -50,6 +57,9 @@
                   }"
                 />
               </div>
+              <div class="flex mb-4 justify-center">
+                <button class="btn">登録</button>
+              </div>
             </FormKit>
           </div>
         </div>
@@ -60,13 +70,18 @@
 
 <script setup lang="ts">
 const router = useRouter();
+const route = useRoute();
 const supabase = useSupabaseClient();
 
 const email = ref("");
 const password = ref("");
 
 const submit = async (submit: { password: string }) => {
-  await supabase.auth.updateUser({ password: submit.password });
+  const { data, error } = await supabase.auth.updateUser({
+    password: submit.password,
+  });
+  console.log("error", error);
+  console.log(data);
 };
 </script>
 

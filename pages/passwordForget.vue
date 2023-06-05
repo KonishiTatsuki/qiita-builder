@@ -33,6 +33,9 @@
                 <button class="btn">送信</button>
               </div>
               <p>上記メールアドレスに再設定用のURLを送付します。</p>
+              <!-- <p v-if="success" class="text-red-500">{{ success }}</p>
+              <p v-else-if="errors" class="text-red-500">{{ errors }}</p>
+              <p v-else>上記メールアドレスに再設定用のURLを送付します。</p> -->
             </FormKit>
           </div>
         </div>
@@ -46,11 +49,28 @@ const router = useRouter();
 const supabase = useSupabaseClient();
 
 const email = ref("");
+const errors = ref("");
+const success = ref("");
 
 const submit = async (submit: { email: string }) => {
-  await supabase.auth.resetPasswordForEmail(submit.email, {
-    redirectTo: "http://localhost:3000/passwordReset",
-  });
+  const { data, error } = await supabase.auth.resetPasswordForEmail(
+    submit.email,
+    {
+      redirectTo: "http://localhost:3000/passwordReset",
+    }
+  );
+  console.log("data",data)
+  // console.log(data);
+  // if (data !== null) {
+  //   console.log(Object.keys(data).length);
+  //   console.log("error", error);
+  // }
+  // // if (error === null) {
+  // //   console.log("error", error);
+  // //   errors.value = "メールアドレスが登録されていません。";
+  // // } else{
+  // //   success.value = "メールを送信しました。";
+  // // }
 };
 </script>
 
