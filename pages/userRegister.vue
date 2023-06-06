@@ -217,7 +217,7 @@ const occupation: useOccupation[] = [];
 const { data: clubb } = await useFetch("/api/club/get");
 const { data: occupationn } = await useFetch("/api/occupation/get");
 const router = useRouter();
-const succes = ref();
+const succes = ref(false);
 occupationn.value?.map((c: Occupation) => {
   occupation.push({ label: c.occupationName, value: c.id });
 });
@@ -229,15 +229,18 @@ const client = useSupabaseClient<Database>();
 //登録する押下
 const submitRegister = async () => {
   submitForm("register");
-  if (succes) {
+  await new Promise((r) => setTimeout(r, 1500));
+  if (succes.value) {
     router.push("/");
   }
+  console.log("トップへ遷移", succes.value);
 };
 
 //qiitta連携
-const connectQitta = () => {
+const connectQitta = async () => {
   submitForm("register");
-  if (succes) {
+  await new Promise((r) => setTimeout(r, 1500));
+  if (succes.value) {
     router.push("/qiitaCoordination");
   }
 };
@@ -301,9 +304,9 @@ const submitHandler = async (credentials: Credentials) => {
         },
       },
     });
+    succes.value = true;
   } else {
     errormesssage.value = "画像が重複しています";
-    succes.value = true;
   }
 };
 </script>
