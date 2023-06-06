@@ -40,6 +40,21 @@ export interface Database {
           bannerId?: number | null;
           delete?: boolean | null;
         };
+        Update: {
+          id?: number | null;
+          userId?: string | null;
+          date?: string | null;
+          title?: string | null;
+          clubTagId?: number | null;
+          occupationTagId?: number | null;
+          body?: string | null;
+          goalLike?: string | null;
+          qiitaPost?: boolean | null;
+          publishDate?: string | null;
+          publish?: boolean | null;
+          bannerId?: number | null;
+          delete?: boolean | null;
+        };
       };
       club: {
         Row: {
@@ -116,6 +131,38 @@ export interface Database {
         Insert: {
           articleId?: number | null;
           tagId?: number | null;
+        };
+      };
+      banner: {
+        Row: {
+          id?: number | null;
+          adventName?: string | null;
+          description?: string | null;
+          startDate?: Date | null;
+          endDate?: Date | null;
+          display?: boolean | null;
+          image?: string | null;
+          userId?: string | null;
+        };
+        Update: {
+          id?: number | null;
+          adventName?: string | null;
+          description?: string | null;
+          startDate?: Date | null;
+          endDate?: Date | null;
+          display?: boolean | null;
+          image?: string | null;
+          userId?: string | null;
+        }
+        Insert: {
+          id?: number | null;
+          adventName?: string | null;
+          description?: string | null;
+          startDate?: Date | null;
+          endDate?: Date | null;
+          display?: boolean | null;
+          image?: string | null;
+          userId?: string | null;
         };
       };
     };
