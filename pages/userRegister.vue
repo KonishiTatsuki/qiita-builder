@@ -313,9 +313,11 @@ const submitHandler = async (credentials: Credentials) => {
       },
     },
   });
-  succes.value = true;
+
   if (error) {
     errormesssage.value = "既に登録されているメールアドレスです。";
+  } else {
+    succes.value = true;
   }
 };
 </script>
