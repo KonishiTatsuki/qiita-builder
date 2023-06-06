@@ -2,6 +2,7 @@ export default defineNuxtRouteMiddleware(async (to, from) => {
   const user = useSupabaseUser();
   const client = useSupabaseClient();
 
+  await new Promise((r) => setTimeout(r, 1000));
   if (!user.value) {
     const path = "/login";
     const registerpath = "/userRegister";
