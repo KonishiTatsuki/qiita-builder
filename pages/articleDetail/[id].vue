@@ -131,7 +131,11 @@
           <span class="font-semibold">{{ commented.username }}</span>
           <p class="text-gray-600">{{ commented.comment }}</p>
         </div>
-        <button class="text-gray-600" @click="deleteComment(commented.id)">
+        <button
+          class="text-gray-600"
+          @click="deleteComment(commented.id)"
+          v-show="commented.userId == userId"
+        >
           削除
         </button>
       </div>
@@ -171,7 +175,6 @@ const dateString = `${year}/${month}/${day}`;
 
 //記事IDを取得
 let articleId = route.params.id;
-console.log(typeof articleId);
 //投稿者の情報を取得
 let articleUsers = ref();
 // 記事情報を取得[始まり]
@@ -182,7 +185,7 @@ let articleTagIds = [];
 let tagNames = ref();
 const goalLike = ref(0);
 
-const { data:articleDatas } = await useFetch("/api/article/articleDateGet", {
+const { data: articleDatas } = await useFetch("/api/article/articleDateGet", {
   method: "POST",
   body: articleId,
 });
@@ -278,7 +281,8 @@ const { data: likeschecks } = await useFetch("/api/like/likeCheckGet", {
   method: "POST",
   body: { userId, articleId },
 });
-if (likes.value[0]) {
+
+if (likeschecks.value[0]) {
   showLikeButton.value = true;
 }
 likeCount.value = likes.value.length;
@@ -328,7 +332,7 @@ if (goalLike.value <= 0 && articleQiitaPost === false) {
     body: articleId,
   });
 } else {
-  console.log("まだ達成してないよ/もしくはQiitaに投稿済み");
+    console.log("まだ達成してないよ/もしくはQiitaに投稿済み");
 }
 
 //　　　　　　　　コメント機能　　　　　　　　　//
@@ -338,7 +342,7 @@ const { data: commentDates } = await useFetch("/api/comment/get", {
   method: "POST",
   body: articleId,
 });
-// console.log(commentDates.value);
+
 if (commentDates.value) {
   const { data: commentItem } = await useFetch("/api/user/commentUserGet", {
     method: "POST",

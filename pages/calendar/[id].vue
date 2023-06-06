@@ -180,7 +180,10 @@ const matchingArticles = (date) => {
 const isDatePast = (date) => {
   const todayDate = dayjs().startOf("day");
   const calendarDate = dayjs(date);
-  return calendarDate.isBefore(todayDate, "day");
+  return (
+    calendarDate.isBefore(todayDate, "day") ||
+    calendarDate.isSame(todayDate, "day")
+  );
 };
 </script>
 
