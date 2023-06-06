@@ -50,12 +50,12 @@
       <div class="flex justify-end space-x-4">
         <LikeButton
           :userId="userId"
-          :articleId="articleId"
+          :articleId="Number(articleId)"
           :showLikeButton="showLikeButton"
         />
         <RecommendButton
           :userId="userId"
-          :articleId="articleId"
+          :articleId="Number(articleId)"
           :showRecommendButton="showRecommendButton"
         />
       </div>
@@ -142,7 +142,7 @@
 <script setup lang="ts">
 import LikeButton from "~/components/LikeButton.vue";
 import RecommendButton from "~/components/RecommendButton.vue";
-import { ref, onMounted } from "vue";
+import { ref } from "vue";
 import { marked } from "marked";
 
 const route = useRoute();
@@ -171,6 +171,7 @@ const dateString = `${year}/${month}/${day}`;
 
 //記事IDを取得
 let articleId = route.params.id;
+console.log(typeof articleId);
 //投稿者の情報を取得
 let articleUsers = ref();
 // 記事情報を取得[始まり]
@@ -208,7 +209,11 @@ if (
   router.push("/");
 }
 
-htmlText.value = marked.parse(articleDatas.value[0].body);
+// mangleパラメータ・headerIdsパラメータを無効化するために{mangle: false, headerIds: false }}を設定
+htmlText.value = marked.parse(articleDatas.value[0].body, {
+  mangle: false,
+  headerIds: false,
+});
 // 日時のフォーマットを設定
 const options = {
   year: "numeric",
@@ -379,10 +384,6 @@ const deleteComment = async (commentId) => {
 </script>
 
 <style>
-/* .custom-prose :is(h1, h2, h3, h4, h5, h6, ul, ol, li) {
-  all: revert;
-} */
-
 .custom-prose * {
   all: revert;
 }
