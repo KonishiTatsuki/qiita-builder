@@ -6,7 +6,8 @@ export default defineNuxtRouteMiddleware(async (to, from) => {
     const path = "/login";
     const registerpath = "/userRegister";
     const passwordForget = "/passwordForget";
-    const passwordReset = "/passwordReset#error=unauthorized_client&error_code=401&error_description=Email+link+is+invalid+or+has+expired";
+    const passwordReset =
+      "/passwordReset#error=unauthorized_client&error_code=401&error_description=Email+link+is+invalid+or+has+expired";
     if (to.path === path) {
       console.log("ログイン");
     } else if (
