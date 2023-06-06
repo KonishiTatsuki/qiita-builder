@@ -169,6 +169,10 @@ const dateString = `${year}/${month}/${day}`;
 
 //記事IDを取得
 let articleId = route.params.id;
+<<<<<<< Updated upstream
+=======
+
+>>>>>>> Stashed changes
 //投稿者の情報を取得
 let articleUsers = ref();
 // 記事情報を取得[始まり]
@@ -265,7 +269,12 @@ const { data: likeschecks } = await useFetch("/api/like/likeCheckGet", {
   method: "POST",
   body: { userId, articleId },
 });
+<<<<<<< Updated upstream
 if (("likes.value", likes.value[0])) {
+=======
+
+if (likeschecks.value[0]) {
+>>>>>>> Stashed changes
   showLikeButton.value = true;
 }
 likeCount.value = likes.value.length;
@@ -315,7 +324,7 @@ if (goalLike.value <= 0 && articleQiitaPost === false) {
     body: articleId,
   });
 } else {
-  console.log("まだ達成してないよ/もしくはQiitaに投稿済み");
+    ("まだ達成してないよ/もしくはQiitaに投稿済み");
 }
 
 //　　　　　　　　コメント機能　　　　　　　　　//
@@ -325,6 +334,7 @@ const { data: commentDates } = await useFetch("/api/comment/get", {
   method: "POST",
   body: articleId,
 });
+
 if (commentDates.value) {
   const { data: commentItem } = await useFetch("/api/user/commentUserGet", {
     method: "POST",

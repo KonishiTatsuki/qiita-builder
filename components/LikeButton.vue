@@ -27,6 +27,8 @@ const userId = props.userId;
 const articleId = props.articleId;
 const showLikeButton = props.showLikeButton;
 
+console.log(showLikeButton)
+
 //いいね数をカウントする関数
 const countLike = async () => {
   try {
