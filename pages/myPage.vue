@@ -28,7 +28,7 @@
               </li>
             </ul>
 
-            <p>いいねした記事一覧</p>
+            <p class="mt-5">いいねした記事一覧</p>
             <hr class="mb-5" />
             <ul class="min-h-[250px]">
               <li
@@ -75,8 +75,7 @@ const { data: user } = await useFetch("/api/user/get", {
   body: userId,
 });
 
-//TSのエラー解消しようとするとエラーが起こるので放置
-const authority = user.value[0].authority;
+const authority = user.value?.authority;
 
 //いいねした記事を取得
 const { data: likeArticleArray } = await useFetch(

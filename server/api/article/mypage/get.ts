@@ -11,6 +11,7 @@ export default defineEventHandler(async (event) => {
   const { data: article }: PostgrestSingleResponse<Article[]> = await supabase
     .from("article")
     .select("*")
-    .match({ userId: queryNumber, delete: false });
+    .match({ userId: queryNumber, delete: false })
+    .order("date", { ascending: false });
   return article;
 });
