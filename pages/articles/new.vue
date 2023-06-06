@@ -119,10 +119,9 @@ const { data: user } = await useFetch("/api/user/get", {
   body: userId,
 });
 
-const userData: Profile[] = user.value;
-console.log(userData);
-const club = userData[0].clubid.id;
-const occupation = userData[0].occupation.id;
+const userData = user.value;
+const club = userData?.clubid.id;
+const occupation = userData?.occupation.id;
 
 const goalLikeArray = [
   {

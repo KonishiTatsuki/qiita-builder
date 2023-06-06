@@ -102,6 +102,10 @@ export interface Database {
           name?: string | null;
           display?: boolean | null;
         };
+        Insert: {
+          name?: string | null;
+          display?: boolean | null;
+        };
       };
       tagging: {
         Row: {
@@ -109,30 +113,11 @@ export interface Database {
           articleId?: number | null;
           tagId?: number | null;
         };
+        Insert: {
+          articleId?: number | null;
+          tagId?: number | null;
+        };
       };
-      //   workouts: {
-      //     Row: {
-      //       id: number
-      //       created_at: string | null
-      //       date: string
-      //       user_id: string
-      //       repetitions: number
-      //     }
-      //     Insert: {
-      //       id?: number
-      //       created_at?: string | null
-      //       date: string
-      //       user_id: string
-      //       repetitions?: number
-      //     }
-      //     Update: {
-      //       id?: number
-      //       created_at?: string | null
-      //       date?: string
-      //       user_id?: string
-      //       repetitions?: number
-      //     }
-      //   }
     };
     Views: {
       [_ in never]: never;

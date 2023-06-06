@@ -6,7 +6,7 @@
         <!-- プログラミング言語 -->
         <div class="pt-12 mr-5">
           <h3 class="mb-4 font-semibold text-gray-900 dark:text-white">
-            プログラミング言語だ
+            プログラミング言語
           </h3>
           <ul
             class="w-48 text-sm font-medium text-gray-900 bg-white border border-gray-200 rounded-lg dark:bg-gray-700 dark:border-gray-600 dark:text-white"
@@ -164,9 +164,21 @@
         <!-- 記事一覧 -->
         <section class="text-gray-600 body-font overflow-hidden">
           <div class="container px-5 pb-24 mx-auto">
+            <div
+              v-if="
+                (!hasVisibleArticles &&
+                  route.currentRoute.value.query.search) ||
+                (!hasVisibleArticles && hasCheckedTags) ||
+                (!hasVisibleArticles && hasCheckedOccupations) ||
+                (!hasVisibleArticles && hasCheckedClubs)
+              "
+              class="text-center text-gray-500 py-8"
+            >
+              申し訳ございません。記事が見つかりませんでした。
+            </div>
             <div class="-my-8 divide-y-2 divide-gray-100">
               <div
-                class="flex flex-wrap md:flex-nowrap rounded-lg px-6 pt-6 pb-3 m-8 shadow-md"
+                class="flex flex-wrap md:flex-nowrap rounded-lg px-6 pt-6 pb-3 m-8 shadow-md relative"
                 v-for="article in articleData"
                 :key="article.id"
                 v-show="
@@ -186,14 +198,20 @@
                         alt="Icon"
                         class="w-8 h-8 rounded-full mr-2"
                       />
-                      <span class="font-semibold title-font text-gray-700">{{
-                        article.username
-                      }}</span>
+                      <span
+                        class="font-semibold title-font text-gray-700 mr-1 tooltip"
+                        >{{ article.username }}&nbsp;（{{
+                          getOccupationName(article.occupationTagId)
+                        }}）</span
+                      >
                     </div>
-                    <span class="mt-1 text-gray-500 text-sm">{{
-                      formatDateTime(article.date)
-                    }}</span>
-                    <div class="flex mt-3">
+                    <div v-if="article.clubTagId" class="mt-1">
+                      <span class="text-gray-500">
+                        @{{ getClubsName(article.clubTagId) }}
+                      </span>
+                    </div>
+
+                    <div class="flex mt-1">
                       <HeartIcon class="h-6 w-6" />
                       <span class="font-semibold title-font text-gray-700 ml-1">
                         {{ article.like }}
@@ -227,6 +245,19 @@
                         }}
                       </p>
                     </router-link>
+                    <div v-if="article.tags" class="flex space-x-2 m-4">
+                      <span
+                        class="bg-blue-100 text-blue-600 px-2 py-1 rounded"
+                        v-for="tag in article.tags"
+                        :key="tag"
+                        >{{ getTagsName(tag) }}</span
+                      >
+                    </div>
+                    <div
+                      class="text-gray-500 text-sm absolute bottom-1 right-3"
+                    >
+                      投稿日：{{ formatDate(article.date) }}
+                    </div>
                     <div class="mt-4" v-if="authority">
                       <button
                         class="btn block mt-4"
@@ -247,7 +278,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted } from "vue";
+import { ref, computed } from "vue";
 import { useRouter } from "vue-router";
 import { HeartIcon } from "@heroicons/vue/outline";
 
@@ -255,9 +286,7 @@ const route = useRouter();
 const supabase = useSupabaseClient();
 const userss = useSupabaseUser();
 const userId = userss.value?.id;
-
-//現在の日付取得
-let date = new Date();
+let date = new Date(); //現在の日付取得
 
 //管理者権限があるか確認
 let { data: auth } = await useFetch("/api/user/getAdminUser", {
@@ -266,17 +295,17 @@ let { data: auth } = await useFetch("/api/user/getAdminUser", {
 });
 const authority = auth.value[0].authority;
 
-// Supabaseからプログラミング言語名(display:trueのみ)を取得
-let tagName = ref("");
+let tagName = ref([]);
 let visibleTagItems = ref(10);
 let showAllTagItems = ref(false);
 let articleData = ref([]);
 let likeData = ref([]);
-let occupationName = ref("");
-let clubName = ref("");
+let occupationName = ref([]);
+let clubName = ref([]);
 let visibleClubItems = ref(10);
 let showAllClubItems = ref(false);
 let bannerData = ref([]);
+let tags = ref([]);
 
 (async () => {
   let { data } = await supabase
@@ -290,7 +319,6 @@ let bannerData = ref([]);
   const userIds = data
     .filter((article) => article.userId !== null) // nullを除外
     .map((article) => article.userId);
-
   const { data: users } = await supabase
     .from("profiles")
     .select("id, username,image")
@@ -347,10 +375,9 @@ let bannerData = ref([]);
       article.tags.push(tag.tagId);
     }
   });
-  console.log(articleData.value);
 })();
 
-// Supabaseからtagテーブルデータを取得
+// Supabaseからtagテーブルデータ（display：trueのみ）を取得
 (async function () {
   let { data: name, error } = await supabase
     .from("tag")
@@ -362,6 +389,12 @@ let bannerData = ref([]);
   tagName.value.forEach((tag) => {
     tag.checked = false;
   });
+})();
+
+// Supabaseからtagテーブルデータ（全て）を取得
+(async function () {
+  let { data: t } = await supabase.from("tag").select("id,name");
+  tags.value = t;
 })();
 
 // Supabaseから職種テーブルデータを取得
@@ -487,8 +520,6 @@ const filterArticlesByTag = () => {
       article.hideByTag = false;
     } else {
       // 選択されたサークルと同じidの記事のみ表示
-      // article.hideByTag = !selectedTags.includes(article.tags);
-      // ↑ここ問題
       article.hideByTag = !article.tags.some((tag) =>
         selectedTags.includes(tag)
       );
@@ -496,6 +527,40 @@ const filterArticlesByTag = () => {
   });
 };
 
+// プログラミング言語のフィルターがcheckされたか判定する
+const hasCheckedTags = computed(() => {
+  return tagName.value.some((tag) => {
+    return tag.checked;
+  });
+});
+
+// 職種のフィルターがcheckされたか判定する
+const hasCheckedOccupations = computed(() => {
+  return occupationName.value.some((occupation) => {
+    return occupation.checked;
+  });
+});
+
+// サークルのフィルターがcheckされたか判定する
+const hasCheckedClubs = computed(() => {
+  return clubName.value.some((club) => {
+    return club.checked;
+  });
+});
+
+// 記事があるかどうかを判定する
+const hasVisibleArticles = computed(() => {
+  return articleData.value.some((article) => {
+    return (
+      !article.hideByOccupation &&
+      !article.hideByClub &&
+      !article.hideByTag &&
+      !article.hide
+    );
+  });
+});
+
+// プログラミング言語の表示数を変更する
 const toggleShowAllTagItems = () => {
   if (showAllTagItems.value) {
     visibleTagItems.value = 10;
@@ -506,6 +571,7 @@ const toggleShowAllTagItems = () => {
   }
 };
 
+// サークルの表示数を変更する
 const toggleShowAllClubItems = () => {
   if (showAllClubItems.value) {
     visibleClubItems.value = 10;
@@ -516,26 +582,43 @@ const toggleShowAllClubItems = () => {
   }
 };
 
-//日時のスタイル変更
-function formatDateTime(dateString) {
-  const options = {
-    year: "numeric",
-    month: "2-digit",
-    day: "2-digit",
-    hour: "2-digit",
-    minute: "2-digit",
-    second: "2-digit",
-    timeZone: "UTC",
-  };
-  const dateObject = new Date(dateString);
-  const formattedDate = dateObject.toLocaleString("ja-JP", options);
-  return formattedDate;
+// 職種の名称表示
+function getOccupationName(occupationTagId) {
+  const occupation = occupationName.value.find(
+    (item) => item.id === occupationTagId
+  );
+  return occupation ? occupation.occupationName : "";
 }
+
+// タグの名称表示
+function getTagsName(tagId) {
+  const tag = tags.value.find((item) => item.id === tagId);
+  return tag ? tag.name : "";
+}
+
+function getClubName(occupationTagId) {
+  const occupation = occupationName.value.find(
+    (item) => item.id === occupationTagId
+  );
+  return occupation ? occupation.occupationName : "";
+}
+
+// サークルの名称表示
+function getClubsName(clubTagId) {
+  const club = clubName.value.find((item) => item.id === clubTagId);
+  return club ? club.clubName : "";
+}
+
+//日時のスタイル変更
+const formatDate = (date) => {
+  const options = { year: "numeric", month: "2-digit", day: "2-digit" };
+  return new Date(date).toLocaleDateString("ja-JP", options);
+};
 
 // 管理者による記事削除
 const router = useRouter();
 const deleteArticle = async (id) => {
-  await supabase.from("article").upsert({ id: id, delete: true });
+  await supabase.from("article").update({ delete: true }).eq("id", id);
   router.go();
 };
 </script>
