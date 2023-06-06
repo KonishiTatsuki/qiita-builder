@@ -36,7 +36,7 @@
   </div>
 </template>
 
-<script setup>
+<script setup lang="ts">
 import VueDatePicker from "@vuepic/vue-datepicker";
 import "@vuepic/vue-datepicker/dist/main.css";
 import dayjs from "dayjs";
@@ -46,6 +46,7 @@ const fileInput = ref();
 const client = useSupabaseClient();
 const user = useSupabaseUser();
 const errorMsg = ref("");
+const format = "yyyy/MM/dd";
 //バナーデータ取得
 // const { data: advent } = useFetch("/api/advent/get", {
 //   method: "POST",
@@ -56,6 +57,7 @@ const { data: advent } = await client
   .from("banner")
   .select("*")
   .eq("id", route.params.id);
+
 const bannerImage = ref(`${advent[0].image}`);
 const adventName = ref(`${advent[0].adventName}`);
 const description = ref(`${advent[0].description}`);

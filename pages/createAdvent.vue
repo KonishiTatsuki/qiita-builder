@@ -61,7 +61,7 @@ const startDate = new Date();
 const endDate = new Date(new Date().setDate(startDate.getDate() + 7));
 // date.value = [startDate, endDate];
 // });
-const date: Date[] = ref([startDate, endDate]);
+const date = ref([startDate, endDate]);
 
 // supabaseにデータを送信する
 async function submitHandler() {
