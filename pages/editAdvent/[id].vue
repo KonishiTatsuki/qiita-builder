@@ -36,10 +36,11 @@
   </div>
 </template>
 
-<script setup lang="ts">
+<script setup>
 import VueDatePicker from "@vuepic/vue-datepicker";
 import "@vuepic/vue-datepicker/dist/main.css";
 import dayjs from "dayjs";
+import { Banner } from "~/types";
 const router = useRouter();
 const route = useRoute();
 const fileInput = ref();
@@ -58,7 +59,9 @@ const { data: advent } = await client
   .select("*")
   .eq("id", route.params.id);
 
-const bannerImage = ref(`${advent[0].image}`);
+const bannerImage = ref(`${bannerData.value[0].image}`);
+
+// const bannerImage = ref(`${advent[0].image}`);
 const adventName = ref(`${advent[0].adventName}`);
 const description = ref(`${advent[0].description}`);
 const date = ref([`${advent[0].startDate}`, `${advent[0].endDate}`]);

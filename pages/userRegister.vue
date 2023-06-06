@@ -263,50 +263,59 @@ const submitHandler = async (credentials: Credentials) => {
   console.log(credentials);
   let clubId = credentials.club;
 
-  if (credentials.addClub) {
-    //追加クラブをdisplay:falseで登録
-    await client.from("club").insert({
-      clubName: credentials.addClub,
-    });
-
-    const { data } = await client
-      .from("club")
-      .select("id")
-      .eq("clubName", credentials.addClub);
-
-    if (data !== null) {
-      clubId = data[0].id;
-    }
-  }
   //アイコン画像を保存
   const file = credentials.file[0].file; // 選択された画像を取得
   const filePath = `${credentials.file[0].name}`; // 画像の保存先のpathを指定
   const { error: avatarerror } = await client.storage
     .from("avatars")
     .upload(filePath, file);
-  // 画像のURLを取得
-  if (!avatarerror) {
-    const { data } = client.storage.from("avatars").getPublicUrl(filePath);
-    const imageUrl = data.publicUrl;
-    //新規会員登録
-    // authに登録;
-    const { error } = await client.auth.signUp({
-      email: credentials.email,
-      password: credentials.password,
-      options: {
-        data: {
-          username: credentials.userName,
-          detail: credentials.detail,
-          clubid: clubId,
-          email: credentials.email,
-          occupation: credentials.occupation,
-          image: imageUrl,
-        },
-      },
-    });
-    succes.value = true;
+  console.log(avatarerror);
+
+  if (avatarerror) {
+    if (avatarerror.message === " 'The resource already exists'") {
+      errormesssage.value = "画像が重複しています";
+    } else if (
+      avatarerror.message === "The object name contains invalid characters"
+    ) {
+      errormesssage.value = "画像のファイル名が不適切です。";
+    }
   } else {
-    errormesssage.value = "画像が重複しています";
+    if (credentials.addClub) {
+      //追加クラブをdisplay:falseで登録
+      await client.from("club").insert({
+        clubName: credentials.addClub,
+      });
+      const { data } = await client
+        .from("club")
+        .select("id")
+        .eq("clubName", credentials.addClub);
+
+      if (data !== null) {
+        clubId = data[0].id;
+      }
+    }
+  }
+  const { data } = client.storage.from("avatars").getPublicUrl(filePath);
+  const imageUrl = data.publicUrl;
+  //新規会員登録
+  // authに登録;
+  const { error } = await client.auth.signUp({
+    email: credentials.email,
+    password: credentials.password,
+    options: {
+      data: {
+        username: credentials.userName,
+        detail: credentials.detail,
+        clubid: clubId,
+        email: credentials.email,
+        occupation: credentials.occupation,
+        image: imageUrl,
+      },
+    },
+  });
+  succes.value = true;
+  if (error) {
+    errormesssage.value = "既に登録されているメールアドレスです。";
   }
 };
 </script>
