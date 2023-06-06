@@ -281,7 +281,6 @@
 import { ref, computed } from "vue";
 import { useRouter } from "vue-router";
 import { HeartIcon } from "@heroicons/vue/outline";
-import { Profile } from "../types/index/profileAuth";
 
 const route = useRouter();
 const supabase = useSupabaseClient();
@@ -376,7 +375,6 @@ let tags = ref([]);
       article.tags.push(tag.tagId);
     }
   });
-  console.log("articleData.value", articleData.value);
 })();
 
 // Supabaseからtagテーブルデータ（display：trueのみ）を取得
@@ -424,7 +422,6 @@ let tags = ref([]);
   clubName.value.forEach((club) => {
     club.checked = false;
   });
-  console.log("clubName", clubName.value);
 })();
 
 // Supabaseからbannerテーブルデータを取得

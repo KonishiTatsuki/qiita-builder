@@ -182,22 +182,7 @@ let articleTagIds = [];
 let tagNames = ref();
 const goalLike = ref(0);
 
-type Article = {
-  id: number;
-  date: string;
-  title: string;
-  clubTagId: number;
-  occupationTagId: number;
-  body: string;
-  qiitaPost: boolean;
-  publishDate: string;
-  bannerId: number;
-  userId: string;
-  goalLike: string;
-  adventDate: Date;
-};
-
-const { data: articleDatas } = await useFetch("/api/article/articleDateGet", {
+const { data:articleDatas } = await useFetch("/api/article/articleDateGet", {
   method: "POST",
   body: articleId,
 });

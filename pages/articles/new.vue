@@ -119,8 +119,8 @@ const { data: user } = await useFetch("/api/user/get", {
   body: userId,
 });
 
+// TSエラー解消できないため放置
 const userData: Profile[] = user.value;
-console.log(userData);
 const club = userData[0].clubid.id;
 const occupation = userData[0].occupation.id;
 
