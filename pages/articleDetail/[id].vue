@@ -131,9 +131,17 @@
           <span class="font-semibold">{{ commented.username }}</span>
           <p class="text-gray-600">{{ commented.comment }}</p>
         </div>
-        <button class="text-gray-600" @click="deleteComment(commented.id)">
+        <!-- <button class="text-gray-600" @click="deleteComment(commented.id)">
           削除
-        </button>
+        </button> -->
+        <button class="text-gray-600" @click="open = true">削除</button>
+        <Teleport to="body">
+          <div v-if="open" class="modal">
+            <p>本当に削除しますか？</p>
+            <button @click="open = false">No</button>
+            <button @click="deleteComment(commented.id)">Yes</button>
+          </div>
+        </Teleport>
       </div>
     </div>
   </div>
@@ -144,6 +152,8 @@ import LikeButton from "~/components/LikeButton.vue";
 import RecommendButton from "~/components/RecommendButton.vue";
 import { ref } from "vue";
 import { marked } from "marked";
+
+const open = ref(false);
 
 const route = useRoute();
 const users = useSupabaseUser();
@@ -182,7 +192,7 @@ let articleTagIds = [];
 let tagNames = ref();
 const goalLike = ref(0);
 
-const { data:articleDatas } = await useFetch("/api/article/articleDateGet", {
+const { data: articleDatas } = await useFetch("/api/article/articleDateGet", {
   method: "POST",
   body: articleId,
 });
@@ -375,6 +385,7 @@ const deleteComment = async (commentId) => {
       method: "POST",
       body: commentId,
     });
+    open.value = false;
     location.reload();
     // 削除後にコメントを再取得するなどの更新処理を実行する場合はここで行う
   } catch (error) {
@@ -386,5 +397,14 @@ const deleteComment = async (commentId) => {
 <style>
 .custom-prose * {
   all: revert;
+}
+
+.modal {
+  position: fixed;
+  z-index: 999;
+  top: 20%;
+  left: 50%;
+  width: 300px;
+  margin-left: -150px;
 }
 </style>
