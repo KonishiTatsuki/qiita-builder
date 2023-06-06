@@ -35,7 +35,7 @@ type Banner = {
   startDate: string;
   endDate: string;
   display: boolean;
-  userId: string;
+  userId: { username: string };
   image: string;
 };
 
