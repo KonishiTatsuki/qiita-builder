@@ -4,11 +4,12 @@
       <div class="flex justify-between">
         <div class="w-full pr-[100px]">
           <div>
-            <ul class="min-h-[300px]">
-              <li>投稿記事一覧</li>
-              <hr class="mb-[20px]" />
+            <p>投稿記事一覧</p>
+            <hr class="mb-[20px]" />
+            <ul class="min-h-[250px]">
               <li
                 v-for="article in myArticleArray"
+                :key="article.id"
                 class="flex items-center justify-between mb-[10px]"
               >
                 <NuxtLink :to="`/articleDetail/${article.id}`">
@@ -26,11 +27,13 @@
                 </div>
               </li>
             </ul>
-            <ul class="my-10">
-              <p>いいねした記事一覧</p>
-              <hr class="mb-5" />
+
+            <p class="mt-5">いいねした記事一覧</p>
+            <hr class="mb-5" />
+            <ul class="min-h-[250px]">
               <li
-                v-for="article in likeArticleArray"
+                v-for="article in myLikeArray"
+                :key="article.id"
                 class="my-4 flex justify-between"
               >
                 <p class="ml-[10px] mr-5 font-bold">{{ article.title }}</p>
@@ -62,21 +65,23 @@
   </div>
 </template>
 
-<script setup>
+<script setup lang="ts">
 const users = useSupabaseUser();
-const userId = users.value.id;
+const userId = users.value?.id;
 
 //ユーザー情報を取得
 const { data: user } = await useFetch("/api/user/get", {
   method: "POST",
   body: userId,
 });
-const authority = user.value[0].authority;
+
+const authority = user.value?.authority;
 
 //いいねした記事を取得
 const { data: likeArticleArray } = await useFetch(
   `/api/like/get?userId=${userId}`
 );
+const myLikeArray = likeArticleArray.value;
 
 //自分が書いた記事を取得
 const { data: myArticle } = await useFetch(

@@ -86,8 +86,9 @@
   </div>
 </template>
 
-<script lang="ts" setup>
+<script setup lang="ts">
 import type EasyMDE from "easymde";
+import { Profile } from "~/types";
 
 let mde: InstanceType<typeof EasyMDE> | null = null;
 let items = ref([
@@ -108,7 +109,7 @@ const goalLike = ref("");
 const publishDate = ref(new Date());
 const router = useRouter();
 const users = useSupabaseUser();
-const userId = users.value.id;
+const userId = users.value?.id;
 let errorTitle = ref(true);
 let errorContent = ref(true);
 let errorGoalLike = ref(true);
@@ -118,8 +119,9 @@ const { data: user } = await useFetch("/api/user/get", {
   body: userId,
 });
 
-const club = user.value[0].clubid.id;
-const occupation = user.value[0].occupation.id;
+const userData = user.value;
+const club = userData?.clubid.id;
+const occupation = userData?.occupation.id;
 
 const goalLikeArray = [
   {

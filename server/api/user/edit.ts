@@ -1,10 +1,11 @@
 import { serverSupabaseClient } from "#supabase/server";
+import { Database } from "~/types/database.types";
 
 export default defineEventHandler(async (event) => {
   const body = await readBody(event);
   console.log("bodyyy", body);
 
-  const client = serverSupabaseClient(event);
+  const client = serverSupabaseClient<Database>(event);
   const { data, error } = await client.from("profiles").upsert({
     id: body.id,
     username: body.userName,

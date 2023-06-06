@@ -40,7 +40,7 @@ export default defineEventHandler(async (event) => {
       []
     );
   } else {
-    return "No data";
+    return null;
   }
 
   return articleArray;

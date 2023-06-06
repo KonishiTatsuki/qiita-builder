@@ -22,13 +22,13 @@
                   :id="'tag-checkbox-' + index"
                   type="checkbox"
                   value="tag"
-                  class="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-700 dark:focus:ring-offset-gray-700 focus:ring-2 dark:bg-gray-600 dark:border-gray-500"
+                  class="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-700 dark:focus:ring-offset-gray-700 focus:ring-2 dark:bg-gray-600 dark:border-gray-500 cursor-pointer"
                   v-model="tag.checked"
                   @change="filterArticlesByTag"
                 />
                 <label
                   :for="'tag-checkbox-' + index"
-                  class="w-full py-3 ml-2 text-sm font-medium text-gray-900 dark:text-gray-300"
+                  class="w-full py-3 ml-2 text-sm font-medium text-gray-900 dark:text-gray-300 cursor-pointer"
                   >{{ tag.name }}</label
                 >
               </div>
@@ -59,13 +59,13 @@
                   :id="'occupation-checkbox-' + index"
                   type="checkbox"
                   :value="occupation"
-                  class="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-700 dark:focus:ring-offset-gray-700 focus:ring-2 dark:bg-gray-600 dark:border-gray-500"
+                  class="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-700 dark:focus:ring-offset-gray-700 focus:ring-2 dark:bg-gray-600 dark:border-gray-500 cursor-pointer"
                   v-model="occupation.checked"
                   @change="filterArticlesByOccupation"
                 />
                 <label
                   :for="'occupation-checkbox-' + index"
-                  class="w-full py-3 ml-2 text-sm font-medium text-gray-900 dark:text-gray-300"
+                  class="w-full py-3 ml-2 text-sm font-medium text-gray-900 dark:text-gray-300 cursor-pointer"
                   >{{ occupation.occupationName }}</label
                 >
               </div>
@@ -91,13 +91,13 @@
                   :id="'club-checkbox-' + index"
                   type="checkbox"
                   value="club"
-                  class="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-700 dark:focus:ring-offset-gray-700 focus:ring-2 dark:bg-gray-600 dark:border-gray-500"
+                  class="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-700 dark:focus:ring-offset-gray-700 focus:ring-2 dark:bg-gray-600 dark:border-gray-500 cursor-pointer"
                   v-model="club.checked"
                   @change="filterArticlesByClub"
                 />
                 <label
                   :for="'club-checkbox-' + index"
-                  class="w-full py-3 ml-2 text-sm font-medium text-gray-900 dark:text-gray-300"
+                  class="w-full py-3 ml-2 text-sm font-medium text-gray-900 dark:text-gray-300 cursor-pointer"
                   >{{ club.clubName }}</label
                 >
               </div>
@@ -164,9 +164,21 @@
         <!-- 記事一覧 -->
         <section class="text-gray-600 body-font overflow-hidden">
           <div class="container px-5 pb-24 mx-auto">
+            <div
+              v-if="
+                (!hasVisibleArticles &&
+                  route.currentRoute.value.query.search) ||
+                (!hasVisibleArticles && hasCheckedTags) ||
+                (!hasVisibleArticles && hasCheckedOccupations) ||
+                (!hasVisibleArticles && hasCheckedClubs)
+              "
+              class="text-center text-gray-500 py-8"
+            >
+              申し訳ございません。記事が見つかりませんでした。
+            </div>
             <div class="-my-8 divide-y-2 divide-gray-100">
               <div
-                class="py-8 flex flex-wrap md:flex-nowrap"
+                class="flex flex-wrap md:flex-nowrap rounded-lg px-6 pt-6 pb-3 m-8 shadow-md relative"
                 v-for="article in articleData"
                 :key="article.id"
                 v-show="
@@ -178,41 +190,78 @@
               >
                 <div class="flex">
                   <div class="md:w-64 md:mb-0 mb-6 flex-shrink-0 flex flex-col">
-                    <span class="font-semibold title-font text-gray-700">{{
-                      article.username
-                    }}</span>
-                    <span class="mt-1 text-gray-500 text-sm">{{
-                      formatDateTime(article.date)
-                    }}</span>
+                    <div class="flex items-center">
+                      <!-- アイコン -->
+                      <img
+                        v-if="article.image"
+                        :src="article.image"
+                        alt="Icon"
+                        class="w-8 h-8 rounded-full mr-2"
+                      />
+                      <span
+                        class="font-semibold title-font text-gray-700 mr-1 tooltip"
+                        >{{ article.username }}&nbsp;（{{
+                          getOccupationName(article.occupationTagId)
+                        }}）</span
+                      >
+                    </div>
+                    <div v-if="article.clubTagId" class="mt-1">
+                      <span class="text-gray-500">
+                        @{{ getClubsName(article.clubTagId) }}
+                      </span>
+                    </div>
+
+                    <div class="flex mt-1">
+                      <HeartIcon class="h-6 w-6" />
+                      <span class="font-semibold title-font text-gray-700 ml-1">
+                        {{ article.like }}
+                      </span>
+                    </div>
                   </div>
                   <div class="md:flex-grow">
-                    <h2
-                      class="text-4xl font-medium text-gray-900 title-font mb-2"
+                    <router-link
+                      :to="`/articleDetail/${article.id}`"
+                      class="hover:underline"
                     >
-                      {{
-                        article.title.length > 30
-                          ? article.title.slice(0, 30) + "..."
-                          : article.title
-                      }}
-                    </h2>
-                    <p class="leading-relaxed" id="custom-prose">
-                      {{
-                        article.body.length > 100
-                          ? article.body.slice(0, 100) + "..."
-                          : article.body
-                      }}
-                    </p>
-                    <div class="mt-4">
-                      <router-link
-                        :to="`/articleDetail/${article.id}`"
-                        class="text-indigo-500"
+                      <h2
+                        class="text-4xl font-medium text-gray-900 title-font mb-2"
                       >
-                        記事詳細&nbsp;→
-                      </router-link>
+                        {{
+                          article.title.length > 30
+                            ? article.title.slice(0, 30) + "..."
+                            : article.title
+                        }}
+                      </h2>
+                    </router-link>
+                    <router-link
+                      :to="`/articleDetail/${article.id}`"
+                      class="hover:underline"
+                    >
+                      <p class="leading-relaxed" id="custom-prose">
+                        {{
+                          article.body.length > 100
+                            ? article.body.slice(0, 100) + "..."
+                            : article.body
+                        }}
+                      </p>
+                    </router-link>
+                    <div v-if="article.tags" class="flex space-x-2 m-4">
+                      <span
+                        class="bg-blue-100 text-blue-600 px-2 py-1 rounded"
+                        v-for="tag in article.tags"
+                        :key="tag"
+                        >{{ getTagsName(tag) }}</span
+                      >
+                    </div>
+                    <div
+                      class="text-gray-500 text-sm absolute bottom-1 right-3"
+                    >
+                      投稿日：{{ formatDate(article.date) }}
+                    </div>
+                    <div class="mt-4" v-if="authority">
                       <button
                         class="btn block mt-4"
                         @click="deleteArticle(article.id)"
-                        v-if="authority"
                       >
                         削除
                       </button>
@@ -228,39 +277,41 @@
   </div>
 </template>
 
-<script setup>
-import { ref, onMounted } from "vue";
+<script setup lang="ts">
+import { ref, computed } from "vue";
 import { useRouter } from "vue-router";
+import { HeartIcon } from "@heroicons/vue/outline";
 
 const route = useRouter();
 const supabase = useSupabaseClient();
 const userss = useSupabaseUser();
 const userId = userss.value?.id;
+let date = new Date(); //現在の日付取得
 
 //管理者権限があるか確認
-const { data: userAuthority } = await supabase
-  .from("profiles")
-  .select("authority")
-  .eq("id", userId);
-const authority = userAuthority[0].authority;
+let { data: auth } = await useFetch("/api/user/getAdminUser", {
+  method: "POST",
+  body: userId,
+});
+const authority = auth.value[0].authority;
 
-// Supabaseからプログラミング言語名(display:trueのみ)を取得
-let tagName = ref("");
+let tagName = ref([]);
 let visibleTagItems = ref(10);
 let showAllTagItems = ref(false);
 let articleData = ref([]);
 let likeData = ref([]);
-let occupationName = ref("");
-let clubName = ref("");
+let occupationName = ref([]);
+let clubName = ref([]);
 let visibleClubItems = ref(10);
 let showAllClubItems = ref(false);
 let bannerData = ref([]);
+let tags = ref([]);
 
-//articleデータ取得
 (async () => {
   let { data } = await supabase
     .from("article")
     .select("body, clubTagId, date, delete, id, occupationTagId, title, userId")
+    .lt("publishDate", date.toISOString())
     .eq("delete", false)
     .order("date", { ascending: false });
 
@@ -270,17 +321,19 @@ let bannerData = ref([]);
     .map((article) => article.userId);
   const { data: users } = await supabase
     .from("profiles")
-    .select("id, username")
+    .select("id, username,image")
     .in("id", userIds);
-  const usernameMap = {};
+
+  const userMap = {};
   for (const user of users) {
-    usernameMap[user.id] = user.username;
+    userMap[user.id] = { username: user.username, image: user.image };
   }
 
-  // data配列にusernameを追加
+  // data配列にusernameとimageを追加
   articleData.value = data.map((article) => ({
     ...article,
-    username: usernameMap[article.userId],
+    username: userMap[article.userId]?.username || "",
+    image: userMap[article.userId]?.image || "",
   }));
 
   // likeテーブルを取得し、articleData配列にいいね数が表示されたlikeプロパティを持たせる
@@ -324,7 +377,7 @@ let bannerData = ref([]);
   });
 })();
 
-// Supabaseからtagテーブルデータを取得
+// Supabaseからtagテーブルデータ（display：trueのみ）を取得
 (async function () {
   let { data: name, error } = await supabase
     .from("tag")
@@ -336,6 +389,12 @@ let bannerData = ref([]);
   tagName.value.forEach((tag) => {
     tag.checked = false;
   });
+})();
+
+// Supabaseからtagテーブルデータ（全て）を取得
+(async function () {
+  let { data: t } = await supabase.from("tag").select("id,name");
+  tags.value = t;
 })();
 
 // Supabaseから職種テーブルデータを取得
@@ -461,8 +520,6 @@ const filterArticlesByTag = () => {
       article.hideByTag = false;
     } else {
       // 選択されたサークルと同じidの記事のみ表示
-      // article.hideByTag = !selectedTags.includes(article.tags);
-      // ↑ここ問題
       article.hideByTag = !article.tags.some((tag) =>
         selectedTags.includes(tag)
       );
@@ -470,6 +527,40 @@ const filterArticlesByTag = () => {
   });
 };
 
+// プログラミング言語のフィルターがcheckされたか判定する
+const hasCheckedTags = computed(() => {
+  return tagName.value.some((tag) => {
+    return tag.checked;
+  });
+});
+
+// 職種のフィルターがcheckされたか判定する
+const hasCheckedOccupations = computed(() => {
+  return occupationName.value.some((occupation) => {
+    return occupation.checked;
+  });
+});
+
+// サークルのフィルターがcheckされたか判定する
+const hasCheckedClubs = computed(() => {
+  return clubName.value.some((club) => {
+    return club.checked;
+  });
+});
+
+// 記事があるかどうかを判定する
+const hasVisibleArticles = computed(() => {
+  return articleData.value.some((article) => {
+    return (
+      !article.hideByOccupation &&
+      !article.hideByClub &&
+      !article.hideByTag &&
+      !article.hide
+    );
+  });
+});
+
+// プログラミング言語の表示数を変更する
 const toggleShowAllTagItems = () => {
   if (showAllTagItems.value) {
     visibleTagItems.value = 10;
@@ -480,6 +571,7 @@ const toggleShowAllTagItems = () => {
   }
 };
 
+// サークルの表示数を変更する
 const toggleShowAllClubItems = () => {
   if (showAllClubItems.value) {
     visibleClubItems.value = 10;
@@ -490,26 +582,43 @@ const toggleShowAllClubItems = () => {
   }
 };
 
-//日時のスタイル変更
-function formatDateTime(dateString) {
-  const options = {
-    year: "numeric",
-    month: "2-digit",
-    day: "2-digit",
-    hour: "2-digit",
-    minute: "2-digit",
-    second: "2-digit",
-    timeZone: "UTC",
-  };
-  const dateObject = new Date(dateString);
-  const formattedDate = dateObject.toLocaleString("ja-JP", options);
-  return formattedDate;
+// 職種の名称表示
+function getOccupationName(occupationTagId) {
+  const occupation = occupationName.value.find(
+    (item) => item.id === occupationTagId
+  );
+  return occupation ? occupation.occupationName : "";
 }
+
+// タグの名称表示
+function getTagsName(tagId) {
+  const tag = tags.value.find((item) => item.id === tagId);
+  return tag ? tag.name : "";
+}
+
+function getClubName(occupationTagId) {
+  const occupation = occupationName.value.find(
+    (item) => item.id === occupationTagId
+  );
+  return occupation ? occupation.occupationName : "";
+}
+
+// サークルの名称表示
+function getClubsName(clubTagId) {
+  const club = clubName.value.find((item) => item.id === clubTagId);
+  return club ? club.clubName : "";
+}
+
+//日時のスタイル変更
+const formatDate = (date) => {
+  const options = { year: "numeric", month: "2-digit", day: "2-digit" };
+  return new Date(date).toLocaleDateString("ja-JP", options);
+};
 
 // 管理者による記事削除
 const router = useRouter();
 const deleteArticle = async (id) => {
-  await supabase.from("article").upsert({ id: id, delete: true });
+  await supabase.from("article").update({ delete: true }).eq("id", id);
   router.go();
 };
 </script>

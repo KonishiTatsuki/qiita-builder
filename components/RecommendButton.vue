@@ -15,8 +15,14 @@
   </button>
 </template>
 
-<script setup>
-const supabase = useSupabaseClient();
+<script setup lang="ts">
+type Supabase = {
+  userId: String;
+  articleId: Number;
+  showLikeButton: Boolean;
+};
+
+const supabase = useSupabaseClient<Supabase>();
 const router = useRouter();
 const props = defineProps({
   userId: String,
@@ -36,20 +42,21 @@ const countRecommend = async () => {
       .select("*")
       .eq("userId", userId)
       .eq("articleId", articleId);
-
-    if (!confirmation.data[0]) {
-      // recommendテーブルにデータを挿入
-      console.log(userId, articleId);
-      await supabase.from("recommend").insert({ userId, articleId });
-      router.go();
-    } else {
-      // //おすすめ数を削除する
-      await supabase
-        .from("recommend")
-        .delete()
-        .eq("userId", userId)
-        .eq("articleId", articleId);
-      router.go();
+    if (!(confirmation.data === null)) {
+      if (!confirmation.data[0]) {
+        // recommendテーブルにデータを挿入
+        console.log(userId, articleId);
+        await supabase.from("recommend").insert({ userId, articleId });
+        location.reload();
+      } else {
+        // //おすすめ数を削除する
+        await supabase
+          .from("recommend")
+          .delete()
+          .eq("userId", userId)
+          .eq("articleId", articleId);
+        location.reload();
+      }
     }
     //recommendテーブルから該当する記事のおすすめ数を取得
     const { data, error } = await supabase

@@ -22,8 +22,8 @@
       </div>
       <!-- 記事タイトル -->
       <h1 v-if="articleData" class="text-4xl font-bold mb-2">
-        <span  class="break-words">
-           {{ articleData.title }}
+        <span class="break-words">
+          {{ articleData.title }}
         </span>
       </h1>
       <hr class="border-t-2 border-gray-200" />
@@ -38,7 +38,7 @@
       </div>
 
       <div class="text-gray-800 mb-4">
-        tailwindcssのスタイルを無効化するcustom-proseクラス
+        <!-- tailwindcssのスタイルを無効化するcustom-proseクラス -->
         <template v-if="htmlText">
           <span class="custom-prose" v-html="htmlText"></span>
         </template>
@@ -50,12 +50,12 @@
       <div class="flex justify-end space-x-4">
         <LikeButton
           :userId="userId"
-          :articleId="articleId"
+          :articleId="Number(articleId)"
           :showLikeButton="showLikeButton"
         />
         <RecommendButton
           :userId="userId"
-          :articleId="articleId"
+          :articleId="Number(articleId)"
           :showRecommendButton="showRecommendButton"
         />
       </div>
@@ -131,7 +131,11 @@
           <span class="font-semibold">{{ commented.username }}</span>
           <p class="text-gray-600">{{ commented.comment }}</p>
         </div>
-        <button class="text-gray-600" @click="deleteComment(commented.id)">
+        <button
+          class="text-gray-600"
+          @click="deleteComment(commented.id)"
+          v-show="commented.userId == userId"
+        >
           削除
         </button>
       </div>
@@ -139,19 +143,21 @@
   </div>
 </template>
 
-<script setup>
+<script setup lang="ts">
 import LikeButton from "~/components/LikeButton.vue";
 import RecommendButton from "~/components/RecommendButton.vue";
-import { ref, onMounted } from "vue";
+import { ref } from "vue";
 import { marked } from "marked";
 
 const route = useRoute();
-const supabase = useSupabaseClient();
 const users = useSupabaseUser();
 const router = useRouter();
 
 //ユーザーIdを取得
-const userId = users.value.id;
+let userId = "";
+if (users.value) {
+  userId = users.value.id;
+}
 //ユーザー情報取得
 let userInfo = ref();
 const { data: userData } = await useFetch("/api/user/userGet", {
@@ -169,10 +175,6 @@ const dateString = `${year}/${month}/${day}`;
 
 //記事IDを取得
 let articleId = route.params.id;
-<<<<<<< Updated upstream
-=======
-
->>>>>>> Stashed changes
 //投稿者の情報を取得
 let articleUsers = ref();
 // 記事情報を取得[始まり]
@@ -182,6 +184,7 @@ let formattedDate = ref();
 let articleTagIds = [];
 let tagNames = ref();
 const goalLike = ref(0);
+
 const { data: articleDatas } = await useFetch("/api/article/articleDateGet", {
   method: "POST",
   body: articleId,
@@ -192,6 +195,7 @@ const { data: articleUser } = await useFetch("/api/user/userGet", {
 });
 articleUsers.value = articleUser.value[0];
 articleData.value = articleDatas.value[0];
+
 //記事の公開日判定
 //公開日のミリ秒取得
 const display = ref(false);
@@ -200,11 +204,19 @@ articleDate = new Date(articleDate);
 const articleDateMs = articleDate.getTime();
 //現在のミリ秒取得
 const dateMs = date.getTime();
-if (articleDateMs - dateMs > 0) {
+//記事詳細画面表示条件
+if (
+  articleDateMs - dateMs > 0 &&
+  articleUsers.value.id !== userInfo.value[0].id
+) {
   router.push("/");
 }
 
-htmlText.value = marked.parse(articleDatas.value[0].body);
+// mangleパラメータ・headerIdsパラメータを無効化するために{mangle: false, headerIds: false }}を設定
+htmlText.value = marked.parse(articleDatas.value[0].body, {
+  mangle: false,
+  headerIds: false,
+});
 // 日時のフォーマットを設定
 const options = {
   year: "numeric",
@@ -269,12 +281,8 @@ const { data: likeschecks } = await useFetch("/api/like/likeCheckGet", {
   method: "POST",
   body: { userId, articleId },
 });
-<<<<<<< Updated upstream
-if (("likes.value", likes.value[0])) {
-=======
 
 if (likeschecks.value[0]) {
->>>>>>> Stashed changes
   showLikeButton.value = true;
 }
 likeCount.value = likes.value.length;
@@ -360,7 +368,7 @@ const submit = async () => {
       articleId: articleId,
     },
   });
-  router.go();
+  location.reload();
 };
 
 //コメントを削除
@@ -371,7 +379,7 @@ const deleteComment = async (commentId) => {
       method: "POST",
       body: commentId,
     });
-    router.go();
+    location.reload();
     // 削除後にコメントを再取得するなどの更新処理を実行する場合はここで行う
   } catch (error) {
     console.error(error);
@@ -380,10 +388,6 @@ const deleteComment = async (commentId) => {
 </script>
 
 <style>
-/* .custom-prose :is(h1, h2, h3, h4, h5, h6, ul, ol, li) {
-  all: revert;
-} */
-
 .custom-prose * {
   all: revert;
 }

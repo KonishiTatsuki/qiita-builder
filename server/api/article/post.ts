@@ -1,34 +1,20 @@
 import { serverSupabaseClient } from "#supabase/server";
 import { PostgrestSingleResponse } from "@supabase/supabase-js";
+import { Article, Tag, Tagging } from "~/types";
+import { Database } from "~/types/database.types";
 
-type Article = {
-  id: number;
-  title: string;
-  body: string;
-  goalLike: number;
-  date: Date;
-  userId: string;
-  clubTagId: number;
-  occupationTagId: number;
-  bannerId: number | null;
-  qiitaPost: boolean;
-  delete: boolean;
-  publishDate: Date;
-  publish: boolean;
-};
-type Tag = {
-  id: number;
+type TagInsert = {
   name: string;
   display: boolean;
 };
-type Tagging = {
-  id: number;
+
+type TaggingInsert = {
   articleId: number;
   tagId: number;
 };
 
 export default defineEventHandler(async (event) => {
-  const supabase = serverSupabaseClient(event);
+  const supabase = serverSupabaseClient<Database>(event);
   const body = await readBody(event);
 
   //記事の投稿
@@ -46,12 +32,15 @@ export default defineEventHandler(async (event) => {
       if (data?.length === 0) {
         const { data, error }: PostgrestSingleResponse<Tag[]> = await supabase
           .from("tag")
-          .insert<Tag>({ name: tag, display: false })
+          .insert<TagInsert>({ name: tag, display: false })
           .select();
         if (data !== null) {
           await supabase
             .from("tagging")
-            .insert<Tagging>({ articleId: article[0].id, tagId: data[0].id })
+            .insert<TaggingInsert>({
+              articleId: article[0].id,
+              tagId: data[0].id,
+            })
             .select();
         }
         //既存のタグがある場合は、タギングテーブルのみにpost
@@ -59,7 +48,10 @@ export default defineEventHandler(async (event) => {
         if (data !== null) {
           await supabase
             .from("tagging")
-            .insert<Tagging>({ articleId: article[0].id, tagId: data[0].id })
+            .insert<TaggingInsert>({
+              articleId: article[0].id,
+              tagId: data[0].id,
+            })
             .select();
         }
       }

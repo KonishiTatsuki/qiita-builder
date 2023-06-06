@@ -1,9 +1,29 @@
 <template>
-  <div class="my-20">
-    <div class="text-right">
-      <button type="submit" class="btn mb-4" @click="deleteHandler">
-        記事を削除
-      </button>
+  <div class="my-15">
+    <div class="text-right mb-4">
+      <v-dialog v-model="dialog" persistent width="auto">
+        <template v-slot:activator="{ props }">
+          <v-btn color="light-blue-darken-2" v-bind="props"> 削除する </v-btn>
+        </template>
+        <v-card>
+          <v-card-title class="text-h5 mt-3">
+            本当に削除してよろしいですか？
+          </v-card-title>
+          <v-card-actions>
+            <v-spacer></v-spacer>
+            <v-btn
+              color="green-darken-1"
+              variant="text"
+              @click="dialog = false"
+            >
+              戻る
+            </v-btn>
+            <v-btn color="green-darken-1" variant="text" @click="deleteHandler">
+              削除する
+            </v-btn>
+          </v-card-actions>
+        </v-card>
+      </v-dialog>
     </div>
     <div>
       <input
@@ -62,7 +82,6 @@
           <v-col>
             <v-combobox
               v-model="select"
-              :items="items"
               label="タグを設定してください"
               multiple
               chips
@@ -91,28 +110,27 @@
   </div>
 </template>
 
-<script lang="ts" setup>
+<script setup lang="ts">
+import type EasyMDE from "easymde";
 const route = useRoute();
 // パスパラメータよりid取得
 const { id } = route.params;
 const { data } = await useFetch(`/api/article/get?id=${id}`);
-import type EasyMDE from "easymde";
 
 let mde: InstanceType<typeof EasyMDE> | null = null;
-const content = ref(data.value.article[0].body);
+const content = ref(data.value?.article[0].body);
 const contentArea = ref();
-const title = ref(data.value.article[0].title);
-const select = ref(data.value.tag);
-const goalLike = ref(data.value.article[0].goalLike);
-const publishDate = ref(data.value.article[0].publishDate);
+const title = ref(data.value?.article[0].title);
+const select = ref(data.value?.tag);
+const goalLike = ref(data.value?.article[0].goalLike);
+const publishDate = ref(data.value?.article[0].publishDate);
+const dialog = ref(false);
 const router = useRouter();
 let errorTitle = ref(false);
 let errorContent = ref(false);
 let errorGoalLike = ref(false);
-console.log(errorTitle);
-console.log(errorContent);
-console.log(content.value);
 
+// いいね数のプルダウンに活用
 const goalLikeArray = [
   {
     value: "0",
