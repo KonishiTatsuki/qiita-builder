@@ -332,7 +332,7 @@ if (goalLike.value <= 0 && articleQiitaPost === false) {
     body: articleId,
   });
 } else {
-    ("まだ達成してないよ/もしくはQiitaに投稿済み");
+    console.log("まだ達成してないよ/もしくはQiitaに投稿済み");
 }
 
 //　　　　　　　　コメント機能　　　　　　　　　//
