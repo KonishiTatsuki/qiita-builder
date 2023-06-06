@@ -142,7 +142,7 @@
 <script setup lang="ts">
 import LikeButton from "~/components/LikeButton.vue";
 import RecommendButton from "~/components/RecommendButton.vue";
-import { ref, onMounted } from "vue";
+import { ref } from "vue";
 import { marked } from "marked";
 
 const route = useRoute();
@@ -384,10 +384,6 @@ const deleteComment = async (commentId) => {
 </script>
 
 <style>
-/* .custom-prose :is(h1, h2, h3, h4, h5, h6, ul, ol, li) {
-  all: revert;
-} */
-
 .custom-prose * {
   all: revert;
 }
