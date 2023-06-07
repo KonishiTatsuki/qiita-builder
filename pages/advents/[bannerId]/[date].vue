@@ -25,17 +25,18 @@
       </option>
     </select>
   </div>
-  <div>
-    <div class="flex justify-end">
-      <div>
-        <button class="btn m-3 block" @click="submitHandler">投稿</button>
-        <button class="btn m-3 block" @click="deleteHandler">削除</button>
-      </div>
+  <div class="flex justify-end">
+    <div>
+      <button class="btn m-3 block" @click="submitHandler">投稿</button>
+      <button class="btn m-3 block" @click="deleteHandler">削除</button>
     </div>
   </div>
 </template>
 
 <script setup>
+useHead({
+  title: "アドベントカレンダー記事投稿",
+});
 // 取得したuserIdを使って、articleテーブルからuserIdが一致するものを取得してタイ
 import { ref, onMounted } from "vue";
 import { useRoute, useRouter } from "vue-router";

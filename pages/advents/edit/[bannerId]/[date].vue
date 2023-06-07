@@ -35,6 +35,9 @@
 </template>
 
 <script setup>
+useHead({
+  title: "アドベントカレンダー投稿記事編集",
+});
 // 取得したuserIdを使って、articleテーブルからuserIdが一致するものを取得してタイ
 import { ref, onMounted } from "vue";
 import { useRoute, useRouter } from "vue-router";
@@ -75,17 +78,31 @@ console.log("articles", articles);
 
 // editHandlerを押した時の処理
 const editHandler = async () => {
-  // bannerIdとpublishDateをarticleテーブルにデータを更新する
+  if (!selectedArticleId.value) {
+    alert("記事を選択してください");
+    return;
+  }
   const { data, error } = await supabase
     .from("article")
-    .update({
-      bannerId: bannerId.value,
-      publishDate: date.value,
-    })
+    .update({ bannerId: null })
+    .eq("id", postedData[0].id);
+  if (error) {
+    console.error("初期値の記事updateできてない:", error);
+    return;
+  }
+  console.log("初期値の記事をupdateした:", data);
+
+  const { data: updateResult, error: updateError } = await supabase
+    .from("article")
+    .update({ bannerId: bannerId.value, publishDate: date.value })
+    .eq("userId", userId)
     .eq("id", selectedArticleId.value);
-  console.log("data", data);
-  console.log("error", error);
-  // ページをリロードする
+
+  if (updateError) {
+    console.error("新しく選択した記事がupdateされてない:", updateError);
+    return;
+  }
+  console.log("新しく選択した記事がupdateされた:", updateResult);
   router.go(-1);
 };
 

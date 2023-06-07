@@ -46,20 +46,38 @@
                   </div>
                 </div>
               </div>
-              <NuxtLink :to="`/advents/${id}/${day.date}`">
-                <button
-                  v-if="
-                    day.isCurrentMonth &&
-                    day.period &&
-                    matchingArticles(day.date).length === 0 &&
-                    !isDatePast(day.date) &&
-                    day.date !== dayjs().format('YYYY-MM-DD')
-                  "
-                  class="bg-blue-200 hover:bg-blue-400 text-black py-2 px-4 rounded"
-                >
-                  参加する
-                </button>
-              </NuxtLink>
+              <div>
+                <NuxtLink :to="`/advents/${id}/${day.date}`">
+                  <button
+                    v-if="
+                      day.isCurrentMonth &&
+                      day.period &&
+                      matchingArticles(day.date).length === 0 &&
+                      !isDatePast(day.date) &&
+                      day.date !== dayjs().format('YYYY-MM-DD')
+                    "
+                    class="bg-blue-200 hover:bg-blue-400 text-black py-2 px-4 rounded"
+                  >
+                    参加する
+                  </button>
+                </NuxtLink>
+              </div>
+              <div>
+                <NuxtLink :to="`/advents/edit/${id}/${day.date}`">
+                  <button
+                    v-if="
+                      day.isCurrentMonth &&
+                      day.period &&
+                      matchingArticles(day.date).length === 1 &&
+                      !isDatePast(day.date) &&
+                      day.date !== dayjs().format('YYYY-MM-DD')
+                    "
+                    class="bg-green-200 hover:bg-green-400 text-black py-2 px-4 rounded"
+                  >
+                    編集する
+                  </button>
+                </NuxtLink>
+              </div>
             </td>
           </tr>
         </tbody>
@@ -71,6 +89,10 @@
 import { ref, computed } from "vue";
 import { useRouter, useRoute } from "vue-router";
 import dayjs from "dayjs";
+
+useHead({
+  title: "アドベントカレンダー",
+});
 
 // bannerデータを取得
 const adventName = ref("");
