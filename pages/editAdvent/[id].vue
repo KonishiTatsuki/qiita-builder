@@ -40,7 +40,6 @@
 import VueDatePicker from "@vuepic/vue-datepicker";
 import "@vuepic/vue-datepicker/dist/main.css";
 import dayjs from "dayjs";
-import { Banner } from "~/types";
 const router = useRouter();
 const route = useRoute();
 const fileInput = ref();
@@ -48,20 +47,14 @@ const client = useSupabaseClient();
 const user = useSupabaseUser();
 const errorMsg = ref("");
 const format = "yyyy/MM/dd";
-//バナーデータ取得
-// const { data: advent } = useFetch("/api/advent/get", {
-//   method: "POST",
-//   body: route.params.id,
-// });
 
 const { data: advent } = await client
   .from("banner")
   .select("*")
   .eq("id", route.params.id);
 
-const bannerImage = ref(`${bannerData.value[0].image}`);
+const bannerImage = ref(`${advent[0].image}`);
 
-// const bannerImage = ref(`${advent[0].image}`);
 const adventName = ref(`${advent[0].adventName}`);
 const description = ref(`${advent[0].description}`);
 const date = ref([`${advent[0].startDate}`, `${advent[0].endDate}`]);
@@ -76,16 +69,23 @@ let create = {};
 const editSubmit = async () => {
   let startDate = dayjs(date.value[0]).format("YYYY-MM-DD");
   let endDate = dayjs(date.value[1]).format("YYYY-MM-DD");
-
+  errorMsg.value = "";
   //バナー画像が編集された時
   if (fileInput.value.files[0]) {
-    const file = fileInput.value.files[0];
-    const filePath = fileInput.value.files[0].name;
-    const { error: avatarerror } = await client.storage
-      .from("bannarImage")
-      .upload(filePath, file);
-    //バナー画像のpathを取得
-    if (!avatarerror) {
+    if (adventName.value.length === 0) {
+      errorMsg.value = "アドベントカレンダーの題名を入力してください";
+    } else if (description.value.length === 0) {
+      errorMsg.value = "アドベントカレンダーの説明を入力してください";
+    } else {
+      const file = fileInput.value.files[0];
+      //ファイル名作成
+      const random = Math.random().toString(32).substring(2);
+      console.log(`${random}`);
+      const filePath = random;
+
+      await client.storage.from("bannarImage").upload(filePath, file);
+      //バナー画像のpathを取得
+
       const { data } = await client.storage
         .from("bannarImage")
         .createSignedUrl(filePath, 2592000);
@@ -102,22 +102,26 @@ const editSubmit = async () => {
       let { error } = await client.from("banner").upsert(create);
       if (error) throw error;
       router.push("/ownerPage");
-    } else {
-      errorMsg.value = "既に保存されている画像です";
     }
     //バナー画像が編集されてない時
   } else {
-    create = {
-      id: route.params.id,
-      adventName: adventName.value,
-      description: description.value,
-      startDate: startDate,
-      endDate: endDate,
-      userId: user.value.id,
-    };
-    let { error } = await client.from("banner").upsert(create);
-    if (error) throw error;
-    router.push("/ownerPage");
+    if (adventName.value.length === 0) {
+      errorMsg.value = "アドベントカレンダーの題名を入力してください";
+    } else if (description.value.length === 0) {
+      errorMsg.value = "アドベントカレンダーの説明を入力してください";
+    } else {
+      create = {
+        id: route.params.id,
+        adventName: adventName.value,
+        description: description.value,
+        startDate: startDate,
+        endDate: endDate,
+        userId: user.value.id,
+      };
+      let { error } = await client.from("banner").upsert(create);
+      if (error) throw error;
+      router.push("/ownerPage");
+    }
   }
 };
 </script>
