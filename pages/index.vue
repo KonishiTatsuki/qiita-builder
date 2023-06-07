@@ -182,9 +182,9 @@
                 v-for="article in articleData"
                 :key="article.id"
                 v-show="
-                  !article.hideByOccupation &
-                  !article.hideByClub &
-                  !article.hideByTag &
+                  !article.hideByOccupation &&
+                  !article.hideByClub &&
+                  !article.hideByTag &&
                   !article.hide
                 "
               >
@@ -207,7 +207,7 @@
                     </div>
                     <div v-if="article.clubTagId" class="mt-1">
                       <span class="text-gray-500">
-                        @{{ getClubsName(article.clubTagId) }}
+                        {{ getClubsName(article.clubTagId) }}
                       </span>
                     </div>
 
@@ -306,12 +306,15 @@ let visibleClubItems = ref(10);
 let showAllClubItems = ref(false);
 let bannerData = ref([]);
 let tags = ref([]);
+// let perPage = 3; // 1ページに表示する記事の数
+// let currentPage = ref(1); // 現在のページ
+const open = ref(false);
 
 (async () => {
   let { data } = await supabase
     .from("article")
     .select("body, clubTagId, date, delete, id, occupationTagId, title, userId")
-    .lt("publishDate", date.toISOString())
+    .lte("publishDate", date.toISOString())
     .eq("delete", false)
     .order("date", { ascending: false });
 
@@ -560,6 +563,16 @@ const hasVisibleArticles = computed(() => {
   });
 });
 
+// const pageCount = computed(() => {
+//   return Math.ceil(articleData.value.length / perPage); // ページ数の計算
+// });
+
+// const visibleArticleData = computed(() => {
+//   const startIndex = (currentPage.value - 1) * perPage; // 表示する記事の開始インデックス
+//   const endIndex = startIndex + perPage; // 表示する記事の終了インデックス
+//   return articleData.value.slice(startIndex, endIndex); // 表示する記事データの抽出
+// });
+
 // プログラミング言語の表示数を変更する
 const toggleShowAllTagItems = () => {
   if (showAllTagItems.value) {
@@ -573,6 +586,7 @@ const toggleShowAllTagItems = () => {
 
 // サークルの表示数を変更する
 const toggleShowAllClubItems = () => {
+  console.log(visibleArticleData.value);
   if (showAllClubItems.value) {
     visibleClubItems.value = 10;
     showAllClubItems.value = false;
@@ -594,13 +608,6 @@ function getOccupationName(occupationTagId) {
 function getTagsName(tagId) {
   const tag = tags.value.find((item) => item.id === tagId);
   return tag ? tag.name : "";
-}
-
-function getClubName(occupationTagId) {
-  const occupation = occupationName.value.find(
-    (item) => item.id === occupationTagId
-  );
-  return occupation ? occupation.occupationName : "";
 }
 
 // サークルの名称表示
