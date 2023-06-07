@@ -2,14 +2,13 @@
   <div class="my-20">
     <div>
       <input
-        type="text"
-        class="border"
-        style="width: 100%; height: 50px"
+        class="border pt-2 pl-2 rounded-lg"
         placeholder="タイトル"
         v-model="title"
+        style="width: 100%; height: 50px"
       />
       <p v-if="errorTitle" class="text-red-500 mt-2">
-        *タイトルを入力してください
+        *タイトルは1〜255字で入力してください
       </p>
     </div>
     <div>
@@ -19,9 +18,11 @@
           v-model="content"
           rows="5"
           placeholder="markdown形式で説明を記述できます。"
-          maxlength="300"
+          maxlength="255"
         />
-        <p v-if="errorContent" class="text-red-500">*内容を入力してください</p>
+        <p v-if="errorContent" class="text-red-500">
+          *内容は1〜255字で入力してください
+        </p>
       </div>
     </div>
     <div class="flex justify-around mt-8">
@@ -88,7 +89,10 @@
 
 <script setup lang="ts">
 import type EasyMDE from "easymde";
-import { Profile } from "~/types";
+
+useHead({
+  title: "新規記事投稿",
+});
 
 let mde: InstanceType<typeof EasyMDE> | null = null;
 let items = ref([
@@ -161,7 +165,7 @@ async function submitHandler() {
     title: title,
     body: content,
     goalLike: goalLike,
-    date: new Date(),
+    date: new Date().toLocaleString("ja-JP", { timeZone: "Asia/Tokyo" }),
     publishDate: publishDate,
     publish: true,
   };
@@ -184,7 +188,7 @@ const draftHandler = async () => {
     title: title,
     body: content,
     goalLike: goalLike,
-    date: new Date(),
+    date: new Date().toLocaleString("ja-JP", { timeZone: "Asia/Tokyo" }),
     publishDate: publishDate,
     publish: false,
   };
@@ -210,12 +214,16 @@ onMounted(async () => {
 watch(title, () => {
   if (!title.value) {
     errorTitle.value = true;
+  } else if (title.value.length > 255) {
+    errorTitle.value = true;
   } else {
     errorTitle.value = false;
   }
 });
 watch(content, () => {
   if (!content.value) {
+    errorContent.value = true;
+  } else if (content.value.length > 255) {
     errorContent.value = true;
   } else {
     errorContent.value = false;

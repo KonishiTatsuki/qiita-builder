@@ -36,10 +36,12 @@
                 :key="article.id"
                 class="my-4 flex justify-between"
               >
-                <p class="ml-[10px] mr-5 font-bold">{{ article.title }}</p>
+                <p class="ml-[10px] font-bold w-4/5">
+                  {{ article.title }}
+                </p>
                 <NuxtLink
                   :to="`/articleDetail/${article.id}`"
-                  class="text-indigo-500 inline-flex items-center"
+                  class="text-indigo-500 inline-flex items-center w-1/5 justify-center"
                   >記事詳細&nbsp;→</NuxtLink
                 >
               </li>
@@ -66,6 +68,10 @@
 </template>
 
 <script setup lang="ts">
+useHead({
+  title: "マイページ",
+});
+
 const users = useSupabaseUser();
 const userId = users.value?.id;
 

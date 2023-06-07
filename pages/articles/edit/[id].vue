@@ -27,14 +27,13 @@
     </div>
     <div>
       <input
-        type="text"
-        class="border"
-        style="width: 100%; height: 50px"
+        class="border pt-2 pl-2 rounded-lg"
         placeholder="タイトル"
         v-model="title"
+        style="width: 100%; height: 50px"
       />
       <p v-if="errorTitle" class="text-red-500 mt-2">
-        *タイトルを入力してください
+        *タイトルが未入力、または255字を超えています。
       </p>
     </div>
     <div>
@@ -46,7 +45,9 @@
           placeholder="markdown形式で説明を記述できます。"
           maxlength="300"
         />
-        <p v-if="errorContent" class="text-red-500">*内容を入力してください</p>
+        <p v-if="errorContent" class="text-red-500">
+          *内容が未入力、または255字を超えています。
+        </p>
       </div>
     </div>
     <div class="flex justify-around mt-5">
@@ -112,6 +113,11 @@
 
 <script setup lang="ts">
 import type EasyMDE from "easymde";
+
+useHead({
+  title: "記事編集",
+});
+
 const route = useRoute();
 // パスパラメータよりid取得
 const { id } = route.params;
@@ -214,12 +220,16 @@ onMounted(async () => {
 watch(title, () => {
   if (!title.value) {
     errorTitle.value = true;
+  } else if (title.value.length > 255) {
+    errorTitle.value = true;
   } else {
     errorTitle.value = false;
   }
 });
 watch(content, () => {
   if (!content.value) {
+    errorContent.value = true;
+  } else if (content.value.length > 255) {
     errorContent.value = true;
   } else {
     errorContent.value = false;
