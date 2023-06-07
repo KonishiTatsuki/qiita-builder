@@ -263,23 +263,40 @@ const submitHandler = async (credentials: Credentials) => {
   console.log(credentials);
   let clubId = credentials.club;
 
-  //アイコン画像を保存
-  const file = credentials.file[0].file; // 選択された画像を取得
-  const filePath = `${credentials.file[0].name}`; // 画像の保存先のpathを指定
-  const { error: avatarerror } = await client.storage
-    .from("avatars")
-    .upload(filePath, file);
-  console.log(avatarerror);
+  //サインイン
+  const { error } = await client.auth.signUp({
+    email: credentials.email,
+    password: credentials.password,
+    options: {
+      data: {
+        username: credentials.userName,
+        detail: credentials.detail,
 
-  if (avatarerror) {
-    if (avatarerror.message === " 'The resource already exists'") {
-      errormesssage.value = "画像が重複しています";
-    } else if (
-      avatarerror.message === "The object name contains invalid characters"
-    ) {
-      errormesssage.value = "画像のファイル名が不適切です。";
-    }
+        email: credentials.email,
+        occupation: credentials.occupation,
+      },
+    },
+  });
+  if (error) {
+    errormesssage.value = "既に登録されているメールアドレスです。";
   } else {
+    //保存したuidを取得
+    const { data: uid } = await client
+      .from("profiles")
+      .select("id")
+      .eq("email", credentials.email);
+
+    //アイコン画像を保存
+    const file = credentials.file[0].file; // 選択された画像を取得
+    const filePath = `${uid[0].id}`; // 画像の保存先のpathを指定
+    //画像をstorageに保存
+    const { error: avatarerror } = await client.storage
+      .from("avatars")
+      .upload(filePath, file);
+    console.log(avatarerror);
+    //画像のpathを取得
+    const { data } = client.storage.from("avatars").getPublicUrl(filePath);
+    const imageUrl = data.publicUrl;
     if (credentials.addClub) {
       //追加クラブをdisplay:falseで登録
       await client.from("club").insert({
@@ -294,30 +311,16 @@ const submitHandler = async (credentials: Credentials) => {
         clubId = data[0].id;
       }
     }
-  }
-  const { data } = client.storage.from("avatars").getPublicUrl(filePath);
-  const imageUrl = data.publicUrl;
-  //新規会員登録
-  // authに登録;
-  const { error } = await client.auth.signUp({
-    email: credentials.email,
-    password: credentials.password,
-    options: {
-      data: {
-        username: credentials.userName,
-        detail: credentials.detail,
-        clubid: clubId,
-        email: credentials.email,
-        occupation: credentials.occupation,
-        image: imageUrl,
-      },
-    },
-  });
 
-  if (error) {
-    errormesssage.value = "既に登録されているメールアドレスです。";
-  } else {
-    succes.value = true;
+    const { error } = await client.from("profiles").upsert({
+      id: uid[0].id,
+      image: imageUrl,
+      clubid: clubId,
+    });
+
+    if (!error) {
+      succes.value = true;
+    }
   }
 };
 </script>
