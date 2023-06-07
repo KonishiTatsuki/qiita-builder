@@ -282,6 +282,10 @@ import { ref, computed } from "vue";
 import { useRouter } from "vue-router";
 import { HeartIcon } from "@heroicons/vue/outline";
 
+useHead({
+  title: "記事一覧",
+});
+
 const route = useRouter();
 const supabase = useSupabaseClient();
 const userss = useSupabaseUser();
