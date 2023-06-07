@@ -205,7 +205,7 @@ const isDatePast = (date) => {
 }
 .calendar td {
   border: 1px solid #ccc;
-  padding: 0.5em;
+  padding: 1.5em;
   text-align: center;
 }
 .calendar td:hover {
