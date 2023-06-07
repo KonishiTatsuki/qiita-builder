@@ -24,11 +24,12 @@
                       type="text"
                       label=" ユーザ名"
                       name="userName"
-                      validation="required|length:0,30|matches:/"
+                      validation="required|length:0,30|matches:/^[\u30a0-\u30ff\u3040-\u309f\u3005-\u3006\u30e0-\u9fcf]+$/"
                       autocomplete="off"
                       :validation-messages="{
                         required: 'ユーザ名を入力してください',
                         length: '30文字以内で入力してください',
+                        matches: '全角で記入してください',
                       }"
                     />
                   </div>
@@ -43,12 +44,13 @@
                       type="email"
                       label=" メールアドレス"
                       name="email"
-                      validation="required|matches:/^[A-Za-z0-9]{1}[A-Za-z0-9_.-]*@{1}[A-Za-z0-9_.-]+.[A-Za-z0-9]+$/|ends_with:rakus-partners.co.jp"
+                      validation="required|matches:/^[A-Za-z0-9]{1}[A-Za-z0-9_.-]*@{1}[A-Za-z0-9_.-]+.[A-Za-z0-9]+$/|ends_with:rakus-partners.co.jp|length:0,255"
                       autocomplete="off"
                       :validation-messages="{
                         required: 'メールアドレスを入力してください',
                         matches: '正しいメールアドレスを入力してください',
                         ends_with: 'ラクスのメールアドレスを入力してください',
+                        length: '255文字以内で入力してください',
                       }"
                     />
                   </div>
@@ -152,6 +154,7 @@
                 <FormKit
                   :classes="{
                     message: 'text-red-500',
+                    noFiles: 'text-transparent',
                   }"
                   type="file"
                   name="file"
@@ -161,6 +164,7 @@
                   :validation-messages="{
                     required: '画像を選択してください',
                   }"
+                  file-item-icon="aa"
                 />
               </div>
               <div>
@@ -199,6 +203,9 @@
 </template>
 
 <script setup lang="ts">
+useHead({
+  title: "新規登録",
+});
 import { submitForm } from "@formkit/core";
 import { Occupation, Club } from "~/types";
 import { Database } from "~/types/database.types";
@@ -229,7 +236,7 @@ const client = useSupabaseClient<Database>();
 //登録する押下
 const submitRegister = async () => {
   submitForm("register");
-  await new Promise((r) => setTimeout(r, 1500));
+  await new Promise((r) => setTimeout(r, 2000));
   if (succes.value) {
     router.push("/");
   }
@@ -239,7 +246,7 @@ const submitRegister = async () => {
 //qiitta連携
 const connectQitta = async () => {
   submitForm("register");
-  await new Promise((r) => setTimeout(r, 1500));
+  await new Promise((r) => setTimeout(r, 2000));
   if (succes.value) {
     router.push("/qiitaCoordination");
   }
