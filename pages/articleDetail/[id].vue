@@ -160,8 +160,8 @@ import RecommendButton from "~/components/RecommendButton.vue";
 import { ref } from "vue";
 import { marked } from "marked";
 
+//モーダルの表示非表示
 const open = ref(false);
-
 const route = useRoute();
 const users = useSupabaseUser();
 const router = useRouter();
@@ -406,6 +406,7 @@ const deleteComment = async (commentId) => {
   all: revert;
 }
 
+/* モーダルCSS */
 .modal {
   position: fixed;
   z-index: 1;
