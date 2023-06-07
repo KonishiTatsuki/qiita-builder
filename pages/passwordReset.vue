@@ -64,6 +64,10 @@
 </template>
 
 <script setup lang="ts">
+useHead({
+  title: "パスワード再設定",
+});
+
 const router = useRouter();
 const route = useRoute();
 const supabase = useSupabaseClient();

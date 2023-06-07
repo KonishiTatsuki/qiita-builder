@@ -45,6 +45,10 @@
 </template>
 
 <script setup lang="ts">
+useHead({
+  title: "パスワード再設定用メール送信",
+});
+
 const router = useRouter();
 const supabase = useSupabaseClient();
 
