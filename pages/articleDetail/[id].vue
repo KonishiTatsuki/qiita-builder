@@ -131,13 +131,21 @@
           <span class="font-semibold">{{ commented.username }}</span>
           <p class="text-gray-600">{{ commented.comment }}</p>
         </div>
-        <button class="text-gray-600" @click="open = true">削除</button>
+        <button
+          class="text-gray-600"
+          @click="open = true"
+          v-show="commented.userId == userId"
+        >
+          削除
+        </button>
         <Teleport to="body">
           <div v-if="open" class="modal">
             <div class="modal-content">
-              <p>本当に削除しますか？</p>
-              <button @click="open = false">No</button>
-              <button @click="deleteComment(commented.id)">Yes</button>
+              <p class="mb-5">本当に削除しますか？</p>
+              <button @click="open = false" class="btn mr-5">No</button>
+              <button @click="deleteComment(commented.id)" class="btn">
+                Yes
+              </button>
             </div>
           </div>
         </Teleport>
