@@ -18,7 +18,7 @@
               type="email"
               label=" メールアドレス"
               name="email"
-              validation="required|matches:/^[A-Za-z0-9]{1}[A-Za-z0-9_.-]*@{1}[A-Za-z0-9_.-]+.[A-Za-z0-9]+$/|ends_with:rakus-partners.co.jp"
+              validation="required|length:0,255|matches:/^[A-Za-z0-9]{1}[A-Za-z0-9_.-]*@{1}[A-Za-z0-9_.-]+.[A-Za-z0-9]+$/|ends_with:rakus-partners.co.jp"
               autocomplete="off"
               :validation-messages="{
                 required: 'メールアドレスを入力してください',

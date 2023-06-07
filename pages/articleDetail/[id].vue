@@ -131,20 +131,14 @@
           <span class="font-semibold">{{ commented.username }}</span>
           <p class="text-gray-600">{{ commented.comment }}</p>
         </div>
-        <!-- <button class="text-gray-600" @click="deleteComment(commented.id)">
-        <button
-          class="text-gray-600"
-          @click="deleteComment(commented.id)"
-          v-show="commented.userId == userId"
-        >
-          削除
-        </button> -->
         <button class="text-gray-600" @click="open = true">削除</button>
         <Teleport to="body">
           <div v-if="open" class="modal">
-            <p>本当に削除しますか？</p>
-            <button @click="open = false">No</button>
-            <button @click="deleteComment(commented.id)">Yes</button>
+            <div class="modal-content">
+              <p>本当に削除しますか？</p>
+              <button @click="open = false">No</button>
+              <button @click="deleteComment(commented.id)">Yes</button>
+            </div>
           </div>
         </Teleport>
       </div>
@@ -406,10 +400,21 @@ const deleteComment = async (commentId) => {
 
 .modal {
   position: fixed;
-  z-index: 999;
-  top: 20%;
-  left: 50%;
+  z-index: 1;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  overflow: auto;
+  /* background-color: #959393; */
+  background-color: rgba(149, 147, 147, 0.3);
+}
+.modal-content {
+  background-color: #fefefe;
+  margin: 15% auto;
+  padding: 40px;
+  border: 1px solid #888;
   width: 300px;
-  margin-left: -150px;
+  text-align: center;
 }
 </style>
