@@ -263,50 +263,64 @@ const submitHandler = async (credentials: Credentials) => {
   console.log(credentials);
   let clubId = credentials.club;
 
-  if (credentials.addClub) {
-    //追加クラブをdisplay:falseで登録
-    await client.from("club").insert({
-      clubName: credentials.addClub,
-    });
+  //サインイン
+  const { error } = await client.auth.signUp({
+    email: credentials.email,
+    password: credentials.password,
+    options: {
+      data: {
+        username: credentials.userName,
+        detail: credentials.detail,
 
-    const { data } = await client
-      .from("club")
+        email: credentials.email,
+        occupation: credentials.occupation,
+      },
+    },
+  });
+  if (error) {
+    errormesssage.value = "既に登録されているメールアドレスです。";
+  } else {
+    //保存したuidを取得
+    const { data: uid } = await client
+      .from("profiles")
       .select("id")
-      .eq("clubName", credentials.addClub);
+      .eq("email", credentials.email);
 
-    if (data !== null) {
-      clubId = data[0].id;
-    }
-  }
-  //アイコン画像を保存
-  const file = credentials.file[0].file; // 選択された画像を取得
-  const filePath = `${credentials.file[0].name}`; // 画像の保存先のpathを指定
-  const { error: avatarerror } = await client.storage
-    .from("avatars")
-    .upload(filePath, file);
-  // 画像のURLを取得
-  if (!avatarerror) {
+    //アイコン画像を保存
+    const file = credentials.file[0].file; // 選択された画像を取得
+    const filePath = `${uid[0].id}`; // 画像の保存先のpathを指定
+    //画像をstorageに保存
+    const { error: avatarerror } = await client.storage
+      .from("avatars")
+      .upload(filePath, file);
+    console.log(avatarerror);
+    //画像のpathを取得
     const { data } = client.storage.from("avatars").getPublicUrl(filePath);
     const imageUrl = data.publicUrl;
-    //新規会員登録
-    // authに登録;
-    const { error } = await client.auth.signUp({
-      email: credentials.email,
-      password: credentials.password,
-      options: {
-        data: {
-          username: credentials.userName,
-          detail: credentials.detail,
-          clubid: clubId,
-          email: credentials.email,
-          occupation: credentials.occupation,
-          image: imageUrl,
-        },
-      },
+    if (credentials.addClub) {
+      //追加クラブをdisplay:falseで登録
+      await client.from("club").insert({
+        clubName: credentials.addClub,
+      });
+      const { data } = await client
+        .from("club")
+        .select("id")
+        .eq("clubName", credentials.addClub);
+
+      if (data !== null) {
+        clubId = data[0].id;
+      }
+    }
+
+    const { error } = await client.from("profiles").upsert({
+      id: uid[0].id,
+      image: imageUrl,
+      clubid: clubId,
     });
-    succes.value = true;
-  } else {
-    errormesssage.value = "画像が重複しています";
+
+    if (!error) {
+      succes.value = true;
+    }
   }
 };
 </script>
