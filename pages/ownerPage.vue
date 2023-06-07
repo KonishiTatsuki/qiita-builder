@@ -137,16 +137,24 @@
 </template>
 
 <script setup lang="ts">
-import { Club } from "~/types";
+import { Banner, Club } from "~/types";
 import { Database } from "~/types/database.types";
 
+const router = useRouter();
 const client = useSupabaseClient<Database>();
-
+// const { data: allclub } = await client.from("club").select("*");
 const { data: allclub } = await useFetch("/api/club/get");
 
 //アドベントカレンダーのデータ取得
 const { data: advent } = await client.from("banner").select("*");
 
+// console.log(advent);
+
+//display:trueのアドベントの取得
+// let { data: showAdvent } = await client
+//   .from("banner")
+//   .select("*")
+//   .eq("display", true);
 const { data: showAdvent } = useFetch("/api/advent/getAll");
 
 //管理者権限あるユーザの取得
@@ -154,6 +162,8 @@ const { data: owners } = await client
   .from("profiles")
   .select("*")
   .eq("authority", true);
+
+// console.log(typeof showAdvent);
 
 //初期表示は現在のアドベントとして保存されているもの
 const choseAdvent = ref(`${showAdvent.value?.id}`);
@@ -242,14 +252,10 @@ const deleteClub = async () => {
 
 //新規クラブの追加
 const addNewClub = async () => {
-  if (!newclub.value) {
-    msgForaddDisplayClub.value = "追加するクラブを入力してください";
-  } else {
-    const { error: cluberror } = await client.from("club").insert({
-      clubName: newclub.value,
-    });
-    location.reload();
-  }
+  const { error: cluberror } = await client.from("club").insert({
+    clubName: newclub.value,
+  });
+  location.reload();
 };
 
 //エラーメッセージ
@@ -259,27 +265,22 @@ const errormsg = ref("");
 const owner = ref("");
 //新規管理者の保存
 const submitOwner = async () => {
-  errormsg.value = "";
   const re = /^[a-zA-Z0-9_+-]+(.[a-zA-Z0-9_+-]+)*@rakus-partners.co.jp/;
-  if (!owner.value) {
-    errormsg.value = "メールアドレスを入力してください";
-  } else {
-    //ラクスメールアドレス形式のバリデーション
-    if (re.test(owner.value)) {
-      const { data, error } = await client
-        .from("profiles")
-        .update({ authority: true })
-        .eq("email", owner.value)
-        .select();
-      if (data && data.length > 0) {
-        console.log("完了");
-        location.reload();
-      } else if (data && data.length === 0) {
-        errormsg.value = "該当のメールアドレスが見つかりません";
-      }
-    } else {
-      errormsg.value = "ラクスメールアドレスの形式で入力してください";
+  //ラクスメールアドレス形式のバリデーション
+  if (re.test(owner.value)) {
+    const { data, error } = await client
+      .from("profiles")
+      .update({ authority: true })
+      .eq("email", owner.value)
+      .select();
+    if (data && data.length > 0) {
+      console.log("完了");
+      location.reload();
+    } else if (data && data.length === 0) {
+      errormsg.value = "該当のメールアドレスが見つかりません";
     }
+  } else {
+    errormsg.value = "ラクスメールアドレスの形式で入力してください";
   }
 };
 

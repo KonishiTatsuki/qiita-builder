@@ -65,23 +65,18 @@ const date = ref([startDate, endDate]);
 
 // supabaseにデータを送信する
 async function submitHandler() {
-  errorMsg.value = "";
-
   if (!adventName.value) {
     errorMsg.value = "アドベントカレンダーの題名を入力してください";
   } else if (!description.value) {
     errorMsg.value = "アドベントカレンダーの説明を入力してください";
-  } else if (!fileInput.value.files[0]) {
+  } else if (!fileInput.value) {
     errorMsg.value = "画像を選択してください";
   } else {
     let startDate = dayjs(date.value[0]).format("YYYY-MM-DD");
     let endDate = dayjs(date.value[1]).format("YYYY-MM-DD");
 
     const file = fileInput.value.files[0];
-    //ファイル名作成
-    const random = Math.random().toString(32).substring(2);
-    console.log(`${random}`);
-    const filePath = random;
+    const filePath = fileInput.value.files[0].name;
 
     // バナー画像の保存;
     const { error: avatarerror } = await supabase.storage
@@ -89,30 +84,33 @@ async function submitHandler() {
       .upload(filePath, file);
 
     //バナー画像のpathを取得
+    if (!avatarerror) {
+      const { data } = await supabase.storage
+        .from("bannarImage")
+        // .createSignedUrl(filePath, 600);　URLの有効期限が10分になっているので下に修正（早川）
+        .createSignedUrl(filePath, 2592000);
+      const imageUrl = data.signedUrl;
 
-    const { data } = await supabase.storage
-      .from("bannarImage")
-      // .createSignedUrl(filePath, 600);　URLの有効期限が10分になっているので下に修正（早川）
-      .createSignedUrl(filePath, 2592000);
-    const imageUrl = data.signedUrl;
+      try {
+        const user = useSupabaseUser();
+        const create = {
+          adventName: adventName.value,
+          description: description.value,
+          startDate: startDate,
+          endDate: endDate,
+          userId: user.value.id,
+          image: imageUrl,
+        };
 
-    try {
-      const user = useSupabaseUser();
-      const create = {
-        adventName: adventName.value,
-        description: description.value,
-        startDate: startDate,
-        endDate: endDate,
-        userId: user.value.id,
-        image: imageUrl,
-      };
-
-      let { error } = await supabase.from("banner").upsert(create);
-      if (error) throw error;
-      router.push("/ownerPage");
-    } catch (error) {
-      // alert(error.message);
-      errorMsg.value = "登録失敗";
+        let { error } = await supabase.from("banner").upsert(create);
+        if (error) throw error;
+        router.push("/ownerPage");
+      } catch (error) {
+        // alert(error.message);
+        errorMsg.value = "登録失敗";
+      }
+    } else {
+      errorMsg.value = "既に保存されている画像です";
     }
   }
 }
