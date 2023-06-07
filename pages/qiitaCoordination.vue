@@ -2,24 +2,41 @@
   <div class="flex main justify-center">
     <div class="my-auto text-center">
       <h1 class="title">Qiita連携</h1>
-      <form @submit.prevent="submit" class="text-center">
-        <div class="flex justify-center">
-          <div class="pb-[30px] text-left">
-            Qiita個人用アクセストークン
-            <div>
-              <input
-                type="text"
-                maxlength="40"
-                class="border rounded border-black w-[300px]"
-                v-model="text"
-              />
-            </div>
-            <p v-if="errorMessage" class="text-red-500">{{ errorMessage }}</p>
+      <div class="flex justify-center">
+        <FormKit
+          type="form"
+          @submit="submit"
+          :actions="false"
+          incomplete-message=" "
+        >
+          <div class="mb-5 text-center">
+            <FormKit
+              :classes="{
+                input: 'border border-black py-1 px-2 rounded-md',
+                message: 'text-red-500',
+              }"
+              type="text"
+              label=" Qiita個人用アクセストークン"
+              name="email"
+              validation="matches:/^[a-zA-Z0-9]/"
+              autocomplete="off"
+              :validation-messages="{
+                matches: '半角英数字で入力してください',
+              }"
+            />
           </div>
-        </div>
-
-        <button type="submit" class="btn">登録</button>
-      </form>
+          <p v-if="!errorMessage && !successMessage" class="text-red-500">
+            　　　
+          </p>
+          <p v-else-if="errorMessage" class="text-red-500">
+            {{ errorMessage }}
+          </p>
+          <button type="submit" class="btn mb-5">登録</button>
+          <p v-if="successMessage">
+            {{ successMessage }}
+          </p>
+        </FormKit>
+      </div>
     </div>
   </div>
 </template>
@@ -29,11 +46,13 @@ const router = useRouter();
 const supabase = useSupabaseClient();
 const user = useSupabaseUser();
 const text = ref("");
+const successMessage = ref("");
 const errorMessage = ref("");
 let confirmation = "";
 const userId = user.value?.id;
 
 const submit = async () => {
+  errorMessage.value = "";
   const accessToken = text.value;
   fetch("https://qiita.com/api/v2/items", {
     headers: {
@@ -52,7 +71,8 @@ const submit = async () => {
           method: "POST",
           body: postData,
         });
-        router.push("/");
+        errorMessage.value = "";
+        successMessage.value = "アクセストークンを登録しました";
       } else {
         errorMessage.value = "アクセストークンが存在しません";
       }

@@ -9,7 +9,7 @@
           :actions="false"
           incomplete-message=" "
         >
-          <div class="mb-2 text-center">
+          <div class="mb-3 text-center">
             <FormKit
               :classes="{
                 input: 'border border-black py-1 px-2 rounded-md',
@@ -27,7 +27,7 @@
               }"
             />
           </div>
-          <div class="mb-5 text-center">
+          <div class=" text-center">
             <FormKit
               :classes="{
                 input: 'border border-black py-1 px-2 rounded-md',
@@ -50,6 +50,7 @@
               }"
             />
           </div>
+          <p class="text-red-500 mb-5">{{ errorMessage }}</p>
           <div class="flex justify-center">
             <NuxtLink to="/userRegister"
               ><button class="btn mb-2 mr-10">新規登録</button></NuxtLink
@@ -72,6 +73,8 @@ definePageMeta({ layout: "login" });
 const router = useRouter();
 const client = useSupabaseClient();
 
+const errorMessage = ref("　　　");
+
 const submit = async (submit: { email: string; password: string }) => {
   const { data: signInData } = await client.auth.signInWithPassword({
     email: submit.email,
@@ -80,7 +83,7 @@ const submit = async (submit: { email: string; password: string }) => {
   if (signInData && signInData.session) {
     router.push("/");
   } else {
-    console.log("失敗");
+    errorMessage.value = "メールアドレスまたはパスワードが間違っています";
   }
 };
 </script>
