@@ -66,6 +66,9 @@
             ></v-combobox>
           </v-col>
         </div>
+        <p v-if="errorTag" class="text-red-500 ml-5">
+          *タグは各30字以内で入力してください
+        </p>
       </div>
       <div class="mt-4">
         <span class="mr-4">
@@ -114,9 +117,10 @@ const publishDate = ref(new Date());
 const router = useRouter();
 const users = useSupabaseUser();
 const userId = users.value?.id;
-let errorTitle = ref(true);
-let errorContent = ref(true);
-let errorGoalLike = ref(true);
+let errorTitle = ref(false);
+let errorContent = ref(false);
+let errorGoalLike = ref(false);
+let errorTag = ref(false);
 
 const { data: user } = await useFetch("/api/user/get", {
   method: "POST",
@@ -152,7 +156,12 @@ const goalLikeArray = [
 
 //記事投稿
 async function submitHandler() {
-  if (errorTitle.value || errorContent.value || errorGoalLike.value) {
+  if (
+    errorTitle.value ||
+    errorContent.value ||
+    errorGoalLike.value ||
+    errorTag.value
+  ) {
     return;
   }
   const postData = {
@@ -235,5 +244,16 @@ watch(goalLike, () => {
   } else {
     errorGoalLike.value = false;
   }
+});
+watch(select, () => {
+  select.value.map((tag: string) => {
+    if (tag.length > 30) {
+      errorTag.value = true;
+    } else if (!tag) {
+      errorTag.value = false;
+    } else {
+      errorTag.value = false;
+    }
+  });
 });
 </script>

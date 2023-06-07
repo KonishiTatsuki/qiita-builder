@@ -90,6 +90,9 @@
             ></v-combobox>
           </v-col>
         </div>
+        <p v-if="errorTag" class="text-red-500 ml-5">
+          *タグは各30字以内で入力してください
+        </p>
       </div>
       <div class="mt-4">
         <span class="mr-4">
@@ -135,6 +138,7 @@ const router = useRouter();
 let errorTitle = ref(false);
 let errorContent = ref(false);
 let errorGoalLike = ref(false);
+let errorTag = ref(false);
 
 // いいね数のプルダウンに活用
 const goalLikeArray = [
@@ -161,7 +165,12 @@ const goalLikeArray = [
 ];
 
 const submitHandler = async () => {
-  if (errorTitle.value || errorContent.value || errorGoalLike.value) {
+  if (
+    errorTitle.value ||
+    errorContent.value ||
+    errorGoalLike.value ||
+    errorTag.value
+  ) {
     return;
   }
   const postData = {
@@ -240,6 +249,21 @@ watch(goalLike, () => {
     errorGoalLike.value = true;
   } else {
     errorGoalLike.value = false;
+  }
+});
+console.log(select.value);
+console.log(errorTag);
+watch(select, () => {
+  if (select.value) {
+    select.value.map((tag: string) => {
+      if (tag.length > 30) {
+        errorTag.value = true;
+      } else if (!tag) {
+        errorTag.value = false;
+      } else {
+        errorTag.value = false;
+      }
+    });
   }
 });
 </script>
