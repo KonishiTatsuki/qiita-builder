@@ -19,13 +19,15 @@
           <tr v-for="(week, index) in calendarChunks" :key="index" class="p">
             <td v-for="day in week" :key="day.date" class="pt-2 pb-7 pl-7 pr-7">
               <div class="text-lg text-center mt-2 mb-5">{{ day.date }}</div>
-              <button
-                v-if="day.isCurrentMonth && day.period"
-                @click="joinEvent(day)"
-                class="bg-blue-200 hover:bg-blue-400 text-black py-2 px-4 rounded"
-              >
-                参加する
-              </button>
+              <NuxtLink :to="{ path: `/advents/${bannerId}/${day.date}` }">
+                <button
+                  v-if="day.isCurrentMonth && day.period"
+                  class="bg-blue-200 hover:bg-blue-400 text-black py-2 px-4 rounded"
+                >
+                  参加する
+                </button>
+                <!-- <p>{{ week }}</p>s -->
+              </NuxtLink>
               <div>
                 <div v-if="day.isCurrentMonth && day.period">
                   <div v-for="post in day.postDate" :key="post.id">
@@ -42,15 +44,18 @@
   </div>
 </template>
 <script setup>
-import { ref } from "vue";
-
+import { ref, computed } from "vue";
+import { useRouter } from "vue-router";
 // bannerデータを取得
 const adventName = ref("");
 const description = ref("");
 const startDate = ref("");
 const endDate = ref("");
 const managerName = ref("");
-const bannerId = ref("");
+const bannerId = ref(null);
+const date = ref("");
+
+// bannerテーブル情報を取得
 const { data } = await useFetch("/api/advent/get");
 console.log(data.value[0]);
 bannerId.value = data.value[0].id;
@@ -103,7 +108,7 @@ for (let i = 0; i < calendar.length; i++) {
     startD.getMonth(),
     calendar[i].date
   );
-  if (date < startD - 1 || date > endD) {
+  if (date <= startD - 1 || date >= endD) {
     calendar[i].period = false;
   } else {
     calendar[i].period = true;
@@ -124,23 +129,17 @@ const calendarChunks = computed(() => {
 // 曜日の配列
 const daysOfWeek = ["日", "月", "火", "水", "木", "金", "土"];
 
-// 参加するボタンのハンドラ
-const router = useRouter();
-const joinEvent = (day) => {
-  // ルートパスに対して動的なパラメータを渡す場合は、`params`オプションを使用します
-  router.push({
-    path: "/postAdvent",
+// 引数を含んだリンクを生成する関数
+
+const getPostAdventRoute = (day) => {
+  const bannerInfo = {
+    name: "postAdvent",
     params: {
       bannerId: bannerId.value,
       date: day.date,
-      month: startD.getMonth() + 1,
-      year: startD.getFullYear(),
     },
-  });
-  console.log("paramsのdateの値", day.date);
-  console.log("paramsのbannerIdの値", bannerId.value);
-  console.log("paramsのmonthの値", startD.getMonth() + 1);
-  console.log("paramsのyearの値", startD.getFullYear());
+  };
+  return bannerInfo;
 };
 </script>
 

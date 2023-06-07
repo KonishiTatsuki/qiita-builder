@@ -37,7 +37,7 @@
   </div>
 </template>
 
-<script setup>
+<script setup lang="ts">
 import dayjs from "dayjs";
 import { ref, onMounted, computed } from "vue";
 import VueDatePicker from "@vuepic/vue-datepicker";
@@ -53,15 +53,15 @@ const description = ref("");
 
 const fileInput = ref();
 
-const date = ref([]);
 const format = "yyyy/MM/dd";
 
 // For demo purposes assign range from the current date
-onMounted(() => {
-  const startDate = new Date();
-  const endDate = new Date(new Date().setDate(startDate.getDate() + 7));
-  date.value = [startDate, endDate];
-});
+// onMounted(() => {
+const startDate = new Date();
+const endDate = new Date(new Date().setDate(startDate.getDate() + 7));
+// date.value = [startDate, endDate];
+// });
+const date = ref([startDate, endDate]);
 
 // supabaseにデータを送信する
 async function submitHandler() {
@@ -87,7 +87,8 @@ async function submitHandler() {
     if (!avatarerror) {
       const { data } = await supabase.storage
         .from("bannarImage")
-        .createSignedUrl(filePath, 600);
+        // .createSignedUrl(filePath, 600);　URLの有効期限が10分になっているので下に修正（早川）
+        .createSignedUrl(filePath, 2592000);
       const imageUrl = data.signedUrl;
 
       try {
