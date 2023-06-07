@@ -155,6 +155,10 @@
 </template>
 
 <script setup lang="ts">
+useHead({
+  title: "記事詳細",
+});
+
 import LikeButton from "~/components/LikeButton.vue";
 import RecommendButton from "~/components/RecommendButton.vue";
 import { ref } from "vue";

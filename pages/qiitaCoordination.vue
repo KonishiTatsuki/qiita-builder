@@ -42,6 +42,10 @@
 </template>
 
 <script setup lang="ts">
+useHead({
+  title: "Qiita連携",
+});
+
 const router = useRouter();
 const supabase = useSupabaseClient();
 const user = useSupabaseUser();

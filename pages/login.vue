@@ -27,7 +27,7 @@
               }"
             />
           </div>
-          <div class=" text-center">
+          <div class="text-center">
             <FormKit
               :classes="{
                 input: 'border border-black py-1 px-2 rounded-md',
@@ -69,6 +69,10 @@
 </template>
 
 <script setup lang="ts">
+useHead({
+  title: "ログイン",
+});
+
 definePageMeta({ layout: "login" });
 const router = useRouter();
 const client = useSupabaseClient();

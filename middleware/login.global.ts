@@ -3,12 +3,12 @@ export default defineNuxtRouteMiddleware(async (to, from) => {
   const client = useSupabaseClient();
 
   await new Promise((r) => setTimeout(r, 1000));
+  const path = "/login";
+  const registerpath = "/userRegister";
+  const passwordForget = "/passwordForget";
+  const passwordReset = "/passwordReset";
   if (!user.value) {
-    const path = "/login";
-    const registerpath = "/userRegister";
-    const passwordForget = "/passwordForget";
-    const passwordReset =
-      "/passwordReset#error=unauthorized_client&error_code=401&error_description=Email+link+is+invalid+or+has+expired";
+    ("/passwordReset#error=unauthorized_client&error_code=401&error_description=Email+link+is+invalid+or+has+expired");
     if (to.path === path) {
       console.log("ログイン");
     } else if (
@@ -32,6 +32,8 @@ export default defineNuxtRouteMiddleware(async (to, from) => {
       if (!authority[0].authority) {
         return navigateTo("/");
       }
+    } else if (to.path === passwordForget) {
+      return navigateTo("/");
     }
   }
 });
