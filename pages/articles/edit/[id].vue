@@ -27,14 +27,13 @@
     </div>
     <div>
       <input
-        type="text"
-        class="border"
-        style="width: 100%; height: 50px"
+        class="border pt-2 pl-2 rounded-lg"
         placeholder="タイトル"
         v-model="title"
+        style="width: 100%; height: 50px"
       />
       <p v-if="errorTitle" class="text-red-500 mt-2">
-        *タイトルを入力してください
+        *タイトルが未入力、または255字を超えています。
       </p>
     </div>
     <div>
@@ -46,7 +45,9 @@
           placeholder="markdown形式で説明を記述できます。"
           maxlength="300"
         />
-        <p v-if="errorContent" class="text-red-500">*内容を入力してください</p>
+        <p v-if="errorContent" class="text-red-500">
+          *内容が未入力、または255字を超えています。
+        </p>
       </div>
     </div>
     <div class="flex justify-around mt-5">
@@ -89,6 +90,9 @@
             ></v-combobox>
           </v-col>
         </div>
+        <p v-if="errorTag" class="text-red-500 ml-5">
+          *タグは各30字以内で入力してください
+        </p>
       </div>
       <div class="mt-4">
         <span class="mr-4">
@@ -112,6 +116,11 @@
 
 <script setup lang="ts">
 import type EasyMDE from "easymde";
+
+useHead({
+  title: "記事編集",
+});
+
 const route = useRoute();
 // パスパラメータよりid取得
 const { id } = route.params;
@@ -129,6 +138,7 @@ const router = useRouter();
 let errorTitle = ref(false);
 let errorContent = ref(false);
 let errorGoalLike = ref(false);
+let errorTag = ref(false);
 
 // いいね数のプルダウンに活用
 const goalLikeArray = [
@@ -155,7 +165,12 @@ const goalLikeArray = [
 ];
 
 const submitHandler = async () => {
-  if (errorTitle.value || errorContent.value || errorGoalLike.value) {
+  if (
+    errorTitle.value ||
+    errorContent.value ||
+    errorGoalLike.value ||
+    errorTag.value
+  ) {
     return;
   }
   const postData = {
@@ -214,12 +229,16 @@ onMounted(async () => {
 watch(title, () => {
   if (!title.value) {
     errorTitle.value = true;
+  } else if (title.value.length > 255) {
+    errorTitle.value = true;
   } else {
     errorTitle.value = false;
   }
 });
 watch(content, () => {
   if (!content.value) {
+    errorContent.value = true;
+  } else if (content.value.length > 255) {
     errorContent.value = true;
   } else {
     errorContent.value = false;
@@ -230,6 +249,21 @@ watch(goalLike, () => {
     errorGoalLike.value = true;
   } else {
     errorGoalLike.value = false;
+  }
+});
+console.log(select.value);
+console.log(errorTag);
+watch(select, () => {
+  if (select.value) {
+    select.value.map((tag: string) => {
+      if (tag.length > 30) {
+        errorTag.value = true;
+      } else if (!tag) {
+        errorTag.value = false;
+      } else {
+        errorTag.value = false;
+      }
+    });
   }
 });
 </script>

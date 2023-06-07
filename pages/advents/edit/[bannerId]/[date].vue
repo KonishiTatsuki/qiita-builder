@@ -3,7 +3,7 @@
     <h1 class="title">アドベントカレンダーに投稿</h1>
     <p class="text-red-500">※投稿や編集、削除ができるのは期間までです。</p>
     <div>
-      <p>選択した日付: {{ date }}日</p>
+      <p>選択した日付: {{ date }}</p>
     </div>
     <h2 class="subtitle">投稿する記事の選択</h2>
     <label
@@ -25,9 +25,10 @@
       </option>
     </select>
   </div>
+
   <div class="flex justify-end">
     <div>
-      <button class="btn m-3 block" @click="submitHandler">投稿</button>
+      <button class="btn m-3 block" @click="editHandler">編集</button>
       <button class="btn m-3 block" @click="deleteHandler">削除</button>
     </div>
   </div>
@@ -35,18 +36,16 @@
 
 <script setup>
 useHead({
-  title: "アドベントカレンダー記事投稿",
+  title: "アドベントカレンダー投稿記事編集",
 });
 // 取得したuserIdを使って、articleテーブルからuserIdが一致するものを取得してタイ
 import { ref, onMounted } from "vue";
 import { useRoute, useRouter } from "vue-router";
 
-import dayjs from "dayjs";
-
 // 引数を受け取る変数
 const bannerId = ref(null);
 const date = ref(null);
-const selectedArticleId = ref(null);
+
 const router = useRouter();
 const supabase = useSupabaseClient();
 const user = useSupabaseUser();
@@ -54,13 +53,21 @@ const userId = user.value?.id;
 const title = ref("");
 const route = useRoute();
 
-onMounted(() => {
-  bannerId.value = route.params.bannerId;
-  date.value = route.params.date;
+bannerId.value = route.params.bannerId;
+date.value = route.params.date;
 
-  console.log("bannerIdの結果", bannerId.value);
-  console.log("selectDateの結果", date.value);
-});
+console.log("bannerIdの結果", bannerId.value);
+console.log("selectDateの結果", date.value);
+
+// userIdをもとにarticleテーブルからbannerIDとpublishDateがrouter.paramsと一致するものを取得する
+const { data: postedData } = await supabase
+  .from("article")
+  .select("*")
+  .eq("userId", userId)
+  .eq("bannerId", bannerId.value)
+  .eq("publishDate", date.value);
+console.log("postedData", postedData);
+const selectedArticleId = ref(`${postedData[0].id}`);
 
 // user.idをもとにarticleテーブルから記事を全部取得する
 const { data: articles } = await supabase
@@ -69,29 +76,36 @@ const { data: articles } = await supabase
   .eq("userId", userId);
 console.log("articles", articles);
 
-// 投稿ボタンを押した時の処理
-const submitHandler = async () => {
-  // articleIdを取得する
-  const { data: articleId } = await supabase
-    .from("article")
-    .select("id")
-    .eq("userId", userId)
-    .eq("id", selectedArticleId.value);
-  console.log("articleId", articleId);
-
-  // bannerIdとpublishDateをarticleテーブルにデータを更新する
+// editHandlerを押した時の処理
+const editHandler = async () => {
+  if (!selectedArticleId.value) {
+    alert("記事を選択してください");
+    return;
+  }
   const { data, error } = await supabase
     .from("article")
-    .update({
-      bannerId: bannerId.value,
-      publishDate: date.value,
-    })
-    .eq("id", articleId[0].id);
-  console.log("data", data);
-  console.log("error", error);
-  // ページをリロードする
-  router.back();
+    .update({ bannerId: null })
+    .eq("id", postedData[0].id);
+  if (error) {
+    console.error("初期値の記事updateできてない:", error);
+    return;
+  }
+  console.log("初期値の記事をupdateした:", data);
+
+  const { data: updateResult, error: updateError } = await supabase
+    .from("article")
+    .update({ bannerId: bannerId.value, publishDate: date.value })
+    .eq("userId", userId)
+    .eq("id", selectedArticleId.value);
+
+  if (updateError) {
+    console.error("新しく選択した記事がupdateされてない:", updateError);
+    return;
+  }
+  console.log("新しく選択した記事がupdateされた:", updateResult);
+  router.go(-1);
 };
+
 const deleteHandler = async () => {
   const { data: articleId } = await supabase
     .from("article")
@@ -105,6 +119,7 @@ const deleteHandler = async () => {
     .eq("id", articleId[0].id);
   console.log("data", data);
   console.log("error", error);
+  router.go(-1);
 };
 
 console.log("selectedArticle", selectedArticleId.value);
