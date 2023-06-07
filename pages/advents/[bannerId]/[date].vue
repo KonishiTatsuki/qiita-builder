@@ -16,6 +16,7 @@
       class="bg-gray-50 border border-gray-300 text-gray-900 text-lg rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
       v-model="selectedArticleId"
     >
+      <option value="" class="text-red-100">選択してください</option>
       <option
         v-for="article in articles.sort((a, b) => a.id - b.id)"
         :key="article.id"
@@ -24,10 +25,17 @@
         {{ article.title }}
       </option>
     </select>
+    <p v-if="!selectedArticleId" class="text-red-500">記事を選択してください</p>
   </div>
   <div class="flex justify-end">
     <div>
-      <button class="btn m-3 block" @click="submitHandler">投稿</button>
+      <button
+        class="btn m-3 block"
+        @click="submitHandler"
+        :disabled="!selectedArticleId"
+      >
+        投稿
+      </button>
       <button class="btn m-3 block" @click="deleteHandler">削除</button>
     </div>
   </div>
@@ -53,6 +61,7 @@ const user = useSupabaseUser();
 const userId = user.value?.id;
 const title = ref("");
 const route = useRoute();
+const isArticleSelected = ref(false);
 
 onMounted(() => {
   bannerId.value = route.params.bannerId;
@@ -71,6 +80,10 @@ console.log("articles", articles);
 
 // 投稿ボタンを押した時の処理
 const submitHandler = async () => {
+  if (!selectedArticleId.value) {
+    isArticleSelected.value = false;
+    return;
+  }
   // articleIdを取得する
   const { data: articleId } = await supabase
     .from("article")
