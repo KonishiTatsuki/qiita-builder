@@ -110,24 +110,21 @@
                   label="サークル名"
                   name="club"
                   placeholder="サークル選択"
-                  validation="required"
                   :options="club"
-                  :validation-messages="{
-                    required:
-                      'サークルを選択してください(該当するものがない場合はその他を選択)',
-                  }"
+                  @input="selectClub"
                 />
-                <FormKit
-                  :classes="{
-                    input: 'border border-black  py-1 px-2 rounded-md',
-                    message: 'text-red-500',
-                  }"
-                  type="text"
-                  label="追加サークル"
-                  placeholder="その他"
-                  name="addClub"
-                  autocomplete="off"
-                />
+                <div v-show="othersClub">
+                  <FormKit
+                    :classes="{
+                      input: 'border border-black  py-1 px-2 rounded-md',
+                    }"
+                    type="text"
+                    label="追加サークル"
+                    placeholder="その他"
+                    name="addClub"
+                    autocomplete="off"
+                  />
+                </div>
               </div>
               <div class="mb-2">
                 <div class="flex">
@@ -160,11 +157,6 @@
                   name="file"
                   label="アイコン画像"
                   accept=".png,.jpeg,.jpg"
-                  validation="required"
-                  :validation-messages="{
-                    required: '画像を選択してください',
-                  }"
-                  file-item-icon="aa"
                 />
               </div>
               <div>
@@ -179,9 +171,8 @@
                     label="自己紹介"
                     rows="10"
                     cols="40"
-                    validation="required|length:0,255"
+                    validation="length:0,255"
                     :validation-messages="{
-                      required: '自己紹介を入力してください',
                       length: '255文字以内で入力してください',
                     }"
                   />
@@ -193,7 +184,7 @@
         </div>
       </FormKit>
       <div class="flex mb-4 justify-center mt-4">
-        <button class="btn" @click="submitRegister">登録する</button>
+        <button class="btn mr-2" @click="submitRegister">登録する</button>
         <button class="btn" @click="connectQitta">
           登録してQiitaを連携する
         </button>
@@ -219,8 +210,9 @@ type useOccupation = {
   value: number;
 };
 const errormesssage = ref("");
-const club: useClub[] = [{ label: "その他(右フォームに記入)", value: 0 }];
+const club: useClub[] = [{ label: "その他", value: 0 }];
 const occupation: useOccupation[] = [];
+const othersClub = ref(false);
 const { data: clubb } = await useFetch("/api/club/get");
 const { data: occupationn } = await useFetch("/api/occupation/get");
 const router = useRouter();
@@ -232,6 +224,14 @@ clubb.value?.map((c: Club) => {
   club.push({ label: c.clubName, value: c.id });
 });
 const client = useSupabaseClient<Database>();
+
+const selectClub = (credentials) => {
+  if (credentials === 0) {
+    othersClub.value = true;
+  } else {
+    othersClub.value = false;
+  }
+};
 
 //登録する押下
 const submitRegister = async () => {
@@ -278,7 +278,6 @@ const submitHandler = async (credentials: Credentials) => {
       data: {
         username: credentials.userName,
         detail: credentials.detail,
-
         email: credentials.email,
         occupation: credentials.occupation,
       },
@@ -293,17 +292,6 @@ const submitHandler = async (credentials: Credentials) => {
       .select("id")
       .eq("email", credentials.email);
 
-    //アイコン画像を保存
-    const file = credentials.file[0].file; // 選択された画像を取得
-    const filePath = `${uid[0].id}`; // 画像の保存先のpathを指定
-    //画像をstorageに保存
-    const { error: avatarerror } = await client.storage
-      .from("avatars")
-      .upload(filePath, file);
-    console.log(avatarerror);
-    //画像のpathを取得
-    const { data } = client.storage.from("avatars").getPublicUrl(filePath);
-    const imageUrl = data.publicUrl;
     if (credentials.addClub) {
       //追加クラブをdisplay:falseで登録
       await client.from("club").insert({
@@ -318,15 +306,38 @@ const submitHandler = async (credentials: Credentials) => {
         clubId = data[0].id;
       }
     }
+    if (!credentials.file.length === 0) {
+      //アイコン画像を保存
+      const file = credentials.file[0].file; // 選択された画像を取得
+      const filePath = `${uid[0].id}`; // 画像の保存先のpathを指定
+      //画像をstorageに保存
+      const { error: avatarerror } = await client.storage
+        .from("avatars")
+        .upload(filePath, file);
+      console.log(avatarerror);
+      //画像のpathを取得
+      const { data } = client.storage.from("avatars").getPublicUrl(filePath);
+      const imageUrl = data.publicUrl;
 
-    const { error } = await client.from("profiles").upsert({
-      id: uid[0].id,
-      image: imageUrl,
-      clubid: clubId,
-    });
+      const { error } = await client.from("profiles").upsert({
+        id: uid[0].id,
+        image: imageUrl,
+        clubid: clubId,
+      });
 
-    if (!error) {
-      succes.value = true;
+      if (!error) {
+        succes.value = true;
+      }
+    } else {
+      const { error } = await client.from("profiles").upsert({
+        id: uid[0].id,
+
+        clubid: clubId,
+      });
+
+      if (!error) {
+        succes.value = true;
+      }
     }
   }
 };
