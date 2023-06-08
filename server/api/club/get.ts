@@ -7,7 +7,7 @@
 import { serverSupabaseClient } from "#supabase/server";
 export default defineEventHandler(async (event) => {
   const client = serverSupabaseClient(event);
-  const { data } = await client.from("club").select().eq("display", true);
+  const { data } = await client.from("club").select("*");
 
   return data;
 });

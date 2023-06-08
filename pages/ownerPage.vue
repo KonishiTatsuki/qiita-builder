@@ -65,7 +65,6 @@
             <input
               type="checkbox"
               :value="{ id: `${display.value}`, display: true }"
-              @change="checkclub"
               v-model="addDisplayClub"
             />{{ display.label }}
           </li>
@@ -90,7 +89,6 @@
             <input
               type="checkbox"
               :value="{ id: `${display.value}`, display: false }"
-              @change="checkclub"
               v-model="addnonDisplayClub"
             />{{ display.label }}
           </li>
@@ -138,21 +136,18 @@
   </div>
 </template>
 
-<script setup>
-const router = useRouter();
-const client = useSupabaseClient();
-const { data: allclub } = await client.from("club").select();
+<script setup lang="ts">
+import { Club } from "~/types";
+import { Database } from "~/types/database.types";
+
+const client = useSupabaseClient<Database>();
+
+const { data: allclub } = await useFetch("/api/club/get");
 
 //アドベントカレンダーのデータ取得
 const { data: advent } = await client.from("banner").select("*");
 
-// console.log(advent);
-
-//display:trueのアドベントの取得
-const { data: showAdvent } = await client
-  .from("banner")
-  .select("*")
-  .eq("display", true);
+const { data: showAdvent } = useFetch("/api/advent/getAll");
 
 //管理者権限あるユーザの取得
 const { data: owners } = await client
@@ -161,10 +156,10 @@ const { data: owners } = await client
   .eq("authority", true);
 
 //初期表示は現在のアドベントとして保存されているもの
-const choseAdvent = ref(`${showAdvent[0].id}`);
+const choseAdvent = ref(`${showAdvent.value?.id}`);
 
 //初期表示は現在のアドベントとして保存されているもの
-const choseEditAdvent = ref(`${showAdvent[0].id}`);
+const choseEditAdvent = ref(`${showAdvent.value?.id}`);
 
 //アドベントカレンダーの保存
 const registerAdvent = async () => {
@@ -172,8 +167,10 @@ const registerAdvent = async () => {
   //選択したアドベントをtrue
   await client.from("banner").upsert({ id: choseAdvent.value, display: true });
   //初期のアドベントをfalse
-  await client.from("banner").upsert({ id: showAdvent[0].id, display: false });
-  router.go();
+  await client
+    .from("banner")
+    .upsert({ id: showAdvent.value?.id, display: false });
+  location.reload();
 };
 
 //編集するアドベントの選択
@@ -182,9 +179,9 @@ const editAdvent = async () => {
 };
 
 //display:trueのクラブ
-const displayClub = [];
+const displayClub: useClub[] = [];
 //display:falseのクラブ
-const nondisplayClub = [];
+const nondisplayClub: useClub[] = [];
 
 //新規追加クラブ
 const newclub = ref("");
@@ -194,7 +191,12 @@ const msgForaddDisplayClub = ref();
 const msgForaddnonDisplayClub = ref();
 const addnonDisplayClub = ref([]);
 
-allclub.map((club) => {
+type useClub = {
+  label: string;
+  value: number;
+};
+
+allclub.value?.map((club: Club) => {
   if (club.display) {
     displayClub.push({ value: club.id, label: club.clubName });
   } else {
@@ -209,7 +211,7 @@ const addDisplay = async () => {
   } else {
     console.log(addDisplayClub.value);
     const { error } = await client.from("club").upsert(addDisplayClub.value);
-    router.go();
+    location.reload();
   }
 };
 
@@ -219,29 +221,35 @@ const nonDisplay = async () => {
     msgForaddnonDisplayClub.value = "少なくとも一つ選択してください";
   } else {
     const { error } = await client.from("club").upsert(addnonDisplayClub.value);
-    router.go();
+    location.reload();
   }
 };
+
+type deleteClub = { id: number };
 
 //表示するサークルの削除
 const deleteClub = async () => {
   //削除するサークルの配列
-  const clubId = [];
-  addDisplayClub.value.map((club) => {
+  const clubId: deleteClub[] = [];
+  addDisplayClub.value.map((club: { id: number }) => {
     clubId.push({ id: club.id });
   });
   clubId.map(async (club) => {
     const { error } = await client.from("club").delete().eq("id", club.id);
   });
-  router.go();
+  location.reload();
 };
 
 //新規クラブの追加
 const addNewClub = async () => {
-  const { error: cluberror } = await client.from("club").insert({
-    clubName: newclub.value,
-  });
-  router.go();
+  if (!newclub.value) {
+    msgForaddDisplayClub.value = "追加するクラブを入力してください";
+  } else {
+    const { error: cluberror } = await client.from("club").insert({
+      clubName: newclub.value,
+    });
+    location.reload();
+  }
 };
 
 //エラーメッセージ
@@ -251,30 +259,35 @@ const errormsg = ref("");
 const owner = ref("");
 //新規管理者の保存
 const submitOwner = async () => {
+  errormsg.value = "";
   const re = /^[a-zA-Z0-9_+-]+(.[a-zA-Z0-9_+-]+)*@rakus-partners.co.jp/;
-  //ラクスメールアドレス形式のバリデーション
-  if (re.test(owner.value)) {
-    const { data, error } = await client
-      .from("profiles")
-      .update({ authority: true })
-      .eq("email", owner.value)
-      .select();
-    if (data.length > 0) {
-      console.log("完了");
-      router.go();
-    } else if (data.length === 0) {
-      errormsg.value = "該当のメールアドレスが見つかりません";
-    }
+  if (!owner.value) {
+    errormsg.value = "メールアドレスを入力してください";
   } else {
-    errormsg.value = "ラクスメールアドレスの形式で入力してください";
+    //ラクスメールアドレス形式のバリデーション
+    if (re.test(owner.value)) {
+      const { data, error } = await client
+        .from("profiles")
+        .update({ authority: true })
+        .eq("email", owner.value)
+        .select();
+      if (data && data.length > 0) {
+        console.log("完了");
+        location.reload();
+      } else if (data && data.length === 0) {
+        errormsg.value = "該当のメールアドレスが見つかりません";
+      }
+    } else {
+      errormsg.value = "ラクスメールアドレスの形式で入力してください";
+    }
   }
 };
 
 //owner権限の削除
-const deleteOwner = async (id) => {
+const deleteOwner = async (id: number) => {
   const { data, error } = await client
     .from("profiles")
     .upsert({ id: id, authority: false });
-  router.go();
+  location.reload();
 };
 </script>

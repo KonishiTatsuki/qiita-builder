@@ -1,5 +1,4 @@
 <template>
-  <!-- {{ $route.params.id }} -->
   <div v-if="data">
     <div class="border border-black m-4">
       <div class="flex mt-3">
@@ -30,17 +29,17 @@
                         required: 'ユーザ名を入力してください',
                         length: '30文字以内で入力してください',
                       }"
-                      :value="data.username"
+                      :value="data[0].username"
                     />
                   </div>
                   <div v-if="!editbool">
-                    {{ data.username }}
+                    {{ data[0].username }}
                   </div>
                 </div>
                 <div class="flex mb-3">
-                  メールアドレス：
+                  メールアドレス:
                   <div>
-                    <p>{{ data.email }}</p>
+                    <p>{{ data[0].email }}</p>
                   </div>
                 </div>
                 <div class="flex mb-3">
@@ -61,11 +60,11 @@
                       :validation-messages="{
                         required: '職種を選択してください',
                       }"
-                      :value="data.occupation.id"
+                      :value="data[0].occupation.id"
                     />
                   </div>
                   <div v-else>
-                    <p>{{ data.occupation.occupationName }}</p>
+                    <p>{{ data[0].occupation.occupationName }}</p>
                   </div>
                 </div>
                 <div class="flex mb-3">
@@ -85,7 +84,7 @@
                         required:
                           'サークルを選択してください(該当するものがない場合はその他を選択)',
                       }"
-                      :value="data.clubid.id"
+                      :value="defaultClub"
                     />
                     <!-- <FormKit
                       :classes="{
@@ -99,7 +98,9 @@
                       autocomplete="off"
                     /> -->
                   </div>
-                  <p v-else>{{ data.clubid.clubName }}</p>
+                  <p v-else>
+                    <div v-if="data[0].clubid">{{ data[0].clubid.clubName }}</div>
+                  </p>
                 </div>
                 <div>
                   自己紹介:
@@ -118,19 +119,19 @@
                         required: '自己紹介を入力してください',
                         length: '255文字以内で入力してください',
                       }"
-                      :value="data.detail"
+                      :value="data[0].detail"
                     />
                   </div>
                   <div v-else>
-                    <p>{{ data.detail }}</p>
+                    <p>{{ data[0].detail }}</p>
                   </div>
                 </div>
               </div>
               <div>
-                <div v-show="!iconeditbool" class="rounded-lg ml-20 mt-24">
-                  <div>
+                <div class="rounded-lg ml-20 mt-24">
+                  <div v-if="avatarImage!=='null'">
                     <img
-                      :src="data.image"
+                      :src="avatarImage"
                       alt="アイコン"
                       class="w-48 h-48 rounded-full mr-2"
                     />
@@ -155,6 +156,7 @@
               <FormKit
                 :classes="{
                   message: 'text-red-500',
+                  noFiles: 'text-transparent',
                 }"
                 type="file"
                 name="file"
@@ -164,6 +166,7 @@
                 :validation-messages="{
                   required: '画像を選択してください',
                 }"
+                @input="setImage"
               />
             </div>
             <button class="btn mr-2 mt-8 ml-6" v-show="iconeditbool">
@@ -183,14 +186,14 @@
         <button class="btn mr-2" @click="edit" v-show="!editbool">
           編集する
         </button>
-        <NuxtLink to="/passwordForget"
+        <NuxtLink to="/passwordReset"
           ><button class="btn">パスワードを変更する</button></NuxtLink
         >
       </div>
     </div>
     <div class="border border-black m-4 p-3 flex">
       QiitaToken:
-      <p v-if="data.qiitaToken">連携済み</p>
+      <p v-if="data[0].qiitaToken">連携済み</p>
       <NuxtLink to="/qiitaCoordination">
         <button class="btn">Qiitaと連携する</button></NuxtLink
       >
@@ -204,6 +207,9 @@ import { submitForm } from "@formkit/core";
 import { Club, Occupation } from "~/types";
 import { Database } from "~/types/database.types";
 
+const users = useSupabaseUser();
+const userId = users.value?.id;
+
 type useClub = {
   label: string;
   value: number;
@@ -213,17 +219,18 @@ type useOccupation = {
   label: string;
   value: number;
 };
-const occupation: useOccupation[] = [];
-const route = useRoute();
-const router = useRouter();
-const club: useClub[] = [];
 const client = useSupabaseClient<Database>();
-//profile取得
-const { data } = useFetch("/api/user/get", {
-  method: "POST",
-  body: route.params.id,
-});
+const route = useRoute();
+const { data } = await client
+  .from("profiles")
+  .select("*,clubid(*),occupation(*)")
+  .eq("id", route.params.id);
+const occupation: useOccupation[] = [];
+const defaultClub=ref()
+const club: useClub[] = [];
 
+const avatarImage = ref(`${data[0].image}`);
+// console.log(avatarImage);
 const editbool = ref(false);
 const iconeditbool = ref(false);
 
@@ -241,6 +248,10 @@ const iconedit = () => {
   iconeditbool.value = !iconeditbool.value;
 };
 
+if(data[0].clubid){
+  defaultClub.value=data[0].clubid.id
+}
+
 type Credentials = {
   userName: string;
   club: number;
@@ -255,24 +266,28 @@ type Credentials = {
   id: string;
 };
 
+const setImage = (credentials) => {
+  console.log(credentials);
+  const fileImg = credentials[0].file;
+  avatarImage.value = URL.createObjectURL(fileImg);
+};
+
 const iconsubmit = async (credentials: Credentials) => {
   console.log(iconsubmit);
   const file = credentials.file[0].file; // 選択された画像を取得
-  const filePath = `${credentials.file[0].name}`; // 画像の保存先のpathを指定
-  const { error: avatarerror } = await client.storage
-    .from("avatars")
-    .upload(filePath, file);
-  if (!avatarerror) {
-    const { data } = client.storage.from("avatars").getPublicUrl(filePath);
-    const imageUrl = data.publicUrl;
-    const { error } = await client.from("profiles").upsert({
-      id: route.params.id,
-      image: imageUrl,
-    });
-    location.reload();
-  } else {
-    console.log(avatarerror);
-  }
+  const random = Math.random().toString(32).substring(2);
+  console.log(`${random}`);
+  const filePath = userId + random;
+  console.log(filePath);
+  await client.storage.from("avatars").upload(filePath, file);
+
+  const { data } = client.storage.from("avatars").getPublicUrl(filePath);
+  const imageUrl = data.publicUrl;
+  const { error } = await client.from("profiles").upsert({
+    id: route.params.id,
+    image: imageUrl,
+  });
+  location.reload();
 };
 
 const editComp = () => {
@@ -288,7 +303,6 @@ const submitHandler = async (credentials: Credentials) => {
   });
   console.log(error);
   if (!error.value) {
-    // editbool.value = !editbool.value;
     location.reload();
   }
 };
@@ -297,19 +311,3 @@ const edit = () => {
   editbool.value = !editbool.value;
 };
 </script>
-
-<!-- // let userData = {
-  //   username: "",
-  //   id: "",
-  //   clubid: { id: 0, clubName: "" },
-  //   qiitaToken: "",
-  //   detail: "",
-  //   email: "",
-  //   occupation: { id: 0, occupationName: "" },
-  //   image: "",
-  //   authority: false,
-  // };
-  
-  // if (data.value !== null) {
-  //   userData = data.value;
-  // } -->

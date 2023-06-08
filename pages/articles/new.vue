@@ -2,14 +2,13 @@
   <div class="my-20">
     <div>
       <input
-        type="text"
-        class="border"
-        style="width: 100%; height: 50px"
+        class="border pt-2 pl-2 rounded-lg"
         placeholder="タイトル"
         v-model="title"
+        style="width: 100%; height: 50px"
       />
       <p v-if="errorTitle" class="text-red-500 mt-2">
-        *タイトルを入力してください
+        *タイトルは1〜255字で入力してください
       </p>
     </div>
     <div>
@@ -19,9 +18,11 @@
           v-model="content"
           rows="5"
           placeholder="markdown形式で説明を記述できます。"
-          maxlength="300"
+          maxlength="255"
         />
-        <p v-if="errorContent" class="text-red-500">*内容を入力してください</p>
+        <p v-if="errorContent" class="text-red-500">
+          *内容は1〜255字で入力してください
+        </p>
       </div>
     </div>
     <div class="flex justify-around mt-8">
@@ -65,6 +66,9 @@
             ></v-combobox>
           </v-col>
         </div>
+        <p v-if="errorTag" class="text-red-500 ml-5">
+          *タグは各30字以内で入力してください
+        </p>
       </div>
       <div class="mt-4">
         <span class="mr-4">
@@ -88,7 +92,10 @@
 
 <script setup lang="ts">
 import type EasyMDE from "easymde";
-import { Profile } from "~/types";
+
+useHead({
+  title: "新規記事投稿",
+});
 
 let mde: InstanceType<typeof EasyMDE> | null = null;
 let items = ref([
@@ -110,19 +117,26 @@ const publishDate = ref(new Date());
 const router = useRouter();
 const users = useSupabaseUser();
 const userId = users.value?.id;
-let errorTitle = ref(true);
-let errorContent = ref(true);
-let errorGoalLike = ref(true);
+let club: number | null | undefined;
+let errorTitle = ref(false);
+let errorContent = ref(false);
+let errorGoalLike = ref(false);
+let errorTag = ref(false);
 
 const { data: user } = await useFetch("/api/user/get", {
   method: "POST",
   body: userId,
 });
 
-// TSエラー解消できないため放置
-const userData: Profile[] = user.value;
-const club = userData[0].clubid.id;
-const occupation = userData[0].occupation.id;
+const userData = user.value;
+console.log(userData);
+
+if (userData?.clubid === null) {
+  club = null;
+} else {
+  club = userData?.clubid.id;
+}
+const occupation = userData?.occupation.id;
 
 const goalLikeArray = [
   {
@@ -149,7 +163,12 @@ const goalLikeArray = [
 
 //記事投稿
 async function submitHandler() {
-  if (errorTitle.value || errorContent.value || errorGoalLike.value) {
+  if (
+    errorTitle.value ||
+    errorContent.value ||
+    errorGoalLike.value ||
+    errorTag.value
+  ) {
     return;
   }
   const postData = {
@@ -162,7 +181,7 @@ async function submitHandler() {
     title: title,
     body: content,
     goalLike: goalLike,
-    date: new Date(),
+    date: new Date().toLocaleString("ja-JP", { timeZone: "Asia/Tokyo" }),
     publishDate: publishDate,
     publish: true,
   };
@@ -185,7 +204,7 @@ const draftHandler = async () => {
     title: title,
     body: content,
     goalLike: goalLike,
-    date: new Date(),
+    date: new Date().toLocaleString("ja-JP", { timeZone: "Asia/Tokyo" }),
     publishDate: publishDate,
     publish: false,
   };
@@ -211,12 +230,16 @@ onMounted(async () => {
 watch(title, () => {
   if (!title.value) {
     errorTitle.value = true;
+  } else if (title.value.length > 255) {
+    errorTitle.value = true;
   } else {
     errorTitle.value = false;
   }
 });
 watch(content, () => {
   if (!content.value) {
+    errorContent.value = true;
+  } else if (content.value.length > 255) {
     errorContent.value = true;
   } else {
     errorContent.value = false;
@@ -228,5 +251,16 @@ watch(goalLike, () => {
   } else {
     errorGoalLike.value = false;
   }
+});
+watch(select, () => {
+  select.value.map((tag: string) => {
+    if (tag.length > 30) {
+      errorTag.value = true;
+    } else if (!tag) {
+      errorTag.value = false;
+    } else {
+      errorTag.value = false;
+    }
+  });
 });
 </script>

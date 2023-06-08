@@ -9,7 +9,7 @@
           :actions="false"
           incomplete-message=" "
         >
-          <div class="mb-2 text-center">
+          <div class="mb-3 text-center">
             <FormKit
               :classes="{
                 input: 'border border-black py-1 px-2 rounded-md',
@@ -18,7 +18,7 @@
               type="email"
               label=" メールアドレス"
               name="email"
-              validation="required|matches:/^[A-Za-z0-9]{1}[A-Za-z0-9_.-]*@{1}[A-Za-z0-9_.-]+.[A-Za-z0-9]+$/|ends_with:rakus-partners.co.jp"
+              validation="required|length:0,255|matches:/^[A-Za-z0-9]{1}[A-Za-z0-9_.-]*@{1}[A-Za-z0-9_.-]+.[A-Za-z0-9]+$/|ends_with:rakus-partners.co.jp"
               autocomplete="off"
               :validation-messages="{
                 required: 'メールアドレスを入力してください',
@@ -27,7 +27,7 @@
               }"
             />
           </div>
-          <div class="mb-5 text-center">
+          <div class="text-center">
             <FormKit
               :classes="{
                 input: 'border border-black py-1 px-2 rounded-md',
@@ -50,9 +50,10 @@
               }"
             />
           </div>
+          <p class="text-red-500 mb-5">{{ errorMessage }}</p>
           <div class="flex justify-center">
             <NuxtLink to="/userRegister"
-              ><button class="btn mb-2 mr-10">新規登録</button></NuxtLink
+              ><button class="mb-2 mr-10 mb-5 bg-[#FFFFFF] border-indigo-700 px-4 py-2 rounded-md text-base border hover:bg-[#1D8EB9] hover:text-white">新規登録</button></NuxtLink
             >
             <div class="flex mb-4 justify-center">
               <button class="btn">ログイン</button>
@@ -68,9 +69,15 @@
 </template>
 
 <script setup lang="ts">
+useHead({
+  title: "ログイン",
+});
+
 definePageMeta({ layout: "login" });
 const router = useRouter();
 const client = useSupabaseClient();
+
+const errorMessage = ref("　　　");
 
 const submit = async (submit: { email: string; password: string }) => {
   const { data: signInData } = await client.auth.signInWithPassword({
@@ -80,7 +87,7 @@ const submit = async (submit: { email: string; password: string }) => {
   if (signInData && signInData.session) {
     router.push("/");
   } else {
-    console.log("失敗");
+    errorMessage.value = "メールアドレスまたはパスワードが間違っています";
   }
 };
 </script>

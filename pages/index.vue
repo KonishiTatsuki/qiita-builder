@@ -182,13 +182,13 @@
                 v-for="article in articleData"
                 :key="article.id"
                 v-show="
-                  !article.hideByOccupation &
-                  !article.hideByClub &
-                  !article.hideByTag &
+                  !article.hideByOccupation &&
+                  !article.hideByClub &&
+                  !article.hideByTag &&
                   !article.hide
                 "
               >
-                <div class="flex">
+                <div class="flex w-full">
                   <div class="md:w-64 md:mb-0 mb-6 flex-shrink-0 flex flex-col">
                     <div class="flex items-center">
                       <!-- アイコン -->
@@ -207,7 +207,7 @@
                     </div>
                     <div v-if="article.clubTagId" class="mt-1">
                       <span class="text-gray-500">
-                        @{{ getClubsName(article.clubTagId) }}
+                        {{ getClubsName(article.clubTagId) }}
                       </span>
                     </div>
 
@@ -258,14 +258,35 @@
                     >
                       投稿日：{{ formatDate(article.date) }}
                     </div>
-                    <div class="mt-4" v-if="authority">
-                      <button
-                        class="btn block mt-4"
-                        @click="deleteArticle(article.id)"
-                      >
-                        削除
-                      </button>
-                    </div>
+                    <div class="mt-4" v-if="authority"></div>
+                  </div>
+                  <div>
+                    <!-- <button
+                      class="btn block h-[40px]"
+                      @click="deleteArticle(article.id)"
+                    >
+                      削除
+                    </button> -->
+
+                    <button @click="open = true , deleteItem = article.id" class="btn block h-[40px]">
+                      削除
+                    </button>
+                    <Teleport to="body">
+                      <div v-if="open" class="modal">
+                        <div class="modal-content">
+                          <p class="mb-5">本当に削除しますか？</p>
+                          <button @click="open = false" class="btn mr-5">
+                            No
+                          </button>
+                          <button
+                            class="btn"
+                            @click="deleteArticle(deleteItem)"
+                          >
+                            Yes
+                          </button>
+                        </div>
+                      </div>
+                    </Teleport>
                   </div>
                 </div>
               </div>
@@ -282,11 +303,19 @@ import { ref, computed } from "vue";
 import { useRouter } from "vue-router";
 import { HeartIcon } from "@heroicons/vue/outline";
 
+useHead({
+  title: "記事一覧",
+});
+
 const route = useRouter();
 const supabase = useSupabaseClient();
 const userss = useSupabaseUser();
 const userId = userss.value?.id;
 let date = new Date(); //現在の日付取得
+//モーダルの表示非表示
+const open = ref(false);
+const deleteItem = ref();
+
 
 //管理者権限があるか確認
 let { data: auth } = await useFetch("/api/user/getAdminUser", {
@@ -306,18 +335,21 @@ let visibleClubItems = ref(10);
 let showAllClubItems = ref(false);
 let bannerData = ref([]);
 let tags = ref([]);
+// let perPage = 3; // 1ページに表示する記事の数
+// let currentPage = ref(1); // 現在のページ
+// const open = ref(false);
 
 (async () => {
   let { data } = await supabase
     .from("article")
     .select("body, clubTagId, date, delete, id, occupationTagId, title, userId")
-    .lt("publishDate", date.toISOString())
+    .lte("publishDate", date.toISOString())
     .eq("delete", false)
     .order("date", { ascending: false });
 
   // userIdを取得してユーザ名を取得する連想配列を作成
   const userIds = data
-    .filter((article) => article.userId !== null) // nullを除外
+    // .filter((article) => article.userId !== null) // nullを除外
     .map((article) => article.userId);
   const { data: users } = await supabase
     .from("profiles")
@@ -560,6 +592,16 @@ const hasVisibleArticles = computed(() => {
   });
 });
 
+// const pageCount = computed(() => {
+//   return Math.ceil(articleData.value.length / perPage); // ページ数の計算
+// });
+
+// const visibleArticleData = computed(() => {
+//   const startIndex = (currentPage.value - 1) * perPage; // 表示する記事の開始インデックス
+//   const endIndex = startIndex + perPage; // 表示する記事の終了インデックス
+//   return articleData.value.slice(startIndex, endIndex); // 表示する記事データの抽出
+// });
+
 // プログラミング言語の表示数を変更する
 const toggleShowAllTagItems = () => {
   if (showAllTagItems.value) {
@@ -573,6 +615,7 @@ const toggleShowAllTagItems = () => {
 
 // サークルの表示数を変更する
 const toggleShowAllClubItems = () => {
+  console.log(visibleArticleData.value);
   if (showAllClubItems.value) {
     visibleClubItems.value = 10;
     showAllClubItems.value = false;
@@ -596,13 +639,6 @@ function getTagsName(tagId) {
   return tag ? tag.name : "";
 }
 
-function getClubName(occupationTagId) {
-  const occupation = occupationName.value.find(
-    (item) => item.id === occupationTagId
-  );
-  return occupation ? occupation.occupationName : "";
-}
-
 // サークルの名称表示
 function getClubsName(clubTagId) {
   const club = clubName.value.find((item) => item.id === clubTagId);
@@ -619,12 +655,34 @@ const formatDate = (date) => {
 const router = useRouter();
 const deleteArticle = async (id) => {
   await supabase.from("article").update({ delete: true }).eq("id", id);
-  router.go();
+  open.value = false;
+  location.reload();
 };
 </script>
 
 <style>
 #custom-prose * {
   all: revert;
+}
+
+/* モーダルCSS */
+.modal {
+  position: fixed;
+  z-index: 1;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  overflow: auto;
+  /* background-color: #959393; */
+  background-color: rgba(149, 147, 147, 0.3);
+}
+.modal-content {
+  background-color: #fefefe;
+  margin: 15% auto;
+  padding: 40px;
+  border: 1px solid #888;
+  width: 300px;
+  text-align: center;
 }
 </style>

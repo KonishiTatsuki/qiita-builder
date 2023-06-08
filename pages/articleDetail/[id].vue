@@ -50,12 +50,12 @@
       <div class="flex justify-end space-x-4">
         <LikeButton
           :userId="userId"
-          :articleId="articleId"
+          :articleId="Number(articleId)"
           :showLikeButton="showLikeButton"
         />
         <RecommendButton
           :userId="userId"
-          :articleId="articleId"
+          :articleId="Number(articleId)"
           :showRecommendButton="showRecommendButton"
         />
       </div>
@@ -114,6 +114,7 @@
         maxlength="255"
         oninput="document.getElementById('charCount').textContent = this.value.length + '/255'"
       ></textarea>
+      <p v-if="errorText" class="text-red-500">コメントを入力してください</p>
       <div class="flex mt-3">
         <div id="charCount" class="mt-4 mr-2">0/255</div>
         <button type="submit" class="btn">送信</button>
@@ -131,23 +132,48 @@
           <span class="font-semibold">{{ commented.username }}</span>
           <p class="text-gray-600">{{ commented.comment }}</p>
         </div>
-        <button class="text-gray-600" @click="deleteComment(commented.id)">
+        <button
+          class="text-gray-600"
+          @click="(open = true), (deleteItem = commented.id)"
+          v-show="commented.userId == userId"
+        >
           削除
         </button>
+        <Teleport to="body">
+          <div v-if="open" class="modal">
+            <div class="modal-content">
+              <p class="mb-5">本当に削除しますか？</p>
+              <button @click="open = false" class="btn mr-5">No</button>
+              <button @click="deleteComment(deleteItem)" class="btn">
+                Yes
+              </button>
+            </div>
+          </div>
+        </Teleport>
       </div>
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
+useHead({
+  title: "記事詳細",
+});
+
 import LikeButton from "~/components/LikeButton.vue";
 import RecommendButton from "~/components/RecommendButton.vue";
-import { ref, onMounted } from "vue";
+import { ref } from "vue";
 import { marked } from "marked";
 
+//モーダルの表示非表示
+const open = ref(false);
+const deleteItem = ref();
 const route = useRoute();
 const users = useSupabaseUser();
 const router = useRouter();
+
+//コメント文字数制限
+const errorText = ref(false);
 
 //ユーザーIdを取得
 let userId = "";
@@ -181,7 +207,7 @@ let articleTagIds = [];
 let tagNames = ref();
 const goalLike = ref(0);
 
-const { data:articleDatas } = await useFetch("/api/article/articleDateGet", {
+const { data: articleDatas } = await useFetch("/api/article/articleDateGet", {
   method: "POST",
   body: articleId,
 });
@@ -208,7 +234,11 @@ if (
   router.push("/");
 }
 
-htmlText.value = marked.parse(articleDatas.value[0].body);
+// mangleパラメータ・headerIdsパラメータを無効化するために{mangle: false, headerIds: false }}を設定
+htmlText.value = marked.parse(articleDatas.value[0].body, {
+  mangle: false,
+  headerIds: false,
+});
 // 日時のフォーマットを設定
 const options = {
   year: "numeric",
@@ -273,7 +303,8 @@ const { data: likeschecks } = await useFetch("/api/like/likeCheckGet", {
   method: "POST",
   body: { userId, articleId },
 });
-if (likes.value[0]) {
+
+if (likeschecks.value[0]) {
   showLikeButton.value = true;
 }
 likeCount.value = likes.value.length;
@@ -281,12 +312,15 @@ likeCount.value = likes.value.length;
 //目標いいねに到達してたら「達成」。それ以外は残り件数表示する
 const articleDataGoalLike = Number(articleData.value.goalLike);
 goalLike.value =
-  Number(articleData.value.goalLike) - likeCount.value > 0
-    ? `${Number(articleData.value.goalLike) - likeCount.value}`
+  articleDataGoalLike - likeCount.value > 0
+    ? `${articleDataGoalLike - likeCount.value}`
     : "達成";
 
 //いいね数が目標いいねに到達した場合
-if (goalLike.value <= 0 && articleQiitaPost === false) {
+const goalLikeNumber = ref(0);
+goalLikeNumber.value = articleDataGoalLike - likeCount.value;
+
+if (goalLikeNumber.value <= 0 && articleQiitaPost === false) {
   ///自動投稿
   const fetchData = () => {
     const item = {
@@ -318,7 +352,7 @@ if (goalLike.value <= 0 && articleQiitaPost === false) {
       });
   };
   fetchData();
-  const { data: qiitaPosts } = await useFetch("/api/article/qiitaPostUpdate", {
+  await useFetch("/api/article/qiitaPostUpdate", {
     method: "POST",
     body: articleId,
   });
@@ -333,7 +367,7 @@ const { data: commentDates } = await useFetch("/api/comment/get", {
   method: "POST",
   body: articleId,
 });
-// console.log(commentDates.value);
+
 if (commentDates.value) {
   const { data: commentItem } = await useFetch("/api/user/commentUserGet", {
     method: "POST",
@@ -347,19 +381,26 @@ if (commentDates.value) {
 //コメント投稿機能
 //コメント
 let comment = ref("");
-comment = comment.value;
+let commentError = ref("");
+
+// textareaValue.value.length >= 8;
 //コメント送信
 const submit = async () => {
-  const { data: articleUser } = await useFetch("/api/comment/insert", {
-    method: "POST",
-    body: {
-      date: dateString,
-      userId: userId,
-      comment: comment,
-      articleId: articleId,
-    },
-  });
-  location.reload();
+  if (comment.value.length > 0) {
+    const { data: articleUser } = await useFetch("/api/comment/insert", {
+      method: "POST",
+      body: {
+        date: dateString,
+        userId: userId,
+        comment: comment.value,
+        articleId: articleId,
+      },
+    });
+    errorText.value = false;
+    location.reload();
+  } else {
+    errorText.value = true;
+  }
 };
 
 //コメントを削除
@@ -370,6 +411,7 @@ const deleteComment = async (commentId) => {
       method: "POST",
       body: commentId,
     });
+    open.value = false;
     location.reload();
     // 削除後にコメントを再取得するなどの更新処理を実行する場合はここで行う
   } catch (error) {
@@ -379,11 +421,28 @@ const deleteComment = async (commentId) => {
 </script>
 
 <style>
-/* .custom-prose :is(h1, h2, h3, h4, h5, h6, ul, ol, li) {
-  all: revert;
-} */
-
 .custom-prose * {
   all: revert;
+}
+
+/* モーダルCSS */
+.modal {
+  position: fixed;
+  z-index: 1;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  overflow: auto;
+  /* background-color: #959393; */
+  background-color: rgba(149, 147, 147, 0.3);
+}
+.modal-content {
+  background-color: #fefefe;
+  margin: 15% auto;
+  padding: 40px;
+  border: 1px solid #888;
+  width: 300px;
+  text-align: center;
 }
 </style>
