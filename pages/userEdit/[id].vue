@@ -84,7 +84,7 @@
                         required:
                           'サークルを選択してください(該当するものがない場合はその他を選択)',
                       }"
-                      :value="data[0].clubid.id"
+                      :value="defaultClub"
                     />
                     <!-- <FormKit
                       :classes="{
@@ -226,7 +226,7 @@ const { data } = await client
   .select("*,clubid(*),occupation(*)")
   .eq("id", route.params.id);
 const occupation: useOccupation[] = [];
-
+const defaultClub=ref()
 const club: useClub[] = [];
 
 const avatarImage = ref(`${data[0].image}`);
@@ -247,6 +247,10 @@ clubb.value?.map((c: Club) => {
 const iconedit = () => {
   iconeditbool.value = !iconeditbool.value;
 };
+
+if(data[0].clubid){
+  defaultClub.value=data[0].clubid.id
+}
 
 type Credentials = {
   userName: string;
