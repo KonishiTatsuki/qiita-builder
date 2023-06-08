@@ -114,7 +114,7 @@
         maxlength="255"
         oninput="document.getElementById('charCount').textContent = this.value.length + '/255'"
       ></textarea>
-      <p v-if="errorText">最小文字数は 8 文字です。</p>
+      <p v-if="errorText" class="text-red-500">コメントを入力してください</p>
       <div class="flex mt-3">
         <div id="charCount" class="mt-4 mr-2">0/255</div>
         <button type="submit" class="btn">送信</button>
@@ -378,23 +378,26 @@ if (commentDates.value) {
 //コメント投稿機能
 //コメント
 let comment = ref("");
-comment = comment.value;
-
+let commentError = ref("")
 
 // textareaValue.value.length >= 8;
 //コメント送信
 const submit = async () => {
-  console.log("comment", comment.length);
-  const { data: articleUser } = await useFetch("/api/comment/insert", {
-    method: "POST",
-    body: {
-      date: dateString,
-      userId: userId,
-      comment: comment,
-      articleId: articleId,
-    },
-  });
-  // location.reload();
+  if (comment.value.length > 0) {
+    const { data: articleUser } = await useFetch("/api/comment/insert", {
+      method: "POST",
+      body: {
+        date: dateString,
+        userId: userId,
+        comment: comment.value,
+        articleId: articleId,
+      },
+    });
+    errorText.value = false
+    location.reload();
+  }else{
+    errorText.value = true
+  }
 };
 
 //コメントを削除

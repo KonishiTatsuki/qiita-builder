@@ -17,7 +17,7 @@
               }"
               type="text"
               label=" Qiita個人用アクセストークン"
-              name="email"
+              name="text"
               validation="matches:/^[a-zA-Z0-9]/"
               autocomplete="off"
               :validation-messages="{
@@ -55,9 +55,10 @@ const errorMessage = ref("");
 let confirmation = "";
 const userId = user.value?.id;
 
-const submit = async () => {
+const submit = async (submit: { text: string }) => {
   errorMessage.value = "";
-  const accessToken = text.value;
+  const accessToken = submit.text;
+
   fetch("https://qiita.com/api/v2/items", {
     headers: {
       Authorization: `Bearer ${accessToken}`,
@@ -69,7 +70,7 @@ const submit = async () => {
       if (confirmation) {
         const postData = {
           userId: userId,
-          qiitaToken: text.value,
+          qiitaToken: accessToken,
         };
         await useFetch("/api/user/qiitaTokenUpdate", {
           method: "POST",
