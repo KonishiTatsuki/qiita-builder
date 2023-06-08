@@ -37,7 +37,7 @@
                   </div>
                 </div>
                 <div class="flex mb-3">
-                  メールアドレス：
+                  メールアドレス:
                   <div>
                     <p>{{ data[0].email }}</p>
                   </div>
@@ -98,7 +98,9 @@
                       autocomplete="off"
                     /> -->
                   </div>
-                  <p v-else>{{ data[0].clubid.clubName }}</p>
+                  <p v-else>
+                    <div v-if="data[0].clubid">{{ data[0].clubid.clubName }}</div>
+                  </p>
                 </div>
                 <div>
                   自己紹介:
