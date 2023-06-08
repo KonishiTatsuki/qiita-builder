@@ -129,7 +129,7 @@
               </div>
               <div>
                 <div class="rounded-lg ml-20 mt-24">
-                  <div>
+                  <div v-if="avatarImage!=='null'">
                     <img
                       :src="avatarImage"
                       alt="アイコン"
