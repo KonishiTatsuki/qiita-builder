@@ -114,6 +114,7 @@
         maxlength="255"
         oninput="document.getElementById('charCount').textContent = this.value.length + '/255'"
       ></textarea>
+      <p v-if="errorText">最小文字数は 8 文字です。</p>
       <div class="flex mt-3">
         <div id="charCount" class="mt-4 mr-2">0/255</div>
         <button type="submit" class="btn">送信</button>
@@ -133,7 +134,7 @@
         </div>
         <button
           class="text-gray-600"
-          @click="open = true"
+          @click="(open = true), (deleteItem = commented.id)"
           v-show="commented.userId == userId"
         >
           削除
@@ -143,7 +144,7 @@
             <div class="modal-content">
               <p class="mb-5">本当に削除しますか？</p>
               <button @click="open = false" class="btn mr-5">No</button>
-              <button @click="deleteComment(commented.id)" class="btn">
+              <button @click="deleteComment(deleteItem)" class="btn">
                 Yes
               </button>
             </div>
@@ -166,9 +167,13 @@ import { marked } from "marked";
 
 //モーダルの表示非表示
 const open = ref(false);
+const deleteItem = ref();
 const route = useRoute();
 const users = useSupabaseUser();
 const router = useRouter();
+
+//コメント文字数制限
+const errorText = ref(false);
 
 //ユーザーIdを取得
 let userId = "";
@@ -374,8 +379,12 @@ if (commentDates.value) {
 //コメント
 let comment = ref("");
 comment = comment.value;
+
+
+// textareaValue.value.length >= 8;
 //コメント送信
 const submit = async () => {
+  console.log("comment", comment.length);
   const { data: articleUser } = await useFetch("/api/comment/insert", {
     method: "POST",
     body: {
@@ -385,7 +394,7 @@ const submit = async () => {
       articleId: articleId,
     },
   });
-  location.reload();
+  // location.reload();
 };
 
 //コメントを削除

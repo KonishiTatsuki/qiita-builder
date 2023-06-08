@@ -188,7 +188,7 @@
                   !article.hide
                 "
               >
-                <div class="flex">
+                <div class="flex w-full">
                   <div class="md:w-64 md:mb-0 mb-6 flex-shrink-0 flex flex-col">
                     <div class="flex items-center">
                       <!-- アイコン -->
@@ -258,14 +258,35 @@
                     >
                       投稿日：{{ formatDate(article.date) }}
                     </div>
-                    <div class="mt-4" v-if="authority">
-                      <button
-                        class="btn block mt-4"
-                        @click="deleteArticle(article.id)"
-                      >
-                        削除
-                      </button>
-                    </div>
+                    <div class="mt-4" v-if="authority"></div>
+                  </div>
+                  <div>
+                    <!-- <button
+                      class="btn block h-[40px]"
+                      @click="deleteArticle(article.id)"
+                    >
+                      削除
+                    </button> -->
+
+                    <button @click="open = true , deleteItem = article.id" class="btn block h-[40px]">
+                      削除
+                    </button>
+                    <Teleport to="body">
+                      <div v-if="open" class="modal">
+                        <div class="modal-content">
+                          <p class="mb-5">本当に削除しますか？</p>
+                          <button @click="open = false" class="btn mr-5">
+                            No
+                          </button>
+                          <button
+                            class="btn"
+                            @click="deleteArticle(deleteItem)"
+                          >
+                            Yes
+                          </button>
+                        </div>
+                      </div>
+                    </Teleport>
                   </div>
                 </div>
               </div>
@@ -291,6 +312,10 @@ const supabase = useSupabaseClient();
 const userss = useSupabaseUser();
 const userId = userss.value?.id;
 let date = new Date(); //現在の日付取得
+//モーダルの表示非表示
+const open = ref(false);
+const deleteItem = ref();
+
 
 //管理者権限があるか確認
 let { data: auth } = await useFetch("/api/user/getAdminUser", {
@@ -312,7 +337,7 @@ let bannerData = ref([]);
 let tags = ref([]);
 // let perPage = 3; // 1ページに表示する記事の数
 // let currentPage = ref(1); // 現在のページ
-const open = ref(false);
+// const open = ref(false);
 
 (async () => {
   let { data } = await supabase
@@ -630,12 +655,34 @@ const formatDate = (date) => {
 const router = useRouter();
 const deleteArticle = async (id) => {
   await supabase.from("article").update({ delete: true }).eq("id", id);
-  router.go();
+  open.value = false;
+  location.reload();
 };
 </script>
 
 <style>
 #custom-prose * {
   all: revert;
+}
+
+/* モーダルCSS */
+.modal {
+  position: fixed;
+  z-index: 1;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  overflow: auto;
+  /* background-color: #959393; */
+  background-color: rgba(149, 147, 147, 0.3);
+}
+.modal-content {
+  background-color: #fefefe;
+  margin: 15% auto;
+  padding: 40px;
+  border: 1px solid #888;
+  width: 300px;
+  text-align: center;
 }
 </style>
