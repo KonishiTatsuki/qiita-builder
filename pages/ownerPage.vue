@@ -88,7 +88,7 @@
         <ul class="flex" v-for="display in displayClub">
           <li>
             <input
-              type="checkbox"
+              type="radio"
               :value="{ id: `${display.value}`, display: false }"
               v-model="addnonDisplayClub"
             />{{ display.label }}
@@ -230,24 +230,16 @@ type deleteClub = { id: number };
 
 //表示するサークルの削除
 const deleteClub = async () => {
-  //削除するサークルの配列
-  const clubId: deleteClub[] = [];
-  addDisplayClub.value.map((club: { id: number }) => {
-    clubId.push({ id: club.id });
-  });
-  let errorNumber = [];
-  clubId.map(async (club) => {
-    const { error } = await client.from("club").delete().eq("id", club.id);
-    console.log(error);
-    if (error) {
-      console.log(error.details.substring(10, 13));
-      errorNumber.push(error.details.substring(10, 13));
-      // msgForaddDisplayClub.value = "削除できません";
-    }
-  });
-  await new Promise((r) => setTimeout(r, 1000));
+  const { error } = await client
+    .from("club")
+    .delete()
+    .eq("id", addDisplayClub.value.id);
 
-  // location.reload();
+  if (error) {
+    msgForaddDisplayClub.value = "削除できません";
+  } else {
+    location.reload();
+  }
 };
 
 //新規クラブの追加
