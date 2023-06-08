@@ -1,82 +1,100 @@
 <template>
-  <div>
-    <h1 class="title text-center">{{ adventName }}</h1>
-    <h2 class="subtitle text-center">{{ description }}</h2>
+  <div class="container">
+    <h1 class="text-4xl text-center mt-8">{{ adventName }}</h1>
+    <h2 class="text-xl text-center mt-4">{{ description }}</h2>
     <div>作成者:{{ managerName }}</div>
     <div>{{ startDate }}</div>
     <div>{{ endDate }}</div>
     <!-- ここからカレンダーを表示する -->
     <div>
-      <table class="bg-blue-50">
+      <table class="bg-blue-50 min-w-full">
         <thead>
-          <tr>
-            <th v-for="day in daysOfWeek" :key="day" class="bg-blue-100">
+          <tr class="flex">
+            <th
+              v-for="day in daysOfWeek"
+              :key="day"
+              class="bg-blue-100 p-2 w-50"
+            >
               {{ day }}
             </th>
           </tr>
         </thead>
         <tbody>
-          <tr v-for="(week, index) in calendarChunks" :key="index" class="p">
-            <td v-for="day in week" :key="day.date" class="pt-2 pb-7 pl-7 pr-7">
-              <div class="text-lg text-center mt-2 mb-5">
-                {{
-                  day.isCurrentMonth && day.date
-                    ? dayjs(day.date).format("DD")
-                    : ""
-                }}
-              </div>
-              <div>
+          <tr
+            v-for="(week, index) in calendarChunks"
+            :key="index"
+            class="h-30 flex"
+          >
+            <td v-for="day in week" :key="day.date" class="w-50">
+              <div class="text-center pb-6">
                 <div
-                  v-if="
-                    (day.isCurrentMonth && day.period) ||
-                    matchingArticles(day.date).length > 0
-                  "
+                  class="text-sm text-center mb-5 h-5 border-b border-indigo-500"
                 >
+                  {{
+                    day.isCurrentMonth && day.date
+                      ? dayjs(day.date).format("DD")
+                      : ""
+                  }}
+                </div>
+                <div class="h-28 w-20 text-center basis-4/6 inline-block">
                   <div
-                    v-for="article in matchingArticles(day.date)"
-                    :key="article.id"
+                    v-if="
+                      (day.isCurrentMonth && day.period) ||
+                      matchingArticles(day.date).length > 0
+                    "
                   >
-                    <div class="text-center">{{ article.userId.username }}</div>
-                    <NuxtLink
-                      :to="`/articleDetail/${article.id}`"
-                      :class="{ 'disabled-link': !isDatePast(day.date) }"
+                    <div
+                      v-for="article in matchingArticles(day.date)"
+                      :key="article.id"
+                      class="max-w-xs max-h-min items-center"
                     >
-                      <div class="text-center">{{ article.title }}</div>
-                    </NuxtLink>
+                      <div class="justify-center">
+                        {{ article.userId.username.slice(0, 10) }}
+                      </div>
+                      <NuxtLink
+                        :to="`/articleDetail/${article.id}`"
+                        :class="{ 'disabled-link': !isDatePast(day.date) }"
+                        class="text-center"
+                      >
+                        <div class="text-center">
+                          {{ article.title.slice(0, 10) }}
+                        </div>
+                      </NuxtLink>
+                    </div>
                   </div>
                 </div>
-              </div>
-              <div>
-                <NuxtLink :to="`/advents/${id}/${day.date}`">
-                  <button
-                    v-if="
-                      day.isCurrentMonth &&
-                      day.period &&
-                      matchingArticles(day.date).length === 0 &&
-                      !isDatePast(day.date) &&
-                      day.date !== dayjs().format('YYYY-MM-DD')
-                    "
-                    class="bg-blue-200 hover:bg-blue-400 text-black py-2 px-4 rounded"
-                  >
-                    参加する
-                  </button>
-                </NuxtLink>
-              </div>
-              <div>
-                <NuxtLink :to="`/advents/edit/${id}/${day.date}`">
-                  <button
-                    v-if="
-                      day.isCurrentMonth &&
-                      day.period &&
-                      matchingArticles(day.date).length === 1 &&
-                      !isDatePast(day.date) &&
-                      day.date !== dayjs().format('YYYY-MM-DD')
-                    "
-                    class="bg-green-200 hover:bg-green-400 text-black py-2 px-4 rounded"
-                  >
-                    編集する
-                  </button>
-                </NuxtLink>
+                <div class="flex justify-center basis-1/6">
+                  <NuxtLink :to="`/advents/${id}/${day.date}`">
+                    <button
+                      v-if="
+                        day.isCurrentMonth &&
+                        day.period &&
+                        matchingArticles(day.date).length === 0 &&
+                        !isDatePast(day.date) &&
+                        day.date !== dayjs().format('YYYY-MM-DD')
+                      "
+                      class="flex-grow bg-blue-200 hover:bg-blue-400 text-black py-2 px-4 rounded"
+                    >
+                      参加
+                    </button>
+                  </NuxtLink>
+                </div>
+                <div class="flex justify-center basis-1/6">
+                  <NuxtLink :to="`/advents/edit/${id}/${day.date}`">
+                    <button
+                      v-if="
+                        day.isCurrentMonth &&
+                        day.period &&
+                        matchingArticles(day.date).length === 1 &&
+                        !isDatePast(day.date) &&
+                        day.date !== dayjs().format('YYYY-MM-DD')
+                      "
+                      class="flex-grow bg-green-200 hover:bg-green-400 text-black py-2 px-4 rounded"
+                    >
+                      編集
+                    </button>
+                  </NuxtLink>
+                </div>
               </div>
             </td>
           </tr>
@@ -210,29 +228,6 @@ const isDatePast = (date) => {
 </script>
 
 <style scoped>
-/* カレンダーのCSS */
-.calendar {
-  display: grid;
-  grid-template-columns: repeat(7, 1fr);
-  grid-template-rows: repeat(6, 1fr);
-  width: 100%;
-  height: 100%;
-  border-collapse: collapse;
-  border: 1px solid #ccc;
-}
-.calendar th {
-  border: 1px solid #ccc;
-  padding: 0.5em;
-  text-align: center;
-}
-.calendar td {
-  border: 1px solid #ccc;
-  padding: 1.5em;
-  text-align: center;
-}
-.calendar td:hover {
-  background-color: #eee;
-}
 .disabled-link {
   pointer-events: none;
   color: gray;

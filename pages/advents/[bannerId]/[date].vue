@@ -9,14 +9,14 @@
     <label
       for="countries"
       class="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
-      >記事を選択してください</label
+      >記事を選択する</label
     >
     <select
       id="countries"
       class="bg-gray-50 border border-gray-300 text-gray-900 text-lg rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
       v-model="selectedArticleId"
     >
-      <option value="" class="text-red-100">選択してください</option>
+      <option value="">選択してください</option>
       <option
         v-for="article in articles.sort((a, b) => a.id - b.id)"
         :key="article.id"
