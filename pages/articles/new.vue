@@ -117,6 +117,7 @@ const publishDate = ref(new Date());
 const router = useRouter();
 const users = useSupabaseUser();
 const userId = users.value?.id;
+let club: number | null | undefined;
 let errorTitle = ref(false);
 let errorContent = ref(false);
 let errorGoalLike = ref(false);
@@ -128,7 +129,13 @@ const { data: user } = await useFetch("/api/user/get", {
 });
 
 const userData = user.value;
-const club = userData?.clubid.id;
+console.log(userData);
+
+if (userData?.clubid === null) {
+  club = null;
+} else {
+  club = userData?.clubid.id;
+}
 const occupation = userData?.occupation.id;
 
 const goalLikeArray = [
