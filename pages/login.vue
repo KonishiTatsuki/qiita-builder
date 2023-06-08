@@ -53,7 +53,7 @@
           <p class="text-red-500 mb-5">{{ errorMessage }}</p>
           <div class="flex justify-center">
             <NuxtLink to="/userRegister"
-              ><button class="btn mb-2 mr-10">新規登録</button></NuxtLink
+              ><button class="mb-2 mr-10 mb-5 bg-[#FFFFFF] border-indigo-700 px-4 py-2 rounded-md text-base border hover:bg-[#1D8EB9] hover:text-white">新規登録</button></NuxtLink
             >
             <div class="flex mb-4 justify-center">
               <button class="btn">ログイン</button>

@@ -71,16 +71,31 @@ useHead({
 const router = useRouter();
 const route = useRoute();
 const supabase = useSupabaseClient();
+const users = useSupabaseUser();
 
 const email = ref("");
 const password = ref("");
 const success = ref("");
+const userId = ref("");
+
+if (users.value) {
+  userId.value = users.value.id;
+}
+
 
 const submit = async (submit: { password: string }) => {
-  const { data, error } = await supabase.auth.updateUser({
-    password: submit.password,
-  });
-  success.value = "パスワードを再設定しました。";
+  if (userId.value !== "") {
+    const { data, error } = await supabase.auth.updateUser({
+      password: submit.password,
+    });
+    success.value = "パスワードを再設定しました。";
+    await new Promise((r) => setTimeout(r, 1500));
+    router.push({ path: "/login" });
+  } else {
+    success.value = "パスワード再設定メールを送信してください";
+    await new Promise((r) => setTimeout(r, 2000));
+    router.push({ path: "/passwordForget" });
+  }
 };
 </script>
 

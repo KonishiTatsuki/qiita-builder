@@ -312,12 +312,15 @@ likeCount.value = likes.value.length;
 //目標いいねに到達してたら「達成」。それ以外は残り件数表示する
 const articleDataGoalLike = Number(articleData.value.goalLike);
 goalLike.value =
-  Number(articleData.value.goalLike) - likeCount.value > 0
-    ? `${Number(articleData.value.goalLike) - likeCount.value}`
+  articleDataGoalLike - likeCount.value > 0
+    ? `${articleDataGoalLike - likeCount.value}`
     : "達成";
 
 //いいね数が目標いいねに到達した場合
-if (goalLike.value <= 0 && articleQiitaPost === false) {
+const goalLikeNumber = ref(0);
+goalLikeNumber.value = articleDataGoalLike - likeCount.value;
+
+if (goalLikeNumber.value <= 0 && articleQiitaPost === false) {
   ///自動投稿
   const fetchData = () => {
     const item = {
@@ -349,7 +352,7 @@ if (goalLike.value <= 0 && articleQiitaPost === false) {
       });
   };
   fetchData();
-  const { data: qiitaPosts } = await useFetch("/api/article/qiitaPostUpdate", {
+  await useFetch("/api/article/qiitaPostUpdate", {
     method: "POST",
     body: articleId,
   });
@@ -378,7 +381,7 @@ if (commentDates.value) {
 //コメント投稿機能
 //コメント
 let comment = ref("");
-let commentError = ref("")
+let commentError = ref("");
 
 // textareaValue.value.length >= 8;
 //コメント送信
@@ -393,10 +396,10 @@ const submit = async () => {
         articleId: articleId,
       },
     });
-    errorText.value = false
+    errorText.value = false;
     location.reload();
-  }else{
-    errorText.value = true
+  } else {
+    errorText.value = true;
   }
 };
 
