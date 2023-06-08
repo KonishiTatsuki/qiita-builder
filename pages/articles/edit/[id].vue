@@ -143,7 +143,7 @@ let errorTag = ref(false);
 // いいね数のプルダウンに活用
 const goalLikeArray = [
   {
-    value: "0",
+    value: null,
     label: "設定しない",
   },
   {

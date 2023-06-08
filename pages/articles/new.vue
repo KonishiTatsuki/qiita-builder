@@ -40,9 +40,6 @@
             v-model="goalLike"
           />
         </FormKit>
-        <div v-if="errorGoalLike" class="text-red-500 mt-2">
-          *いいねの数を入力してください
-        </div>
       </div>
       <div>
         <p>公開日</p>
@@ -120,7 +117,6 @@ const userId = users.value?.id;
 let club: number | null | undefined;
 let errorTitle = ref(false);
 let errorContent = ref(false);
-let errorGoalLike = ref(false);
 let errorTag = ref(false);
 
 const { data: user } = await useFetch("/api/user/get", {
@@ -140,7 +136,7 @@ const occupation = userData?.occupation.id;
 
 const goalLikeArray = [
   {
-    value: "0",
+    value: null,
     label: "設定しない",
   },
   {
@@ -163,12 +159,7 @@ const goalLikeArray = [
 
 //記事投稿
 async function submitHandler() {
-  if (
-    errorTitle.value ||
-    errorContent.value ||
-    errorGoalLike.value ||
-    errorTag.value
-  ) {
+  if (errorTitle.value || errorContent.value || errorTag.value) {
     return;
   }
   const postData = {
@@ -243,13 +234,6 @@ watch(content, () => {
     errorContent.value = true;
   } else {
     errorContent.value = false;
-  }
-});
-watch(goalLike, () => {
-  if (!goalLike.value) {
-    errorGoalLike.value = true;
-  } else {
-    errorGoalLike.value = false;
   }
 });
 watch(select, () => {
