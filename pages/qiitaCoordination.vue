@@ -31,6 +31,9 @@
           <p v-else-if="errorMessage" class="text-red-500">
             {{ errorMessage }}
           </p>
+          <NuxtLink to="/" class="mr-5">
+            <button type="" class="mb-5 bg-[#FFFFFF] border-indigo-700 px-4 py-2 rounded-md text-base border hover:bg-[#1D8EB9] hover:text-white">トップへ</button></NuxtLink
+          >
           <button type="submit" class="btn mb-5">登録</button>
           <p v-if="successMessage">
             {{ successMessage }}
