@@ -1,31 +1,37 @@
 <template>
   <h1 class="title">管理者画面</h1>
-  <div class="flex items-center">
-    <div>バナー表示：</div>
-    <div>
-      <select name="" id="" class="border border-black" v-model="choseAdvent">
+  <div class="flex items-center my-16">
+    <div class="w-1/5">バナー表示：</div>
+    <div class="w-4/5">
+      <select
+        name=""
+        id=""
+        class="border border-black w-96"
+        v-model="choseAdvent"
+      >
         <option v-for="item in advent" :value="item.id">
           {{ item.adventName }}
         </option>
       </select>
+      <span class="btn ml-4" @click="registerAdvent">保存</span>
     </div>
-
-    <div class="btn ml-2" @click="registerAdvent">保存</div>
   </div>
-  <div class="mt-6 flex items-center">
+
+  <!-- アドベントカレンダー -->
+  <div class="my-16 flex items-center">
+    <div class="w-1/5">アドベントカレンダー：</div>
     <div class="flex">
-      <div>アドベントカレンダー：</div>
-      <div>
+      <div class="w-4/5">
         <div>
           <NuxtLink to="createAdvent"
             ><button class="btn mb-3">新規登録</button></NuxtLink
           >
         </div>
-        <div>
+        <div class="mt-3">
           <select
             name=""
             id=""
-            class="border border-black"
+            class="border border-black w-96"
             v-model="choseEditAdvent"
           >
             <option v-for="item in advent" :value="item.id">
@@ -35,7 +41,7 @@
         </div>
       </div>
     </div>
-    <div class="flex mt-12 ml-2">
+    <div class="flex mt-12 ml-4">
       <div>
         <NuxtLink :to="`/editAdvent/${choseEditAdvent}`"
           ><button class="btn" @click="editAdvent">編集</button></NuxtLink
@@ -43,112 +49,132 @@
       </div>
     </div>
   </div>
-  <div>
-    <div>タグ編集：</div>
-    <div class="border border-black p-4 w-2/5">
-      <div class="flex">
-        <div>サークルタグ</div>
+
+  <!-- タグ編集 -->
+  <div class="flex my-20">
+    <div class="w-1/5">タグ編集：</div>
+    <div class="w-4/5 flex">
+      <div class="border border-black p-4 min-w-[420px] mr-2">
+        <p class="font-bold">認証済みサークルタグ</p>
+        <hr />
+        <div class="mt-6">
+          <ul class="flex" v-for="display in displayClub">
+            <li>
+              <input
+                type="radio"
+                :value="{ id: `${display.value}`, display: false }"
+                v-model="addnonDisplayClub"
+              />{{ display.label }}
+            </li>
+          </ul>
+        </div>
+        <div class="text-red-500">{{ msgForaddnonDisplayClub }}</div>
+        <div class="flex justify-end">
+          <div class="mr-2">
+            <button class="btn p-1" @click="nonDisplay">非表示</button>
+          </div>
+        </div>
+      </div>
+      <div class="border border-black p-4 min-w-[420px] ml-2">
+        <p class="font-bold">未認証サークルタグ</p>
+        <hr />
+        <div class="flex mt-6">
+          <div>
+            <input
+              type="text"
+              class="border border-black ml-2 p-1"
+              v-model="newclub"
+            />
+          </div>
+          <div>
+            <button class="ml-2 p-1 btn" @click="addNewClub">追加</button>
+          </div>
+        </div>
+        <div class="mt-3">
+          <ul class="flex" v-for="display in nondisplayClub">
+            <li>
+              <input
+                type="radio"
+                :value="{ id: `${display.value}`, display: true }"
+                v-model="addDisplayClub"
+              />
+              {{ display.label }}
+            </li>
+          </ul>
+        </div>
+        <div class="text-red-500">{{ msgForaddDisplayClub }}</div>
+        <div class="flex justify-end">
+          <div class="mr-2">
+            <button class="btn p-1" @click="deleteClub">削除</button>
+          </div>
+          <div><button class="btn p-1" @click="addDisplay">表示</button></div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div></div>
+
+  <!-- 管理者権限  -->
+  <div class="mt-5 flex my-16">
+    <div class="w-1/5">管理者権限：</div>
+    <div class="w-4/5">
+      <p class="mb-3">
+        管理者権限を与えたい社員のメールアドレスを入力してください
+      </p>
+      <div class="flex items-center">
         <div>
           <input
             type="text"
-            class="border border-black ml-2 p-1"
-            v-model="newclub"
+            class="border border-black w-96"
+            maxlength="255"
+            v-model="owner"
           />
         </div>
+        <div><button class="btn ml-4" @click="submitOwner">保存</button></div>
+      </div>
+      <p class="text-red-500">{{ errormsg }}</p>
+      <div class="mt-5">
         <div>
-          <button class="ml-2 p-1 btn" @click="addNewClub">追加</button>
+          <table
+            class="border-collapse border border-slate-500 border-spacing-2 my-12"
+          >
+            <thead>
+              <tr>
+                <th colspan="3">管理者一覧</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr v-for="item in owners">
+                <td class="border border-slate-500 px-2 max w-[400px]">
+                  ユーザ名：{{ item.username }}
+                </td>
+                <td class="border border-slate-500 px-2 max w-[400px]">
+                  {{ item.email }}
+                </td>
+                <td class="border border-slate-500 px-2">
+                  <button
+                    class="btn px-2"
+                    @click="(open = true), (deleteItem = item.id)"
+                  >
+                    削除
+                  </button>
+                </td>
+                <Teleport to="body">
+                  <div v-if="open" class="modal">
+                    <div class="modal-content">
+                      <p class="mb-5">本当に削除しますか？</p>
+                      <button @click="open = false" class="btn mr-5">No</button>
+                      <button @click="deleteOwner(deleteItem)" class="btn">
+                        Yes
+                      </button>
+                    </div>
+                  </div>
+                </Teleport>
+              </tr>
+            </tbody>
+          </table>
         </div>
       </div>
-      <div class="mt-3">
-        <ul class="flex" v-for="display in nondisplayClub">
-          <li>
-            <input
-              type="radio"
-              :value="{ id: `${display.value}`, display: true }"
-              v-model="addDisplayClub"
-            />
-            {{ display.label }}
-          </li>
-        </ul>
-      </div>
-      <div class="text-red-500">{{ msgForaddDisplayClub }}</div>
-      <div class="flex justify-end">
-        <div class="mr-2">
-          <button class="btn p-1" @click="deleteClub">削除</button>
-        </div>
-        <div><button class="btn p-1" @click="addDisplay">表示</button></div>
-      </div>
-    </div>
-  </div>
-  <div>
-    <div class="mt-3">表示：</div>
-    <div class="border border-black p-4 w-2/5">
-      <div>サークルタグ</div>
-      <div class="mt-3">
-        <ul class="flex" v-for="display in displayClub">
-          <li>
-            <input
-              type="checkbox"
-              :value="{ id: `${display.value}`, display: false }"
-              v-model="addnonDisplayClub"
-            />{{ display.label }}
-          </li>
-        </ul>
-      </div>
-      <div class="text-red-500">{{ msgForaddnonDisplayClub }}</div>
-      <div class="flex justify-end">
-        <div class="mr-2">
-          <button class="btn p-1" @click="nonDisplay">非表示</button>
-        </div>
-      </div>
-    </div>
-  </div>
-  <div class="mt-5">
-    <div>管理者権限：</div>
-    <p>管理者権限を与えたい社員のメールアドレスを入力してください</p>
-    <div class="flex items-center">
-      <div>
-        <input
-          type="text"
-          class="border border-black"
-          maxlength="255"
-          v-model="owner"
-        />
-      </div>
-      <div><button class="btn ml-2" @click="submitOwner">保存</button></div>
-    </div>
-    <p class="text-red-500">{{ errormsg }}</p>
-  </div>
-  <div class="mt-5">
-    <div>管理者一覧：</div>
-    <div>
-      <table class="border-collapse border border-slate-500 border-spacing-2">
-        <tr v-for="item in owners">
-          <td class="border border-slate-500 px-2">
-            ユーザ名：{{ item.username }}
-          </td>
-          <td class="border border-slate-500 px-2">{{ item.email }}</td>
-          <td class="border border-slate-500 px-2">
-            <button
-              class="btn px-2"
-              @click="(open = true), (deleteItem = item.id)"
-            >
-              削除
-            </button>
-          </td>
-          <Teleport to="body">
-            <div v-if="open" class="modal">
-              <div class="modal-content">
-                <p class="mb-5">本当に削除しますか？</p>
-                <button @click="open = false" class="btn mr-5">No</button>
-                <button @click="deleteOwner(deleteItem)" class="btn">
-                  Yes
-                </button>
-              </div>
-            </div>
-          </Teleport>
-        </tr>
-      </table>
     </div>
   </div>
 </template>
@@ -205,7 +231,7 @@ const nondisplayClub: useClub[] = [];
 //新規追加クラブ
 const newclub = ref("");
 
-const addDisplayClub = ref([]);
+const addDisplayClub = ref();
 const msgForaddDisplayClub = ref();
 const msgForaddnonDisplayClub = ref();
 const addnonDisplayClub = ref([]);
@@ -225,8 +251,8 @@ allclub.value?.map((club: Club) => {
 
 //表示するサークルの追加
 const addDisplay = async () => {
-  if (addDisplayClub.value.length === 0) {
-    msgForaddDisplayClub.value = "少なくとも一つ選択してください";
+  if (addDisplayClub.value === undefined) {
+    msgForaddDisplayClub.value = "サークルを選択してください";
   } else {
     console.log(addDisplayClub.value);
     const { error } = await client.from("club").upsert(addDisplayClub.value);
@@ -237,35 +263,23 @@ const addDisplay = async () => {
 //サークルを非表示にする
 const nonDisplay = async () => {
   if (addnonDisplayClub.value.length === 0) {
-    msgForaddnonDisplayClub.value = "少なくとも一つ選択してください";
+    msgForaddnonDisplayClub.value = "サークルを選択してください";
   } else {
     const { error } = await client.from("club").upsert(addnonDisplayClub.value);
     location.reload();
   }
 };
 
-type deleteClub = { id: number };
-
 //表示するサークルの削除
 const deleteClub = async () => {
-  //削除するサークルの配列
-  const clubId: deleteClub[] = [];
-  addDisplayClub.value.map((club: { id: number }) => {
-    clubId.push({ id: club.id });
-  });
-  let errorNumber = [];
-  clubId.map(async (club) => {
-    const { error } = await client.from("club").delete().eq("id", club.id);
-    console.log(error);
-    if (error) {
-      console.log(error.details.substring(10, 13));
-      errorNumber.push(error.details.substring(10, 13));
-      // msgForaddDisplayClub.value = "削除できません";
-    }
-  });
-  await new Promise((r) => setTimeout(r, 1000));
-
-  // location.reload();
+  console.log(addDisplayClub.value);
+  if (addDisplayClub.value === undefined) {
+    msgForaddDisplayClub.value = "サークルを選択してください";
+  } else {
+    const deleteClubId = addDisplayClub.value.id;
+    await useFetch(`/api/club/delete?clubid=${deleteClubId}`);
+    location.reload();
+  }
 };
 
 //新規クラブの追加
