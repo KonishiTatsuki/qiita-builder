@@ -104,7 +104,7 @@
     </div>
   </div>
   <div class="mt-5">
-    <div>管理者権限:</div>
+    <div>管理者権限：</div>
     <p>管理者権限を与えたい社員のメールアドレスを入力してください</p>
     <div class="flex items-center">
       <div>
@@ -125,12 +125,28 @@
       <table class="border-collapse border border-slate-500 border-spacing-2">
         <tr v-for="item in owners">
           <td class="border border-slate-500 px-2">
-            ユーザ名:{{ item.username }}
+            ユーザ名：{{ item.username }}
           </td>
           <td class="border border-slate-500 px-2">{{ item.email }}</td>
           <td class="border border-slate-500 px-2">
-            <button class="btn px-2" @click="deleteOwner(item.id)">削除</button>
+            <button
+              class="btn px-2"
+              @click="(open = true), (deleteItem = item.id)"
+            >
+              削除
+            </button>
           </td>
+          <Teleport to="body">
+            <div v-if="open" class="modal">
+              <div class="modal-content">
+                <p class="mb-5">本当に削除しますか？</p>
+                <button @click="open = false" class="btn mr-5">No</button>
+                <button @click="deleteOwner(deleteItem)" class="btn">
+                  Yes
+                </button>
+              </div>
+            </div>
+          </Teleport>
         </tr>
       </table>
     </div>
@@ -142,6 +158,8 @@ import { Club } from "~/types";
 import { Database } from "~/types/database.types";
 
 const client = useSupabaseClient<Database>();
+const open = ref(false);
+const deleteItem = ref();
 
 const { data: allclub } = await useFetch("/api/club/get");
 
