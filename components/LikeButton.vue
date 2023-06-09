@@ -1,13 +1,13 @@
 <template>
   <button
-    @click="countLike"
+    @click="countLike(e)"
     v-if="!showLikeButton"
     class="bg-white border-indigo-700 px-4 py-2 rounded-md text-base border hover:text-gray-900"
   >
     いいね！
   </button>
   <button
-    @click="countLike"
+    @click="countLike(e)"
     v-else
     class="bg-red-500 px-4 py-2 rounded-md text-base text-white border hover:text-gray-900"
   >
@@ -20,6 +20,8 @@ type Supabase = {
   userId: String;
   articleId: Number;
   showLikeButton: Boolean;
+  nowLike: Number;
+  goalLike: Number;
 };
 
 const supabase = useSupabaseClient<Supabase>();
@@ -28,15 +30,16 @@ const props = defineProps({
   userId: String,
   articleId: Number,
   showLikeButton: Boolean,
+  nowLike: Number,
+  goalLike: Number,
 });
+const showLikeButton = ref(props.showLikeButton);
 const userId = props.userId;
 const articleId = props.articleId;
-const showLikeButton = props.showLikeButton;
 
-console.log(showLikeButton)
-
+const emit = defineEmits(["eventEmit"]);
 //いいね数をカウントする関数
-const countLike = async () => {
+const countLike = async (e) => {
   try {
     //すでにいいねを押しているのか確認
     const confirmation = await supabase
@@ -48,7 +51,11 @@ const countLike = async () => {
       if (!confirmation.data[0]) {
         // Likeテーブルにデータを挿入
         await supabase.from("like").insert({ userId, articleId });
-        location.reload();
+        emit("eventEmit", {
+          nowLike: props.nowLike + 1,
+          goalLike: props.goalLike - 1,
+        });
+        showLikeButton.value = true;
       } else {
         //いいね数を削除する
         await supabase
@@ -56,15 +63,13 @@ const countLike = async () => {
           .delete()
           .eq("userId", userId)
           .eq("articleId", articleId);
-        location.reload();
+        emit("eventEmit", {
+          nowLike: props.nowLike - 1,
+          goalLike: props.goalLike + 1,
+        });
+        showLikeButton.value = false;
       }
     }
-    //likeテーブルから該当する記事のいいね数を取得
-    const { data, error } = await supabase
-      .from("like")
-      .select("*")
-      .eq("articleId", articleId);
-    return data;
   } catch (error) {
     console.error(error);
     return null;
