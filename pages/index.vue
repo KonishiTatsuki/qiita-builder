@@ -610,7 +610,6 @@ const toggleShowAllTagItems = () => {
 
 // サークルの表示数を変更する
 const toggleShowAllClubItems = () => {
-  console.log(visibleArticleData.value);
   if (showAllClubItems.value) {
     visibleClubItems.value = 10;
     showAllClubItems.value = false;

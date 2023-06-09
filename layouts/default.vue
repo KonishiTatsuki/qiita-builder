@@ -80,6 +80,4 @@ const { data: loginUser } = await useFetch("/api/user/userGet", {
   method: "POST",
   body: userId,
 });
-console.log(loginUser.value[0]);
-console.log(loginUser.value[0].username);
 </script>
