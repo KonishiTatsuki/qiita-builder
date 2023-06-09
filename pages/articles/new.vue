@@ -126,7 +126,6 @@ const { data: user } = await useFetch("/api/user/get", {
 });
 
 const userData = user.value;
-console.log(userData);
 
 if (userData?.clubid === null) {
   club = null;
