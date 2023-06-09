@@ -15,7 +15,7 @@ export default defineEventHandler(async (event) => {
   console.log("query", query.b)
   console.log("queryNumber", queryNumber)
 
-  const { data, error } = await supabase.from("article").select("*,userId(username)").eq("bannerId", queryNumber).eq("publish", true)
+  const { data, error } = await supabase.from("article").select("*,userId(*)").eq("bannerId", queryNumber).eq("publish", true)
   console.log("data", data)
   console.log("error", error)
   return data;

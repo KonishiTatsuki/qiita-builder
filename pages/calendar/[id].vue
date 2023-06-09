@@ -83,6 +83,7 @@
                   <NuxtLink :to="`/advents/edit/${id}/${day.date}`">
                     <button
                       v-if="
+                        article.userId.username.slice(0, 10) === userName &&
                         day.isCurrentMonth &&
                         day.period &&
                         matchingArticles(day.date).length === 1 &&
@@ -107,7 +108,6 @@
 import { ref, computed } from "vue";
 import { useRouter, useRoute } from "vue-router";
 import dayjs from "dayjs";
-
 useHead({
   title: "アドベントカレンダー",
 });
@@ -119,6 +119,8 @@ const startDate = ref("");
 const endDate = ref("");
 const managerName = ref("");
 const route = useRoute();
+const user = useSupabaseUser();
+
 
 // bannerテーブル情報を取得
 const { id } = route.params;
