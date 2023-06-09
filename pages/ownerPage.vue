@@ -63,10 +63,11 @@
         <ul class="flex" v-for="display in nondisplayClub">
           <li>
             <input
-              type="checkbox"
+              type="radio"
               :value="{ id: `${display.value}`, display: true }"
               v-model="addDisplayClub"
-            />{{ display.label }}
+            />
+            {{ display.label }}
           </li>
         </ul>
       </div>
@@ -234,10 +235,19 @@ const deleteClub = async () => {
   addDisplayClub.value.map((club: { id: number }) => {
     clubId.push({ id: club.id });
   });
+  let errorNumber = [];
   clubId.map(async (club) => {
     const { error } = await client.from("club").delete().eq("id", club.id);
+    console.log(error);
+    if (error) {
+      console.log(error.details.substring(10, 13));
+      errorNumber.push(error.details.substring(10, 13));
+      // msgForaddDisplayClub.value = "削除できません";
+    }
   });
-  location.reload();
+  await new Promise((r) => setTimeout(r, 1000));
+
+  // location.reload();
 };
 
 //新規クラブの追加

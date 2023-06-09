@@ -40,9 +40,6 @@
             v-model="goalLike"
           />
         </FormKit>
-        <div v-if="errorGoalLike" class="text-red-500 mt-2">
-          *いいねの数を入力してください
-        </div>
       </div>
       <div>
         <p>公開日</p>
@@ -92,6 +89,7 @@
 
 <script setup lang="ts">
 import type EasyMDE from "easymde";
+import { marked } from "marked";
 
 useHead({
   title: "新規記事投稿",
@@ -120,7 +118,6 @@ const userId = users.value?.id;
 let club: number | null | undefined;
 let errorTitle = ref(false);
 let errorContent = ref(false);
-let errorGoalLike = ref(false);
 let errorTag = ref(false);
 
 const { data: user } = await useFetch("/api/user/get", {
@@ -129,7 +126,6 @@ const { data: user } = await useFetch("/api/user/get", {
 });
 
 const userData = user.value;
-console.log(userData);
 
 if (userData?.clubid === null) {
   club = null;
@@ -140,7 +136,7 @@ const occupation = userData?.occupation.id;
 
 const goalLikeArray = [
   {
-    value: "0",
+    value: null,
     label: "設定しない",
   },
   {
@@ -163,12 +159,7 @@ const goalLikeArray = [
 
 //記事投稿
 async function submitHandler() {
-  if (
-    errorTitle.value ||
-    errorContent.value ||
-    errorGoalLike.value ||
-    errorTag.value
-  ) {
+  if (errorTitle.value || errorContent.value || errorTag.value) {
     return;
   }
   const postData = {
@@ -219,6 +210,11 @@ onMounted(async () => {
   const EasyMDE = (await import("easymde")).default;
   mde = new EasyMDE({
     element: contentArea.value!.$el,
+    spellChecker: false,
+    previewRender: (markdownPlaintext) => {
+      const htmlContent = marked(markdownPlaintext);
+      return `<div class="markdown-preview">${htmlContent}</div>`;
+    },
   });
   mde.codemirror.on("change", () => {
     if (mde) {
@@ -245,13 +241,6 @@ watch(content, () => {
     errorContent.value = false;
   }
 });
-watch(goalLike, () => {
-  if (!goalLike.value) {
-    errorGoalLike.value = true;
-  } else {
-    errorGoalLike.value = false;
-  }
-});
 watch(select, () => {
   select.value.map((tag: string) => {
     if (tag.length > 30) {
@@ -264,3 +253,23 @@ watch(select, () => {
   });
 });
 </script>
+<style>
+.markdown-preview ul,
+.markdown-preview h1,
+.markdown-preview h2,
+.markdown-preview h3,
+.markdown-preview h4,
+.markdown-preview h5,
+.markdown-preview p,
+.markdown-preview a,
+.markdown-preview blockquote,
+.markdown-preview pre,
+.markdown-preview img,
+.markdown-preview table,
+.markdown-preview th,
+.markdown-preview td,
+.markdown-preview strong,
+.markdown-preview em {
+  all: revert;
+}
+</style>

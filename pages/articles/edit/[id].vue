@@ -116,6 +116,7 @@
 
 <script setup lang="ts">
 import type EasyMDE from "easymde";
+import { marked } from "marked";
 
 useHead({
   title: "記事編集",
@@ -143,7 +144,7 @@ let errorTag = ref(false);
 // いいね数のプルダウンに活用
 const goalLikeArray = [
   {
-    value: "0",
+    value: null,
     label: "設定しない",
   },
   {
@@ -218,6 +219,11 @@ onMounted(async () => {
   const EasyMDE = (await import("easymde")).default;
   mde = new EasyMDE({
     element: contentArea.value!.$el,
+    spellChecker: false,
+    previewRender: (markdownPlaintext) => {
+      const htmlContent = marked(markdownPlaintext);
+      return `<div class="markdown-preview">${htmlContent}</div>`;
+    },
   });
   mde.codemirror.on("change", () => {
     if (mde) {
@@ -267,3 +273,24 @@ watch(select, () => {
   }
 });
 </script>
+
+<style>
+.markdown-preview ul,
+.markdown-preview h1,
+.markdown-preview h2,
+.markdown-preview h3,
+.markdown-preview h4,
+.markdown-preview h5,
+.markdown-preview p,
+.markdown-preview a,
+.markdown-preview blockquote,
+.markdown-preview pre,
+.markdown-preview img,
+.markdown-preview table,
+.markdown-preview th,
+.markdown-preview td,
+.markdown-preview strong,
+.markdown-preview em {
+  all: revert;
+}
+</style>
