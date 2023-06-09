@@ -1,5 +1,5 @@
 <template>
-  <div class="max-w-screen-xl mx-auto">
+  <div class="scale-75">
     <div class="flex">
       <!-- カテゴリ検索欄 -->
       <div class="flex flex-col">
@@ -121,7 +121,7 @@
           :to="{ path: `/calendar/${bannerData[0].id}` }"
         >
           <div
-            class="bg-gradient-to-r from-purple-400 via-pink-500 to-red-500 p-4 rounded-lg shadow-lg flex items-center justify-between mt-3"
+            class="bg-gradient-to-r from-purple-400 via-pink-500 to-red-500 p-4 rounded-lg shadow-lg flex items-center justify-between mt-3 max-w-[1200px]"
             :style="
               'background-image: url(' +
               (bannerData && bannerData[0]?.image) +
@@ -136,7 +136,7 @@
           </div>
         </NuxtLink>
         <!-- ソート機能 -->
-        <div class="flex justify-end">
+        <div class="flex justify-end max-w-[1200px]">
           <div class="inline-flex rounded-md shadow-sm pt-5 pb-3" role="group">
             <button
               @click="sortArticlesByDateDescending"
@@ -162,7 +162,7 @@
           </div>
         </div>
         <!-- 記事一覧 -->
-        <section class="text-gray-600 body-font overflow-hidden">
+        <section class="text-gray-600 body-font overflow-hidden max-w-[1200px]">
           <div class="container px-5 pb-24 mx-auto">
             <div
               v-if="
@@ -218,7 +218,7 @@
                       </span>
                     </div>
                   </div>
-                  <div class="md:flex-grow">
+                  <div class="md:flex-grow mr-5 overflow-hidden">
                     <router-link
                       :to="`/articleDetail/${article.id}`"
                       class="hover:underline"
@@ -261,14 +261,10 @@
                     <div class="mt-4" v-if="authority"></div>
                   </div>
                   <div>
-                    <!-- <button
-                      class="btn block h-[40px]"
-                      @click="deleteArticle(article.id)"
+                    <button
+                      @click="(open = true), (deleteItem = article.id)"
+                      class="btn h-[40px] w-[70px]"
                     >
-                      削除
-                    </button> -->
-
-                    <button @click="open = true , deleteItem = article.id" class="btn block h-[40px]">
                       削除
                     </button>
                     <Teleport to="body">
@@ -315,7 +311,6 @@ let date = new Date(); //現在の日付取得
 //モーダルの表示非表示
 const open = ref(false);
 const deleteItem = ref();
-
 
 //管理者権限があるか確認
 let { data: auth } = await useFetch("/api/user/getAdminUser", {
@@ -615,7 +610,6 @@ const toggleShowAllTagItems = () => {
 
 // サークルの表示数を変更する
 const toggleShowAllClubItems = () => {
-  console.log(visibleArticleData.value);
   if (showAllClubItems.value) {
     visibleClubItems.value = 10;
     showAllClubItems.value = false;
@@ -684,5 +678,10 @@ const deleteArticle = async (id) => {
   border: 1px solid #888;
   width: 300px;
   text-align: center;
+}
+
+.scale-75 {
+  transform: scale(0.75);
+  transform-origin: top;
 }
 </style>
