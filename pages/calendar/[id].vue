@@ -120,8 +120,7 @@ const endDate = ref("");
 const managerName = ref("");
 const route = useRoute();
 const user = useSupabaseUser();
-const userName = ref(user.value.user_metadata.username);
-console.log("user", user.value.user_metadata.username);
+
 
 // bannerテーブル情報を取得
 const { id } = route.params;
