@@ -37,7 +37,7 @@
         >
       </div>
 
-      <div class="text-gray-800 mb-4">
+      <div class="text-gray-800 mb-4" id="parent-element">
         <!-- tailwindcssのスタイルを無効化するcustom-proseクラス -->
         <template v-if="htmlText">
           <span class="custom-prose" v-html="htmlText"></span>
@@ -67,7 +67,7 @@
     </div>
 
     <!-- いいね数・目標までのいいね数・Qiitaオススメした人数 -->
-    <div class="md:w-1/3 m-4 p-4 bg-gray-100">
+    <div class="md:w-1/3 m-4 p-4 bg-gray-100 max-h-96">
       <div class="mb-4">
         <p class="text-gray-600 text-lg flex justify-center">
           現在の「いいね！」
@@ -135,28 +135,30 @@
         v-for="commented in commentDate"
         :key="commented.id"
       >
-        <div>
-          <span class="font-semibold">{{ commented.username }}</span>
+        <div class="mr-5 w-full">
+          <div class="flex justify-between">
+            <div class="font-semibold">{{ commented.username }}</div>
+            <button
+              class="btn"
+              @click="(open = true), (deleteItem = commented.id)"
+              v-show="commented.userId == userId"
+            >
+              削除
+            </button>
+            <Teleport to="body">
+              <div v-if="open" class="modal">
+                <div class="modal-content">
+                  <p class="mb-5">本当に削除しますか？</p>
+                  <button @click="open = false" class="btn mr-5">No</button>
+                  <button @click="deleteComment(deleteItem)" class="btn">
+                    Yes
+                  </button>
+                </div>
+              </div>
+            </Teleport>
+          </div>
           <p class="text-gray-600">{{ commented.comment }}</p>
         </div>
-        <button
-          class="text-gray-600"
-          @click="(open = true), (deleteItem = commented.id)"
-          v-show="commented.userId == userId"
-        >
-          削除
-        </button>
-        <Teleport to="body">
-          <div v-if="open" class="modal">
-            <div class="modal-content">
-              <p class="mb-5">本当に削除しますか？</p>
-              <button @click="open = false" class="btn mr-5">No</button>
-              <button @click="deleteComment(deleteItem)" class="btn">
-                Yes
-              </button>
-            </div>
-          </div>
-        </Teleport>
       </div>
     </div>
   </div>
@@ -506,5 +508,8 @@ const deleteComment = async (commentId) => {
   border: 1px solid #888;
   width: 300px;
   text-align: center;
+}
+#parent-element {
+  word-wrap: break-word;
 }
 </style>
