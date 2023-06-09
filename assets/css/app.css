@@ -4,7 +4,7 @@
 
 @layer components {
   .btn {
-    @apply bg-[#1D8EB9] border-indigo-700 px-4 py-2 rounded-md text-base text-white border hover:text-gray-900;
+    @apply bg-[#1D8EB9]  px-4 py-2 rounded-md text-base text-white hover:text-gray-900;
   }
   .body {
     @apply px-28;
@@ -16,5 +16,3 @@
     @apply text-2xl mt-10 mb-7;
   }
 }
-
-
