@@ -98,6 +98,7 @@ const submitHandler = async () => {
     .update({
       bannerId: bannerId.value,
       publishDate: date.value,
+      publish: true,
     })
     .eq("id", articleId[0].id);
   console.log("data", data);

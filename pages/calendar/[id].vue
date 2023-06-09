@@ -83,12 +83,15 @@
                   <NuxtLink :to="`/advents/edit/${id}/${day.date}`">
                     <button
                       v-if="
-                        article.userId.username.slice(0, 10) === userName &&
                         day.isCurrentMonth &&
                         day.period &&
                         matchingArticles(day.date).length === 1 &&
                         !isDatePast(day.date) &&
-                        day.date !== dayjs().format('YYYY-MM-DD')
+                        day.date !== dayjs().format('YYYY-MM-DD') &&
+                        matchingUser().some(
+                          (article) =>
+                            article.id === matchingArticles(day.date)[0].id
+                        )
                       "
                       class="flex-grow bg-green-200 hover:bg-green-400 text-black py-2 px-4 rounded"
                     >
@@ -108,6 +111,7 @@
 import { ref, computed } from "vue";
 import { useRouter, useRoute } from "vue-router";
 import dayjs from "dayjs";
+
 useHead({
   title: "アドベントカレンダー",
 });
@@ -120,7 +124,8 @@ const endDate = ref("");
 const managerName = ref("");
 const route = useRoute();
 const user = useSupabaseUser();
-
+const userId = ref(user.value.id);
+console.log("user", user.value.id);
 
 // bannerテーブル情報を取得
 const { id } = route.params;
@@ -137,7 +142,15 @@ endDate.value = bannerData.value[0].endDate;
 managerName.value = bannerData.value[0].userId.username;
 
 const articleList = articleData.value;
-console.log("articleList", articleList);
+
+const matchingUser = () => {
+  const userArticle = articleList.filter(
+    (article) => article.userId.id === user.value.id
+  );
+  return userArticle;
+};
+console.log("matchingUser", matchingUser());
+
 // ここからカレンダーの処理
 // 曜日の配列
 const daysOfWeek = ["日", "月", "火", "水", "木", "金", "土"];
@@ -207,7 +220,7 @@ const isDateBetween = (date, startDate, endDate) => {
   return articleDate >= startD && articleDate <= endD;
 };
 
-// カレンダーの日付にマッチする記事のフィルタリング
+// カレンダーの日付にマッチする記事のフィルタリング;
 const matchingArticles = (date) => {
   return articleList.filter((article) => {
     const articleDate = dayjs(article.publishDate).format("YYYY-MM-DD");
