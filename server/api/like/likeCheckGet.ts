@@ -8,5 +8,6 @@ export default defineEventHandler(async (event) => {
     .select("*")
     .eq("userId", body.userId)
     .eq("articleId", body.articleId);
+
   return data;
 });

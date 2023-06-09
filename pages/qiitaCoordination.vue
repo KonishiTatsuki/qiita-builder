@@ -32,7 +32,12 @@
             {{ errorMessage }}
           </p>
           <NuxtLink to="/" class="mr-5">
-            <button type="" class="mb-5 bg-[#FFFFFF] border-indigo-700 px-4 py-2 rounded-md text-base border hover:bg-[#1D8EB9] hover:text-white">トップへ</button></NuxtLink
+            <button
+              type=""
+              class="mb-5 bg-[#FFFFFF] border-indigo-700 px-4 py-2 rounded-md text-base border hover:bg-[#1D8EB9] hover:text-white"
+            >
+              トップへ
+            </button></NuxtLink
           >
           <button type="submit" class="btn mb-5">登録</button>
           <p v-if="successMessage">
@@ -62,14 +67,14 @@ const submit = async (submit: { text: string }) => {
   errorMessage.value = "";
   const accessToken = submit.text;
 
-  fetch("https://qiita.com/api/v2/items", {
+  fetch("https://qiita.com/api/v2/authenticated_user", {
     headers: {
       Authorization: `Bearer ${accessToken}`,
     },
   })
     .then((response) => response.json())
     .then(async (data) => {
-      confirmation = data[0];
+      confirmation = data;
       if (confirmation) {
         const postData = {
           userId: userId,
