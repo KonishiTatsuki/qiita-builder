@@ -1,7 +1,7 @@
 <template>
-  <div v-if="data">
-    <div class="border border-black m-4">
-      <div class="flex mt-3">
+  <div v-if="data" class="max-w-[1200px] mx-auto main">
+    <div class="border border-black m-4 max-w-[1200px]">
+      <div class="ml-6 flex">
         <div>
           <FormKit
             type="form"
@@ -10,141 +10,136 @@
             id="edit"
             :actions="false"
           >
-            <div class="m-3 p-3 flex">
-              <div>
-                <h1 class="title">ユーザ情報</h1>
-                <div class="flex mb-3">
-                  ユーザー名:
-                  <div v-if="editbool">
-                    <FormKit
-                      :classes="{
-                        input: 'border border-black py-1 px-2 rounded-md',
-                        message: 'text-red-500',
-                      }"
-                      type="text"
-                      name="userName"
-                      validation="required|length:0,30|matches:/"
-                      autocomplete="off"
-                      :validation-messages="{
-                        required: 'ユーザ名を入力してください',
-                        length: '30文字以内で入力してください',
-                      }"
-                      :value="data[0].username"
-                    />
+            <div>
+              <div class="flex w-[800px]">
+                <div class="w-5/6">
+                  <h1 class="title">ユーザ情報</h1>
+                  <div class="flex mb-3">
+                    <span class="font-bold"> ユーザー名 </span>
+                    <div v-if="editbool">
+                      <FormKit
+                        :classes="{
+                          input: 'border border-black py-1 px-2 rounded-md',
+                          message: 'text-red-500',
+                        }"
+                        type="text"
+                        name="userName"
+                        validation="required|length:0,30|matches:/"
+                        autocomplete="off"
+                        :validation-messages="{
+                          required: 'ユーザ名を入力してください',
+                          length: '30文字以内で入力してください',
+                        }"
+                        :value="data[0].username"
+                      />
+                    </div>
+                    <div v-else class="ml-8">
+                      {{ data[0].username }}
+                    </div>
                   </div>
-                  <div v-if="!editbool">
-                    {{ data[0].username }}
+                  <div class="flex mb-3">
+                    <span class="font-bold"> メールアドレス </span>
+                    <div class="ml-1">
+                      <p>{{ data[0].email }}</p>
+                    </div>
                   </div>
-                </div>
-                <div class="flex mb-3">
-                  メールアドレス:
-                  <div>
-                    <p>{{ data[0].email }}</p>
+                  <div class="flex mb-3">
+                    <span class="font-bold"> 職種 </span>
+                    <div v-if="editbool">
+                      <FormKit
+                        :classes="{
+                          wrapper: 'flex',
+                          options: 'flex ',
+                          option: 'pr-2',
+                          decorator: 'none',
+                          message: 'text-red-500',
+                        }"
+                        type="radio"
+                        :options="occupation"
+                        name="occupation"
+                        validation="required"
+                        :validation-messages="{
+                          required: '職種を選択してください',
+                        }"
+                        :value="data[0].occupation.id"
+                      />
+                    </div>
+                    <div v-else class="ml-20">
+                      <p>{{ data[0].occupation.occupationName }}</p>
+                    </div>
                   </div>
-                </div>
-                <div class="flex mb-3">
-                  職種:
-                  <div v-if="editbool">
-                    <FormKit
-                      :classes="{
-                        wrapper: 'flex',
-                        options: 'flex ',
-                        option: 'pr-2',
-                        decorator: 'none',
-                        message: 'text-red-500',
-                      }"
-                      type="radio"
-                      :options="occupation"
-                      name="occupation"
-                      validation="required"
-                      :validation-messages="{
-                        required: '職種を選択してください',
-                      }"
-                      :value="data[0].occupation.id"
-                    />
+                  <div class="flex mb-3">
+                    <span class="font-bold"> サークル </span>
+                    <div v-if="editbool">
+                      <FormKit
+                        :classes="{
+                          input: 'border border-black py-1 px-2 rounded-md',
+                          message: 'text-red-500',
+                        }"
+                        type="select"
+                        name="club"
+                        placeholder="サークル選択"
+                        validation="required"
+                        :options="club"
+                        :validation-messages="{
+                          required:
+                            'サークルを選択してください(該当するものがない場合はその他を選択)',
+                        }"
+                        :value="defaultClub"
+                      />
+                    </div>
+                    <div v-else class="ml-12">
+                      <div v-if="data[0].clubid">
+                        {{ data[0].clubid.clubName }}
+                      </div>
+                    </div>
                   </div>
-                  <div v-else>
-                    <p>{{ data[0].occupation.occupationName }}</p>
-                  </div>
-                </div>
-                <div class="flex mb-3">
-                  サークル:
-                  <div v-if="editbool">
-                    <FormKit
-                      :classes="{
-                        input: 'border border-black py-1 px-2 rounded-md',
-                        message: 'text-red-500',
-                      }"
-                      type="select"
-                      name="club"
-                      placeholder="サークル選択"
-                      validation="required"
-                      :options="club"
-                      :validation-messages="{
-                        required:
-                          'サークルを選択してください(該当するものがない場合はその他を選択)',
-                      }"
-                      :value="defaultClub"
-                    />
-                    <!-- <FormKit
-                      :classes="{
-                        input: 'border border-black  py-1 px-2 rounded-md',
-                        message: 'text-red-500',
-                      }"
-                      type="text"
-                      label="追加サークル"
-                      placeholder="その他"
-                      name="addClub"
-                      autocomplete="off"
-                    /> -->
-                  </div>
-                  <p v-else>
-                    <div v-if="data[0].clubid">{{ data[0].clubid.clubName }}</div>
-                  </p>
-                </div>
-                <div>
-                  自己紹介:
-                  <div v-if="editbool">
-                    <FormKit
-                      :classes="{
-                        input: 'border border-black  py-1 px-2 rounded-md',
-                        message: 'text-red-500',
-                      }"
-                      type="textarea"
-                      name="detail"
-                      rows="10"
-                      cols="40"
-                      validation="required|length:0,255"
-                      :validation-messages="{
-                        required: '自己紹介を入力してください',
-                        length: '255文字以内で入力してください',
-                      }"
-                      :value="data[0].detail"
-                    />
-                  </div>
-                  <div v-else>
-                    <p>{{ data[0].detail }}</p>
-                  </div>
-                </div>
-              </div>
-              <div>
-                <div class="rounded-lg ml-20 mt-24">
-                  <div v-if="avatarImage!=='null'">
-                    <img
-                      :src="avatarImage"
-                      alt="アイコン"
-                      class="w-48 h-48 rounded-full mr-2"
-                    />
+                  <div class="flex mb-3">
+                    <span class="font-bold whitespace-nowrap"> 自己紹介 </span>
+                    <div v-if="editbool">
+                      <FormKit
+                        :classes="{
+                          input: 'border border-black  py-1 px-2 rounded-md',
+                          message: 'text-red-500',
+                        }"
+                        type="textarea"
+                        name="detail"
+                        rows="10"
+                        cols="40"
+                        validation="required|length:0,255"
+                        :validation-messages="{
+                          required: '自己紹介を入力してください',
+                          length: '255文字以内で入力してください',
+                        }"
+                        :value="data[0].detail"
+                      />
+                    </div>
+                    <div v-else class="ml-12">
+                      <div>{{ data[0].detail }}</div>
+                    </div>
                   </div>
                 </div>
               </div>
             </div>
           </FormKit>
+
+          <!-- ここまでCSS確認した -->
+
           <button class="btn ml-7" v-show="editbool" @click="editComp">
             保存
           </button>
         </div>
-        <div class="mt-12">
+
+        <div class="mt-3">
+          <div class="mt-24">
+            <div v-if="avatarImage !== 'null'">
+              <img
+                :src="avatarImage"
+                alt="アイコン"
+                class="w-32 h-32 rounded-full mx-auto"
+              />
+            </div>
+          </div>
           <FormKit
             type="form"
             @submit="iconsubmit"
@@ -152,15 +147,15 @@
             id="register"
             :actions="false"
           >
-            <div v-show="iconeditbool" class="mt-44 ml-8">
+            <div v-show="iconeditbool" class="ml-8">
               <FormKit
                 :classes="{
                   message: 'text-red-500',
                   noFiles: 'text-transparent',
+                  inner: 'mt-5',
                 }"
                 type="file"
                 name="file"
-                label="アイコン画像"
                 accept=".png,.jpeg,.jpg"
                 validation="required"
                 :validation-messages="{
@@ -169,19 +164,16 @@
                 @input="setImage"
               />
             </div>
-            <button class="btn mr-2 mt-8 ml-6" v-show="iconeditbool">
+            <button class="btn ml-20" v-show="iconeditbool">
               アイコンを保存する
             </button>
           </FormKit>
-          <button
-            class="btn mr-2 mt-56"
-            v-show="!iconeditbool"
-            @click="iconedit"
-          >
-            アイコン編集する
+          <button class="btn mt-5" v-show="!iconeditbool" @click="iconedit">
+            アイコンを編集する
           </button>
         </div>
       </div>
+
       <div class="flex m-3 p-3">
         <button class="btn mr-2" @click="edit" v-show="!editbool">
           編集する
@@ -191,9 +183,8 @@
         >
       </div>
     </div>
-    <div class="border border-black m-4 p-3 flex">
-      QiitaToken:
-      <p v-if="data[0].qiitaToken">連携済み</p>
+    <div class="border border-black m-4 p-3 flex items-center space-x-2 max-w-[1200px]">
+      <p v-if="data[0].qiitaToken">QiitaToken：連携済み</p>
       <NuxtLink to="/qiitaCoordination">
         <button class="btn">Qiitaと連携する</button></NuxtLink
       >
@@ -203,7 +194,6 @@
 
 <script setup lang="ts">
 import { submitForm } from "@formkit/core";
-
 import { Club, Occupation } from "~/types";
 import { Database } from "~/types/database.types";
 
@@ -226,7 +216,7 @@ const { data } = await client
   .select("*,clubid(*),occupation(*)")
   .eq("id", route.params.id);
 const occupation: useOccupation[] = [];
-const defaultClub=ref()
+const defaultClub = ref();
 const club: useClub[] = [];
 
 const avatarImage = ref(`${data[0].image}`);
@@ -248,8 +238,8 @@ const iconedit = () => {
   iconeditbool.value = !iconeditbool.value;
 };
 
-if(data[0].clubid){
-  defaultClub.value=data[0].clubid.id
+if (data[0].clubid) {
+  defaultClub.value = data[0].clubid.id;
 }
 
 type Credentials = {
@@ -311,3 +301,9 @@ const edit = () => {
   editbool.value = !editbool.value;
 };
 </script>
+
+<style scoped>
+.main {
+  min-height: calc(100vh - 184px);
+}
+</style>
