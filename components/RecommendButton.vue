@@ -1,13 +1,13 @@
 <template>
   <button
-    @click="countRecommend"
+    @click="countRecommend(e)"
     v-if="!showRecommendButton"
     class="bg-white border-indigo-700 px-4 py-2 rounded-md text-base border hover:text-gray-900"
   >
     おすすめ
   </button>
   <button
-    @click="countRecommend"
+    @click="countRecommend(e)"
     v-else
     class="bg-[#1D8EB9] px-4 py-2 rounded-md text-base text-white border hover:text-gray-900"
   >
@@ -20,6 +20,7 @@ type Supabase = {
   userId: String;
   articleId: Number;
   showLikeButton: Boolean;
+  nowRecommend: Number;
 };
 
 const supabase = useSupabaseClient<Supabase>();
@@ -28,10 +29,13 @@ const props = defineProps({
   userId: String,
   articleId: Number,
   showRecommendButton: Boolean,
+  nowRecommend: Number,
 });
+const showRecommendButton = ref(props.showRecommendButton);
 const userId = props.userId;
 const articleId = props.articleId;
-const showRecommendButton = props.showRecommendButton;
+
+const emit = defineEmits(["eventEmit"]);
 
 //おすすめ数をカウントする関数
 const countRecommend = async () => {
@@ -47,7 +51,8 @@ const countRecommend = async () => {
         // recommendテーブルにデータを挿入
         console.log(userId, articleId);
         await supabase.from("recommend").insert({ userId, articleId });
-        location.reload();
+        emit("eventEmit", { nowRecommend: props.nowRecommend + 1 });
+        showRecommendButton.value = true;
       } else {
         // //おすすめ数を削除する
         await supabase
@@ -55,7 +60,8 @@ const countRecommend = async () => {
           .delete()
           .eq("userId", userId)
           .eq("articleId", articleId);
-        location.reload();
+        emit("eventEmit", { nowRecommend: props.nowRecommend - 1 });
+        showRecommendButton.value = false;
       }
     }
     //recommendテーブルから該当する記事のおすすめ数を取得

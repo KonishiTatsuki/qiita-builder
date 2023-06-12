@@ -28,11 +28,11 @@
       </h1>
       <hr class="border-t-2 border-gray-200" />
       <!-- カテゴリタグ -->
-      <div v-if="tagNames" class="flex space-x-2 m-4">
+      <div v-if="tagNames" class="flex flex-wrap space-x-2 space-y-2 m-4">
         <span
           v-for="(tagName, index) in tagNames"
           :key="index"
-          class="bg-blue-100 text-blue-600 px-2 py-1 rounded"
+          class="bg-blue-100 text-blue-600 px-2 py-1 rounded my-1"
           >{{ tagName }}</span
         >
       </div>
@@ -52,11 +52,16 @@
           :userId="userId"
           :articleId="Number(articleId)"
           :showLikeButton="showLikeButton"
+          :nowLike="nowLike"
+          :goalLike="goalLike"
+          @eventEmit="ChangeNowLike"
         />
         <RecommendButton
           :userId="userId"
           :articleId="Number(articleId)"
           :showRecommendButton="showRecommendButton"
+          :nowRecommend="nowRecommend"
+          @eventEmit="ChangeNowRecommend"
         />
       </div>
     </div>
@@ -68,24 +73,26 @@
           現在の「いいね！」
         </p>
         <p class="text-red-500 text-4xl font-bold flex justify-center m-4">
-          {{ likeCount }}
+          {{ nowLike }}
           <span class="text-lg text-gray-600 align-text-bottom pt-3">件</span>
         </p>
       </div>
-      <div class="my-8">
+      <div v-show="goalLike !== null" class="my-8">
         <span class="text-gray-600 text-lg flex justify-center"
           >目標まで残り</span
         >
         <p
-          v-if="articleData"
+          v-if="articleData && goalLike > 0 && !articleData.qiitaPost && !qiitaPostCheck"
           class="text-red-500 text-4xl font-bold flex justify-center m-4"
         >
           {{ goalLike }}
-          <span
-            class="text-lg text-gray-600 align-text-bottom pt-3"
-            v-show="goalLike > 0"
-            >件</span
-          >
+          <span class="text-lg text-gray-600 align-text-bottom pt-3">件</span>
+        </p>
+        <p
+          v-else
+          class="text-red-500 text-4xl font-bold flex justify-center m-4"
+        >
+          {{ goalLikeSuccess }}
         </p>
       </div>
       <div class="mb-4">
@@ -93,7 +100,7 @@
           >Qiitaオススメ</span
         >
         <p class="text-[#1D8EB9] text-4xl font-bold flex justify-center m-4">
-          {{ recommendCount }}
+          {{ nowRecommend }}
           <span class="text-lg text-gray-600 align-text-bottom pt-3">人</span>
         </p>
       </div>
@@ -174,6 +181,13 @@ const route = useRoute();
 const users = useSupabaseUser();
 const router = useRouter();
 
+//表示する値の変更値
+const nowLike = ref(0);
+const nowRecommend = ref(0);
+const goalLimitNum = ref(0);
+const goalLike = ref();
+const goalLikeSuccess = ref("");
+
 //コメント文字数制限
 const errorText = ref(false);
 
@@ -207,7 +221,6 @@ let htmlText = ref();
 let formattedDate = ref();
 let articleTagIds = [];
 let tagNames = ref();
-const goalLike = ref(0);
 
 const { data: articleDatas } = await useFetch("/api/article/articleDateGet", {
   method: "POST",
@@ -266,14 +279,17 @@ const { data: tags } = await useFetch("/api/tag/get", {
 tagNames.value = tags.value;
 
 //　　　　　　　おすすめ数表示機能　　　　　　　　　　//
-const recommendCount = ref(0);
+
+//おすすめボタンクリック済みか確認
 const showRecommendButton = ref(false);
 // おすすめ数取得;
 const { data: recommends } = await useFetch("/api/recommend/articleGet", {
   method: "POST",
   body: articleId,
 });
-recommendCount.value = recommends.value.length;
+//おすすめ数取得
+nowRecommend.value = recommends.value.length;
+
 //おすすめボタンクリック済みか確認
 const { data: recommendUsers } = await useFetch("/api/recommend/get", {
   method: "POST",
@@ -283,9 +299,11 @@ if (recommendUsers.value[0]) {
   showRecommendButton.value = true;
 }
 
+const ChangeNowRecommend = (val) => {
+  nowRecommend.value = val.nowRecommend;
+};
+
 //　　　　　　　いいね数表示機能　　　　　　　　　　//
-// いいねの件数を表示するためのリアクティブな変数
-const likeCount = ref(0);
 const showLikeButton = ref(false);
 //Qiita投稿に必要な情報取得
 const articleQiitaToken = articleUsers.value.qiitaToken;
@@ -300,67 +318,111 @@ const { data: likes } = await useFetch("/api/like/likeNumberGet", {
   method: "POST",
   body: articleId,
 });
+//いいね数の表示
+nowLike.value = likes.value.length;
+
 // ユーザーがいいねしているかどうかの確認
 const { data: likeschecks } = await useFetch("/api/like/likeCheckGet", {
   method: "POST",
   body: { userId, articleId },
 });
-
 if (likeschecks.value[0]) {
   showLikeButton.value = true;
 }
-likeCount.value = likes.value.length;
-
-//目標いいねに到達してたら「達成」。それ以外は残り件数表示する
+//記事の目標いいね取得
 const articleDataGoalLike = Number(articleData.value.goalLike);
-goalLike.value =
-  articleDataGoalLike - likeCount.value > 0
-    ? `${articleDataGoalLike - likeCount.value}`
-    : "達成";
-
-//いいね数が目標いいねに到達した場合
-const goalLikeNumber = ref(0);
-goalLikeNumber.value = articleDataGoalLike - likeCount.value;
-
-if (goalLikeNumber.value <= 0 && articleQiitaPost === false) {
-  ///自動投稿
-  const fetchData = () => {
-    const item = {
-      body: articleBody, // マークダウン形式で記載が必要
-      private: false, // 限定共有状態かどうかを表すフラグ (Qiita Teamでは無効)
-      tags: articleTag,
-      title: articleTitle,
-      tweet: false, // Twitterに投稿するかどうか (Twitter連携を有効化している場合のみ有効)
-    };
-
-    fetch("https://qiita.com/api/v2/items", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${articleQiitaToken}`,
-      },
-      body: JSON.stringify(item),
-    })
-      .then((response) => {
-        if (!response.ok) {
-          throw new Error("Request failed with status: " + response.status);
-        }
-        // 成功処理
-        console.log("成功");
-      })
-      .catch(() => {
-        // 失敗処理
-        console.log("失敗");
-      });
-  };
-  fetchData();
-  await useFetch("/api/article/qiitaPostUpdate", {
-    method: "POST",
-    body: articleId,
-  });
+//記事がQiitaに投稿するか確認
+if (articleData.value.goalLike === null || articleData.value.goalLike === "") {
+  goalLike.value = null;
 } else {
-  console.log("まだ達成してないよ/もしくはQiitaに投稿済み");
+  if (articleDataGoalLike - nowLike.value > 0) {
+    //目標までの数表示
+    if (articleData.value.qiitaPost) {
+      goalLikeSuccess.value = "達成済み";
+    } else {
+      goalLike.value = articleDataGoalLike - nowLike.value;
+    }
+  } else {
+    goalLikeSuccess.value = "達成済み";
+  }
 }
+
+//Qiita投稿済みかどうか確認
+const qiitaPostCheck = ref(articleData.value.qiitaPost);
+
+//いいねボタンをクリックした時の処理
+const ChangeNowLike = async (val) => {
+  //クリックによるいいね数の変更
+  nowLike.value = val.nowLike;
+
+  //記事がQiita投稿済みかどうか確認
+  const { data: qiitaPostItem } = await useFetch(
+    "/api/article/articleDateGet",
+    {
+      method: "POST",
+      body: articleId,
+    }
+  );
+  await new Promise((r) => setTimeout(r, 100));
+
+  //目標いいねをせているか確認
+  if (
+    qiitaPostItem.value[0].goalLike === null ||
+    qiitaPostItem.value[0].goalLike === ""
+  ) {
+    goalLike.value = null;
+  } else {
+    if (
+      articleDataGoalLike - nowLike.value <= 0 &&
+      !qiitaPostItem.value[0].qiitaPost
+    ) {
+      ///自動投稿
+      goalLikeSuccess.value = "達成済み";
+      qiitaPostCheck.value = true;
+      const autoPost = () => {
+        const item = {
+          body: articleBody, // マークダウン形式で記載が必要
+          private: false, // 限定共有状態かどうかを表すフラグ (Qiita Teamでは無効)
+          tags: articleTag,
+          title: articleTitle,
+          tweet: false, // Twitterに投稿するかどうか (Twitter連携を有効化している場合のみ有効)
+        };
+        fetch("https://qiita.com/api/v2/items", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${articleQiitaToken}`,
+          },
+          body: JSON.stringify(item),
+        })
+          .then((response) => {
+            if (!response.ok) {
+              throw new Error("Request failed with status: " + response.status);
+            }
+            // 成功処理
+
+            console.log("成功");
+          })
+          .catch(() => {
+            // 失敗処理
+            console.log("失敗");
+          });
+      };
+      autoPost();
+      await useFetch("/api/article/qiitaPostUpdate", {
+        method: "POST",
+        body: articleId,
+      });
+    } else {
+      if (qiitaPostItem.value[0].qiitaPost) {
+        goalLikeSuccess.value = "達成済み";
+      } else {
+        goalLike.value = articleDataGoalLike - nowLike.value;
+      }
+      console.log("まだ達成してないよ/もしくはQiitaに投稿済み");
+    }
+  }
+};
 
 //　　　　　　　　コメント機能　　　　　　　　　//
 //投稿済みコメントを取得

@@ -1,6 +1,6 @@
 <template>
   <div>
-    <h1 class="title">アドベントカレンダーに投稿</h1>
+    <h1 class="title">アドベントカレンダーに投稿する記事を変更</h1>
     <p class="text-red-500">※投稿や編集、削除ができるのは期間までです。</p>
     <div>
       <p>選択した日付: {{ date }}</p>
@@ -125,4 +125,8 @@ const deleteHandler = async () => {
 console.log("selectedArticle", selectedArticleId.value);
 </script>
 
-<style lang="scss" scoped></style>
+<style lang="scss" scoped>
+.main {
+  min-height: calc(100vh - 124px);
+}
+</style>
