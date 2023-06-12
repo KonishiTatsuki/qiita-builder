@@ -42,11 +42,11 @@
       </h1>
       <hr class="border-t-2 border-gray-200" />
       <!-- カテゴリタグ -->
-      <div v-if="tagNames" class="flex space-x-2 m-4">
+      <div v-if="tagNames" class="flex flex-wrap space-x-2 space-y-2 m-4">
         <span
           v-for="(tagName, index) in tagNames"
           :key="index"
-          class="bg-blue-100 text-blue-600 px-2 py-1 rounded"
+          class="bg-blue-100 text-blue-600 px-2 py-1 rounded my-1"
           >{{ tagName }}</span
         >
       </div>
