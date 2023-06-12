@@ -245,9 +245,9 @@
                         }}
                       </p>
                     </router-link>
-                    <div v-if="article.tags" class="flex space-x-2 m-4">
+                    <div v-if="article.tags" class="flex flex-wrap space-x-2 space-y-2 m-4">
                       <span
-                        class="bg-blue-100 text-blue-600 px-2 py-1 rounded"
+                        class="bg-blue-100 text-blue-600 px-2 py-1 rounded my-1"
                         v-for="tag in article.tags"
                         :key="tag"
                         >{{ getTagsName(tag) }}</span
