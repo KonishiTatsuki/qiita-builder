@@ -245,7 +245,10 @@
                         }}
                       </p>
                     </router-link>
-                    <div v-if="article.tags" class="flex flex-wrap space-x-2 space-y-2 m-4">
+                    <div
+                      v-if="article.tags"
+                      class="flex flex-wrap space-x-2 space-y-2 m-4"
+                    >
                       <span
                         class="bg-blue-100 text-blue-600 px-2 py-1 rounded my-1"
                         v-for="tag in article.tags"
@@ -258,10 +261,10 @@
                     >
                       投稿日：{{ formatDate(article.date) }}
                     </div>
-                    <div class="mt-4" v-if="authority"></div>
                   </div>
                   <div>
                     <button
+                      v-if="authority"
                       @click="(open = true), (deleteItem = article.id)"
                       class="btn h-[40px] w-[70px]"
                     >
