@@ -187,7 +187,7 @@ const submitHandler = async () => {
     method: "PATCH",
     body: { postData: postData, tag: select },
   });
-  router.push("/");
+  router.push(`/articleDetail/${id}`);
 };
 
 const draftHandler = async () => {
@@ -204,7 +204,7 @@ const draftHandler = async () => {
     method: "PATCH",
     body: { postData: postData, tag: select },
   });
-  router.push("/");
+  router.push("/myPage");
 };
 
 const deleteHandler = async () => {
