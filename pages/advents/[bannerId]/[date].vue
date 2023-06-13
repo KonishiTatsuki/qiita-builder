@@ -3,7 +3,7 @@
     <h1 class="title">アドベントカレンダーに投稿</h1>
     <p class="text-red-500">※投稿や編集、削除ができるのは期間までです。</p>
     <div>
-      <p>選択した日付: {{ date }}日</p>
+      <p>選択した日付: {{ date }}</p>
     </div>
     <h2 class="subtitle">投稿する記事の選択</h2>
     <label
