@@ -179,7 +179,7 @@
             <div class="-my-8 divide-y-2 divide-gray-100">
               <div
                 class="flex flex-wrap md:flex-nowrap rounded-lg px-6 pt-6 pb-3 m-8 shadow-md relative"
-                v-for="article in articleData"
+                v-for="article in filteredArticles"
                 :key="article.id"
                 v-show="
                   !article.hideByOccupation &&
@@ -294,6 +294,51 @@
         </section>
       </div>
     </div>
+    <!-- ページングコントロール -->
+    <div class="flex justify-center my-5">
+      <button
+        :disabled="currentPage === 1"
+        @click="goToFirstPage"
+        class="px-4 py-2 text-sm font-medium text-gray-900 bg-transparent border border-gray-200 rounded-l-lg hover:bg-[#1D8EB9] hover:text-white focus:z-10 focus:ring-2 focus:ring-[#1D8EB9] focus:bg-[#1D8EB9] focus:text-white focus:border-[#1D8EB9] dark:border-white dark:text-white dark:hover:text-white dark:hover:bg-gray-700 dark:focus:bg-gray-700"
+      >
+        先頭に戻る
+      </button>
+      <button
+        :disabled="currentPage === 1"
+        @click="currentPage--"
+        class="px-4 py-2 text-sm font-medium text-gray-900 bg-transparent border border-gray-200 rounded-l-lg hover:bg-[#1D8EB9] hover:text-white focus:z-10 focus:ring-2 focus:ring-[#1D8EB9] focus:bg-[#1D8EB9] focus:text-white focus:border-[#1D8EB9] dark:border-white dark:text-white dark:hover:text-white dark:hover:bg-gray-700 dark:focus:bg-gray-700"
+      >
+        前のページ
+      </button>
+      <span class="px-4 py-2 text-sm font-medium text-gray-900">
+        ページ {{ currentPage }} /
+        {{ Math.ceil(visibleArticleCount / itemsPerPage) }}
+      </span>
+      <button
+        :disabled="currentPage * itemsPerPage >= visibleArticleCount"
+        @click="currentPage++"
+        class="px-4 py-2 text-sm font-medium text-gray-900 bg-transparent border border-gray-200 rounded-r-md hover:bg-[#1D8EB9] hover:text-white focus:z-10 focus:ring-2 focus:ring-[#1D8EB9] focus:bg-[#1D8EB9] focus:text-white focus:border-[#1D8EB9] dark:border-white dark:text-white dark:hover:text-white dark:hover:bg-gray-700 dark:focus:bg-gray-700"
+      >
+        次のページ
+      </button>
+    </div>
+    <!-- ページングコントロール -->
+    <!-- <div class="flex justify-center my-5">
+      <button
+        :disabled="currentPage === 1"
+        @click="currentPage--"
+        class="px-4 py-2 text-sm font-medium text-gray-900 bg-transparent border border-gray-200 rounded-l-lg hover:bg-[#1D8EB9] hover:text-white focus:z-10 focus:ring-2 focus:ring-[#1D8EB9] focus:bg-[#1D8EB9] focus:text-white focus:border-[#1D8EB9] dark:border-white dark:text-white dark:hover:text-white dark:hover:bg-gray-700 dark:focus:bg-gray-700"
+      >
+        前のページ
+      </button>
+      <button
+        :disabled="currentPage * itemsPerPage >= visibleArticleCount"
+        @click="currentPage++"
+        class="px-4 py-2 text-sm font-medium text-gray-900 bg-transparent border border-gray-200 rounded-r-md hover:bg-[#1D8EB9] hover:text-white focus:z-10 focus:ring-2 focus:ring-[#1D8EB9] focus:bg-[#1D8EB9] focus:text-white focus:border-[#1D8EB9] dark:border-white dark:text-white dark:hover:text-white dark:hover:bg-gray-700 dark:focus:bg-gray-700"
+      >
+        次のページ
+      </button>
+    </div> -->
   </div>
 </template>
 
@@ -333,9 +378,13 @@ let visibleClubItems = ref(10);
 let showAllClubItems = ref(false);
 let bannerData = ref([]);
 let tags = ref([]);
-// let perPage = 3; // 1ページに表示する記事の数
-// let currentPage = ref(1); // 現在のページ
-// const open = ref(false);
+const currentPage = ref(1); // 現在のページ番号
+const itemsPerPage = 20; // 1ページに表示する項目数
+
+// 先頭ページに移動する
+const goToFirstPage = () => {
+  currentPage.value = 1;
+};
 
 (async () => {
   let { data } = await supabase
@@ -479,6 +528,7 @@ const filterArticles = (searchParam) => {
     const bodyMatch = article.body.toLowerCase().includes(query);
     article.hide = !(titleMatch || bodyMatch);
   });
+  goToFirstPage();
 };
 
 // クエリパラメータが変更される毎にfilterArticles関数が行われる
@@ -490,16 +540,19 @@ watchEffect(() => {
 // 記事データを投稿日順にソートする
 const sortArticlesByDate = () => {
   articleData.value.sort((a, b) => new Date(a.date) - new Date(b.date));
+  goToFirstPage();
 };
 
 // 記事データを新着順にソートする
 const sortArticlesByDateDescending = () => {
   articleData.value.sort((a, b) => new Date(b.date) - new Date(a.date));
+  goToFirstPage();
 };
 
 // 記事データをいいね数の降順にソートする
 const sortByLikes = () => {
   articleData.value.sort((a, b) => b.like - a.like);
+  goToFirstPage();
 };
 
 // 職種をフィルターする関数
@@ -519,6 +572,7 @@ const filterArticlesByOccupation = () => {
       );
     }
   });
+  goToFirstPage();
 };
 
 // サークルをフィルターする関数
@@ -536,6 +590,7 @@ const filterArticlesByClub = () => {
       article.hideByClub = !selectedClubs.includes(article.clubTagId);
     }
   });
+  goToFirstPage();
 };
 
 // プログラミング言語をフィルターする関数
@@ -555,6 +610,7 @@ const filterArticlesByTag = () => {
       );
     }
   });
+  goToFirstPage();
 };
 
 // プログラミング言語のフィルターがcheckされたか判定する
@@ -590,15 +646,35 @@ const hasVisibleArticles = computed(() => {
   });
 });
 
-// const pageCount = computed(() => {
-//   return Math.ceil(articleData.value.length / perPage); // ページ数の計算
-// });
+const filteredArticles = computed(() => {
+  const filtered = articleData.value.filter((article) => {
+    // フィルタリングの条件を追加する
+    return (
+      !article.hideByOccupation &&
+      !article.hideByClub &&
+      !article.hideByTag &&
+      !article.hide
+    );
+  });
 
-// const visibleArticleData = computed(() => {
-//   const startIndex = (currentPage.value - 1) * perPage; // 表示する記事の開始インデックス
-//   const endIndex = startIndex + perPage; // 表示する記事の終了インデックス
-//   return articleData.value.slice(startIndex, endIndex); // 表示する記事データの抽出
-// });
+  // フィルタリングされた記事をページング用にスライスする
+  const startIndex = (currentPage.value - 1) * itemsPerPage;
+  const endIndex = startIndex + itemsPerPage;
+  return filtered.slice(startIndex, endIndex);
+});
+
+const visibleArticleCount = computed(() => {
+  const filtered = articleData.value.filter((article) => {
+    // フィルタリングの条件を追加する
+    return (
+      !article.hideByOccupation &&
+      !article.hideByClub &&
+      !article.hideByTag &&
+      !article.hide
+    );
+  });
+  return filtered.length;
+});
 
 // プログラミング言語の表示数を変更する
 const toggleShowAllTagItems = () => {
