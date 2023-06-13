@@ -1,16 +1,12 @@
 <template>
-  <div>
+  <div class="main">
     <h1 class="title">アドベントカレンダーに投稿</h1>
     <p class="text-red-500">※投稿や編集、削除ができるのは期間までです。</p>
     <div>
       <p>選択した日付: {{ date }}</p>
     </div>
     <h2 class="subtitle">投稿する記事の選択</h2>
-    <label
-      for="countries"
-      class="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
-      >記事を選択する</label
-    >
+
     <select
       id="countries"
       class="bg-gray-50 border border-gray-300 text-gray-900 text-lg rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
@@ -36,7 +32,6 @@
       >
         投稿
       </button>
-      <button class="btn m-3 block" @click="deleteHandler">削除</button>
     </div>
   </div>
 </template>
@@ -126,6 +121,6 @@ console.log("selectedArticle", selectedArticleId.value);
 
 <style scoped>
 .main {
-  min-height: calc(100vh - 124px);
+  min-height: calc(100vh - 260px);
 }
 </style>
