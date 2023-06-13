@@ -203,7 +203,7 @@ const draftHandler = async () => {
     method: "POST",
     body: { article: postData, tagArray: select.value },
   });
-  router.push("/");
+  router.push("/myPage");
 };
 
 onMounted(async () => {

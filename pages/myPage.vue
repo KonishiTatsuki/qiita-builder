@@ -3,21 +3,25 @@
     <div class="flex-auto">
       <div class="flex justify-between">
         <div class="w-full pr-[100px]">
-          <div>
-            <p>投稿記事一覧</p>
-            <hr class="mb-[20px]" />
+          <div class="mb-16">
+            <span
+              class="mdi mdi-note-edit-outline text-2xl text-grey-500"
+            ></span>
+            <span class="text-2xl mb-4 ml-10">投稿記事一覧</span>
+            <hr class="my-5" />
             <ul class="min-h-[250px]">
               <li
-                v-for="article in myArticleArray"
+                v-for="(article, index) in visiblePostItems"
                 :key="article.id"
                 class="flex items-center justify-between mb-[10px]"
               >
-                <NuxtLink :to="`/articleDetail/${article.id}`">
-                  <p class="ml-[10px] font-bold">{{ article.title }}</p>
+                <span class="mdi mdi-chevron-right w-1/12 text-blue-500"></span>
+                <NuxtLink :to="`/articleDetail/${article.id}`" class="w-8/12">
+                  <p class="font-bold">{{ article.title }}</p>
                 </NuxtLink>
                 <div class="flex items-center">
                   <NuxtLink :to="`/articles/edit/${article.id}`">
-                    <button type="submit" class="btn mr-[30px] w-[80px]">
+                    <button type="submit" class="btn mr-[30px] w-[80px] w-3/12">
                       編集
                     </button>
                   </NuxtLink>
@@ -27,25 +31,58 @@
                 </div>
               </li>
             </ul>
-
-            <p class="mt-5">いいねした記事一覧</p>
-            <hr class="mb-5" />
+            <button
+              v-show="showMorePostItemsButton"
+              @click="showMorePostItems"
+              class="mt-4 underline decoration-sky-500"
+            >
+              もっと見る
+            </button>
+            <button
+              v-show="showClosePostItemsButton"
+              @click="closePostItemsAccordion"
+              class="mt-4 underline decoration-sky-500"
+            >
+              閉じる
+            </button>
+          </div>
+          <div>
+            <span
+              class="mdi mdi-thumb-up-outline text-2xl text-grey-500"
+            ></span>
+            <span class="my-4 text-2xl ml-10">いいねした記事一覧</span>
+            <hr class="my-5" />
             <ul class="min-h-[250px]">
               <li
-                v-for="article in myLikeArray"
-                :key="article.id"
-                class="my-4 flex justify-between"
+                v-for="like in visibleLikeItems"
+                :key="like.id"
+                class="flex justify-between mb-[10px]"
               >
-                <p class="ml-[10px] font-bold w-4/5">
-                  {{ article.title }}
+                <span class="mdi mdi-chevron-right w-1/12 text-blue-500"></span>
+                <p class="ml-[10px] font-bold w-4/5 mb-[10px]">
+                  {{ like.title }}
                 </p>
                 <NuxtLink
-                  :to="`/articleDetail/${article.id}`"
+                  :to="`/articleDetail/${like.id}`"
                   class="text-indigo-500 inline-flex items-center w-1/5 justify-center"
                   >記事詳細&nbsp;→</NuxtLink
                 >
               </li>
             </ul>
+            <button
+              v-show="showMoreLikeItemsButton"
+              @click="showMoreLikeItems"
+              class="mt-4 underline decoration-sky-500"
+            >
+              もっと見る
+            </button>
+            <button
+              v-show="showCloseLikeItemsButton"
+              @click="closeLikeItemsAccordion"
+              class="mt-4 underline decoration-sky-500"
+            >
+              閉じる
+            </button>
           </div>
         </div>
         <div class="w-[300px] mt-[50px]">
@@ -68,6 +105,8 @@
 </template>
 
 <script setup lang="ts">
+import { Article } from "~/types";
+
 useHead({
   title: "マイページ",
 });
@@ -83,17 +122,71 @@ const { data: user } = await useFetch("/api/user/get", {
 
 const authority = user.value?.authority;
 
+//自分が書いた記事の取得
+let postItems: Article[] = reactive([]);
+const postNum = ref(5);
+const visiblePostItems = computed(() => postItems.slice(0, postNum.value));
+const showMorePostItemsButton = computed(
+  () => postItems.length > postNum.value
+);
+const showClosePostItemsButton = ref(false);
+
+function showMorePostItems() {
+  postNum.value += 5; // 5行ずつ追加する
+  if (postItems.length <= postNum.value) {
+    // showMorePostItemsButton.value = false;
+    showClosePostItemsButton.value = true;
+  }
+}
+
+function closePostItemsAccordion() {
+  postNum.value = 5; // 初期表示に戻す
+  showClosePostItemsButton.value = false;
+  //   showMorePostItemsButton.value = true;
+}
+
+//　自分が書いた記事を取得
+const { data: myArticle }: Article[] = await useFetch(
+  `/api/article/mypage/get?userId=${userId}`
+);
+if (myArticle.value) {
+  myArticle.value.map((item: Article) => {
+    postItems.push(item); // レスポンスデータをitems配列に追加
+  });
+}
+
+//いいねした記事の取得
+let likeItems: { id: number; title: string }[] = reactive([]); // アコーディオンのアイテムのリスト
+const likeNum = ref(5);
+const visibleLikeItems = computed(() => likeItems.slice(0, likeNum.value));
+const showMoreLikeItemsButton = computed(
+  () => likeItems.length > likeNum.value
+);
+const showCloseLikeItemsButton = ref(false);
+
+function showMoreLikeItems() {
+  likeNum.value += 5; // 5行ずつ追加する
+  if (likeItems.length <= likeNum.value) {
+    // showMorePostItemsButton.value = false;
+    showCloseLikeItemsButton.value = true;
+  }
+}
+
+function closeLikeItemsAccordion() {
+  likeNum.value = 5; // 初期表示に戻す
+  showCloseLikeItemsButton.value = false;
+  //   showMorePostItemsButton.value = true;
+}
+
 //いいねした記事を取得
 const { data: likeArticleArray } = await useFetch(
   `/api/like/get?userId=${userId}`
 );
-const myLikeArray = likeArticleArray.value;
-
-//自分が書いた記事を取得
-const { data: myArticle } = await useFetch(
-  `/api/article/mypage/get?userId=${userId}`
-);
-const myArticleArray = myArticle.value;
+if (likeArticleArray.value) {
+  likeArticleArray.value.map((like: { id: number; title: string }) => {
+    likeItems.push(like);
+  });
+}
 </script>
 
 <style scoped>
