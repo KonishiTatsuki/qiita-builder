@@ -1,299 +1,319 @@
 <template>
-  <div class="scale-75">
-    <div class="flex">
-      <!-- カテゴリ検索欄 -->
-      <div class="flex flex-col">
-        <!-- プログラミング言語 -->
-        <div class="pt-12 mr-5">
-          <h3 class="mb-4 font-semibold text-gray-900 dark:text-white">
-            プログラミング言語
-          </h3>
-          <ul
-            class="w-48 text-sm font-medium text-gray-900 bg-white border border-gray-200 rounded-lg dark:bg-gray-700 dark:border-gray-600 dark:text-white"
+  <div class="flex mb-0">
+    <!-- カテゴリ検索欄 -->
+    <div class="flex flex-col">
+      <!-- プログラミング言語 -->
+      <div class="pt-12 mr-5">
+        <h3 class="mb-4 font-semibold text-gray-900 dark:text-white">
+          プログラミング言語
+        </h3>
+        <ul
+          class="w-48 text-sm font-medium text-gray-900 bg-white border border-gray-200 rounded-lg dark:bg-gray-700 dark:border-gray-600 dark:text-white"
+        >
+          <li
+            v-for="(tag, index) in tagName"
+            :key="index"
+            v-show="index < visibleTagItems"
+            class="w-full border-b border-gray-200 rounded-t-lg dark:border-gray-600"
           >
-            <li
-              v-for="(tag, index) in tagName"
-              :key="index"
-              v-show="index < visibleTagItems"
-              class="w-full border-b border-gray-200 rounded-t-lg dark:border-gray-600"
-            >
-              <div class="flex items-center pl-3">
-                <input
-                  :id="'tag-checkbox-' + index"
-                  type="checkbox"
-                  value="tag"
-                  class="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-700 dark:focus:ring-offset-gray-700 focus:ring-2 dark:bg-gray-600 dark:border-gray-500 cursor-pointer"
-                  v-model="tag.checked"
-                  @change="filterArticlesByTag"
-                />
-                <label
-                  :for="'tag-checkbox-' + index"
-                  class="w-full py-3 ml-2 text-sm font-medium text-gray-900 dark:text-gray-300 cursor-pointer"
-                  >{{ tag.name }}</label
-                >
-              </div>
-            </li>
-          </ul>
-          <div v-if="tagName.length > 10" class="text-right">
-            <button
-              class="text-blue-600 text-sm font-medium"
-              @click="toggleShowAllTagItems"
-            >
-              {{ showAllTagItems ? "閉じる" : "もっと見る" }}
-            </button>
-          </div>
-        </div>
-        <!-- 職種 -->
-        <div class="pt-12 mr-5">
-          <h3 class="mb-4 font-semibold text-gray-900 dark:text-white">職種</h3>
-          <ul
-            class="w-48 text-sm font-medium text-gray-900 bg-white border border-gray-200 rounded-lg dark:bg-gray-700 dark:border-gray-600 dark:text-white"
+            <div class="flex items-center pl-3">
+              <input
+                :id="'tag-checkbox-' + index"
+                type="checkbox"
+                value="tag"
+                class="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-700 dark:focus:ring-offset-gray-700 focus:ring-2 dark:bg-gray-600 dark:border-gray-500 cursor-pointer"
+                v-model="tag.checked"
+                @change="filterArticlesByTag"
+              />
+              <label
+                :for="'tag-checkbox-' + index"
+                class="w-full py-3 ml-2 text-sm font-medium text-gray-900 dark:text-gray-300 cursor-pointer"
+                >{{ tag.name }}</label
+              >
+            </div>
+          </li>
+        </ul>
+        <div v-if="tagName.length > 10" class="text-right">
+          <button
+            class="text-blue-600 text-sm font-medium"
+            @click="toggleShowAllTagItems"
           >
-            <li
-              v-for="(occupation, index) in occupationName"
-              :key="index"
-              class="w-full border-b border-gray-200 rounded-t-lg dark:border-gray-600"
-            >
-              <div class="flex items-center pl-3">
-                <input
-                  :id="'occupation-checkbox-' + index"
-                  type="checkbox"
-                  :value="occupation"
-                  class="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-700 dark:focus:ring-offset-gray-700 focus:ring-2 dark:bg-gray-600 dark:border-gray-500 cursor-pointer"
-                  v-model="occupation.checked"
-                  @change="filterArticlesByOccupation"
-                />
-                <label
-                  :for="'occupation-checkbox-' + index"
-                  class="w-full py-3 ml-2 text-sm font-medium text-gray-900 dark:text-gray-300 cursor-pointer"
-                  >{{ occupation.occupationName }}</label
-                >
-              </div>
-            </li>
-          </ul>
-        </div>
-        <!-- サークル -->
-        <div class="pt-12 mr-5">
-          <h3 class="mb-4 font-semibold text-gray-900 dark:text-white">
-            サークル
-          </h3>
-          <ul
-            class="w-48 text-sm font-medium text-gray-900 bg-white border border-gray-200 rounded-lg dark:bg-gray-700 dark:border-gray-600 dark:text-white"
-          >
-            <li
-              v-for="(club, index) in clubName"
-              :key="index"
-              v-show="index < visibleClubItems"
-              class="w-full border-b border-gray-200 rounded-t-lg dark:border-gray-600"
-            >
-              <div class="flex items-center pl-3">
-                <input
-                  :id="'club-checkbox-' + index"
-                  type="checkbox"
-                  value="club"
-                  class="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-700 dark:focus:ring-offset-gray-700 focus:ring-2 dark:bg-gray-600 dark:border-gray-500 cursor-pointer"
-                  v-model="club.checked"
-                  @change="filterArticlesByClub"
-                />
-                <label
-                  :for="'club-checkbox-' + index"
-                  class="w-full py-3 ml-2 text-sm font-medium text-gray-900 dark:text-gray-300 cursor-pointer"
-                  >{{ club.clubName }}</label
-                >
-              </div>
-            </li>
-          </ul>
-          <div v-if="clubName.length > 10" class="text-right">
-            <button
-              class="text-blue-600 text-sm font-medium"
-              @click="toggleShowAllClubItems"
-            >
-              {{ showAllClubItems ? "閉じる" : "もっと見る" }}
-            </button>
-          </div>
+            {{ showAllTagItems ? "閉じる" : "もっと見る" }}
+          </button>
         </div>
       </div>
-
-      <div class="w-full">
-        <!-- アドベントカレンダーバナー -->
-        <NuxtLink
-          v-if="bannerData && bannerData[0]?.id"
-          :to="{ path: `/calendar/${bannerData[0].id}` }"
+      <!-- 職種 -->
+      <div class="pt-12 mr-5">
+        <h3 class="mb-4 font-semibold text-gray-900 dark:text-white">職種</h3>
+        <ul
+          class="w-48 text-sm font-medium text-gray-900 bg-white border border-gray-200 rounded-lg dark:bg-gray-700 dark:border-gray-600 dark:text-white"
         >
-          <div
-            class="bg-gradient-to-r from-purple-400 via-pink-500 to-red-500 p-4 rounded-lg shadow-lg flex items-center justify-between mt-3 max-w-[1200px]"
-            :style="
-              'background-image: url(' +
-              (bannerData && bannerData[0]?.image) +
-              '); background-size: 1200px 350px;'
-            "
+          <li
+            v-for="(occupation, index) in occupationName"
+            :key="index"
+            class="w-full border-b border-gray-200 rounded-t-lg dark:border-gray-600"
           >
-            <!-- メッセージ -->
-            <div class="text-white font-bold title">
-              <p class="ml-5">Qiita Builder Advent Calendar</p>
-              <p class="ml-5">開催中</p>
+            <div class="flex items-center pl-3">
+              <input
+                :id="'occupation-checkbox-' + index"
+                type="checkbox"
+                :value="occupation"
+                class="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-700 dark:focus:ring-offset-gray-700 focus:ring-2 dark:bg-gray-600 dark:border-gray-500 cursor-pointer"
+                v-model="occupation.checked"
+                @change="filterArticlesByOccupation"
+              />
+              <label
+                :for="'occupation-checkbox-' + index"
+                class="w-full py-3 ml-2 text-sm font-medium text-gray-900 dark:text-gray-300 cursor-pointer"
+                >{{ occupation.occupationName }}</label
+              >
             </div>
-          </div>
-        </NuxtLink>
-        <!-- ソート機能 -->
-        <div class="flex justify-end max-w-[1200px]">
-          <div class="inline-flex rounded-md shadow-sm pt-5 pb-3" role="group">
-            <button
-              @click="sortArticlesByDateDescending"
-              type="button"
-              class="px-4 py-2 text-sm font-medium text-gray-900 bg-transparent border border-gray-200 rounded-l-lg hover:bg-[#1D8EB9] hover:text-white focus:z-10 focus:ring-2 focus:ring-[#1D8EB9] focus:bg-[#1D8EB9] focus:text-white focus:border-[#1D8EB9] dark:border-white dark:text-white dark:hover:text-white dark:hover:bg-gray-700 dark:focus:bg-gray-700"
-            >
-              新着順
-            </button>
-            <button
-              @click="sortArticlesByDate"
-              type="button"
-              class="px-4 py-2 text-sm font-medium text-gray-900 bg-transparent border-t border-b border-gray-200 hover:bg-[#1D8EB9] hover:text-white focus:z-10 focus:ring-2 focus:ring-[#1D8EB9] focus:bg-[#1D8EB9] focus:text-white focus:border-[#1D8EB9] dark:border-white dark:text-white dark:hover:text-white dark:hover:bg-gray-700 dark:focus:bg-gray-700"
-            >
-              投稿日順
-            </button>
-            <button
-              @click="sortByLikes"
-              type="button"
-              class="px-4 py-2 text-sm font-medium text-gray-900 bg-transparent border border-gray-200 rounded-r-md hover:bg-[#1D8EB9] hover:text-white focus:z-10 focus:ring-2 focus:ring-[#1D8EB9] focus:bg-[#1D8EB9] focus:text-white focus:border-[#1D8EB9] dark:border-white dark:text-white dark:hover:text-white dark:hover:bg-gray-700 dark:focus:bg-gray-700"
-            >
-              いいね数
-            </button>
+          </li>
+        </ul>
+      </div>
+      <!-- サークル -->
+      <div class="pt-12 mr-5">
+        <h3 class="mb-4 font-semibold text-gray-900 dark:text-white">
+          サークル
+        </h3>
+        <ul
+          class="w-48 text-sm font-medium text-gray-900 bg-white border border-gray-200 rounded-lg dark:bg-gray-700 dark:border-gray-600 dark:text-white"
+        >
+          <li
+            v-for="(club, index) in clubName"
+            :key="index"
+            v-show="index < visibleClubItems"
+            class="w-full border-b border-gray-200 rounded-t-lg dark:border-gray-600"
+          >
+            <div class="flex items-center pl-3">
+              <input
+                :id="'club-checkbox-' + index"
+                type="checkbox"
+                value="club"
+                class="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-700 dark:focus:ring-offset-gray-700 focus:ring-2 dark:bg-gray-600 dark:border-gray-500 cursor-pointer"
+                v-model="club.checked"
+                @change="filterArticlesByClub"
+              />
+              <label
+                :for="'club-checkbox-' + index"
+                class="w-full py-3 ml-2 text-sm font-medium text-gray-900 dark:text-gray-300 cursor-pointer"
+                >{{ club.clubName }}</label
+              >
+            </div>
+          </li>
+        </ul>
+        <div v-if="clubName.length > 10" class="text-right">
+          <button
+            class="text-blue-600 text-sm font-medium"
+            @click="toggleShowAllClubItems"
+          >
+            {{ showAllClubItems ? "閉じる" : "もっと見る" }}
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <div class="w-full">
+      <!-- アドベントカレンダーバナー -->
+      <NuxtLink
+        v-if="bannerData && bannerData[0]?.id"
+        :to="{ path: `/calendar/${bannerData[0].id}` }"
+      >
+        <div
+          class="bg-gradient-to-r from-purple-400 via-pink-500 to-red-500 p-4 rounded-lg shadow-lg flex items-center justify-between mt-3 max-w-[1200px]"
+          :style="
+            'background-image: url(' +
+            (bannerData && bannerData[0]?.image) +
+            '); background-size: 1200px 350px;'
+          "
+        >
+          <!-- メッセージ -->
+          <div class="text-white font-bold title">
+            <p class="ml-5">Qiita Builder Advent Calendar</p>
+            <p class="ml-5">開催中</p>
           </div>
         </div>
-        <!-- 記事一覧 -->
-        <section class="text-gray-600 body-font overflow-hidden max-w-[1200px]">
-          <div class="container px-5 pb-24 mx-auto">
+      </NuxtLink>
+      <!-- ソート機能 -->
+      <div class="flex justify-end max-w-[1200px]">
+        <div class="inline-flex rounded-md shadow-sm pt-5 pb-3" role="group">
+          <button
+            @click="sortArticlesByDateDescending"
+            type="button"
+            class="px-4 py-2 text-sm font-medium text-gray-900 bg-transparent border border-gray-200 rounded-l-lg hover:bg-[#1D8EB9] hover:text-white focus:z-10 focus:ring-2 focus:ring-[#1D8EB9] focus:bg-[#1D8EB9] focus:text-white focus:border-[#1D8EB9] dark:border-white dark:text-white dark:hover:text-white dark:hover:bg-gray-700 dark:focus:bg-gray-700"
+          >
+            新着順
+          </button>
+          <button
+            @click="sortArticlesByDate"
+            type="button"
+            class="px-4 py-2 text-sm font-medium text-gray-900 bg-transparent border-t border-b border-gray-200 hover:bg-[#1D8EB9] hover:text-white focus:z-10 focus:ring-2 focus:ring-[#1D8EB9] focus:bg-[#1D8EB9] focus:text-white focus:border-[#1D8EB9] dark:border-white dark:text-white dark:hover:text-white dark:hover:bg-gray-700 dark:focus:bg-gray-700"
+          >
+            投稿日順
+          </button>
+          <button
+            @click="sortByLikes"
+            type="button"
+            class="px-4 py-2 text-sm font-medium text-gray-900 bg-transparent border border-gray-200 rounded-r-md hover:bg-[#1D8EB9] hover:text-white focus:z-10 focus:ring-2 focus:ring-[#1D8EB9] focus:bg-[#1D8EB9] focus:text-white focus:border-[#1D8EB9] dark:border-white dark:text-white dark:hover:text-white dark:hover:bg-gray-700 dark:focus:bg-gray-700"
+          >
+            いいね数
+          </button>
+        </div>
+      </div>
+      <!-- 記事一覧 -->
+      <section class="text-gray-600 body-font overflow-hidden max-w-[1200px]">
+        <div class="container px-5 pb-24 mx-auto">
+          <div
+            v-if="
+              (!hasVisibleArticles && route.currentRoute.value.query.search) ||
+              (!hasVisibleArticles && hasCheckedTags) ||
+              (!hasVisibleArticles && hasCheckedOccupations) ||
+              (!hasVisibleArticles && hasCheckedClubs)
+            "
+            class="text-center text-gray-500 py-8"
+          >
+            申し訳ございません。記事が見つかりませんでした。
+          </div>
+          <div class="-my-8 divide-y-2 divide-gray-100">
             <div
-              v-if="
-                (!hasVisibleArticles &&
-                  route.currentRoute.value.query.search) ||
-                (!hasVisibleArticles && hasCheckedTags) ||
-                (!hasVisibleArticles && hasCheckedOccupations) ||
-                (!hasVisibleArticles && hasCheckedClubs)
+              class="flex flex-wrap md:flex-nowrap rounded-lg px-6 pt-6 pb-3 m-8 shadow-md relative"
+              v-for="article in filteredArticles"
+              :key="article.id"
+              v-show="
+                !article.hideByOccupation &&
+                !article.hideByClub &&
+                !article.hideByTag &&
+                !article.hide
               "
-              class="text-center text-gray-500 py-8"
             >
-              申し訳ございません。記事が見つかりませんでした。
-            </div>
-            <div class="-my-8 divide-y-2 divide-gray-100">
-              <div
-                class="flex flex-wrap md:flex-nowrap rounded-lg px-6 pt-6 pb-3 m-8 shadow-md relative"
-                v-for="article in articleData"
-                :key="article.id"
-                v-show="
-                  !article.hideByOccupation &&
-                  !article.hideByClub &&
-                  !article.hideByTag &&
-                  !article.hide
-                "
-              >
-                <div class="flex w-full">
-                  <div class="md:w-64 md:mb-0 mb-6 flex-shrink-0 flex flex-col">
-                    <div class="flex items-center">
-                      <!-- アイコン -->
-                      <img
-                        v-if="article.image"
-                        :src="article.image"
-                        alt="Icon"
-                        class="w-8 h-8 rounded-full mr-2"
-                      />
-                      <span
-                        class="font-semibold title-font text-gray-700 mr-1 tooltip"
-                        >{{ article.username }}&nbsp;（{{
-                          getOccupationName(article.occupationTagId)
-                        }}）</span
-                      >
-                    </div>
-                    <div v-if="article.clubTagId" class="mt-1">
-                      <span class="text-gray-500">
-                        {{ getClubsName(article.clubTagId) }}
-                      </span>
-                    </div>
+              <div class="flex w-full">
+                <div class="md:w-64 md:mb-0 mb-6 flex-shrink-0 flex flex-col">
+                  <div class="flex items-center">
+                    <!-- アイコン -->
+                    <img
+                      v-if="article.image"
+                      :src="article.image"
+                      alt="Icon"
+                      class="w-8 h-8 rounded-full mr-2"
+                    />
+                    <span
+                      class="font-semibold title-font text-gray-700 mr-1 tooltip"
+                      >{{ article.username }}&nbsp;（{{
+                        getOccupationName(article.occupationTagId)
+                      }}）</span
+                    >
+                  </div>
+                  <div v-if="article.clubTagId" class="mt-1">
+                    <span class="text-gray-500">
+                      {{ getClubsName(article.clubTagId) }}
+                    </span>
+                  </div>
 
-                    <div class="flex mt-1">
-                      <HeartIcon class="h-6 w-6" />
-                      <span class="font-semibold title-font text-gray-700 ml-1">
-                        {{ article.like }}
-                      </span>
-                    </div>
+                  <div class="flex mt-1">
+                    <HeartIcon class="h-6 w-6" />
+                    <span class="font-semibold title-font text-gray-700 ml-1">
+                      {{ article.like }}
+                    </span>
                   </div>
-                  <div class="md:flex-grow mr-5 overflow-hidden">
-                    <router-link
-                      :to="`/articleDetail/${article.id}`"
-                      class="hover:underline"
+                </div>
+                <div class="md:flex-grow mr-5 overflow-hidden">
+                  <router-link
+                    :to="`/articleDetail/${article.id}`"
+                    class="hover:underline"
+                  >
+                    <h2
+                      class="text-4xl font-medium text-gray-900 title-font mb-2"
                     >
-                      <h2
-                        class="text-4xl font-medium text-gray-900 title-font mb-2"
-                      >
-                        {{
-                          article.title.length > 30
-                            ? article.title.slice(0, 30) + "..."
-                            : article.title
-                        }}
-                      </h2>
-                    </router-link>
-                    <router-link
-                      :to="`/articleDetail/${article.id}`"
-                      class="hover:underline"
+                      {{
+                        article.title.length > 30
+                          ? article.title.slice(0, 30) + "..."
+                          : article.title
+                      }}
+                    </h2>
+                  </router-link>
+                  <router-link
+                    :to="`/articleDetail/${article.id}`"
+                    class="hover:underline"
+                  >
+                    <p class="leading-relaxed" id="custom-prose">
+                      {{
+                        article.body.length > 100
+                          ? article.body.slice(0, 100) + "..."
+                          : article.body
+                      }}
+                    </p>
+                  </router-link>
+                  <div
+                    v-if="article.tags"
+                    class="flex flex-wrap space-x-2 space-y-2 m-4"
+                  >
+                    <span
+                      class="bg-blue-100 text-blue-600 px-2 py-1 rounded my-1"
+                      v-for="tag in article.tags"
+                      :key="tag"
+                      >{{ getTagsName(tag) }}</span
                     >
-                      <p class="leading-relaxed" id="custom-prose">
-                        {{
-                          article.body.length > 100
-                            ? article.body.slice(0, 100) + "..."
-                            : article.body
-                        }}
-                      </p>
-                    </router-link>
-                    <div
-                      v-if="article.tags"
-                      class="flex flex-wrap space-x-2 space-y-2 m-4"
-                    >
-                      <span
-                        class="bg-blue-100 text-blue-600 px-2 py-1 rounded my-1"
-                        v-for="tag in article.tags"
-                        :key="tag"
-                        >{{ getTagsName(tag) }}</span
-                      >
-                    </div>
-                    <div
-                      class="text-gray-500 text-sm absolute bottom-1 right-3"
-                    >
-                      投稿日：{{ formatDate(article.date) }}
-                    </div>
                   </div>
-                  <div>
-                    <button
-                      v-if="authority"
-                      @click="(open = true), (deleteItem = article.id)"
-                      class="btn h-[40px] w-[70px]"
-                    >
-                      削除
-                    </button>
-                    <Teleport to="body">
-                      <div v-if="open" class="modal">
-                        <div class="modal-content">
-                          <p class="mb-5">本当に削除しますか？</p>
-                          <button @click="open = false" class="btn mr-5">
-                            No
-                          </button>
-                          <button
-                            class="btn"
-                            @click="deleteArticle(deleteItem)"
-                          >
-                            Yes
-                          </button>
-                        </div>
+                  <div class="text-gray-500 text-sm absolute bottom-1 right-3">
+                    投稿日：{{ formatDate(article.date) }}
+                  </div>
+                </div>
+                <div>
+                  <button
+                    v-if="authority"
+                    @click="(open = true), (deleteItem = article.id)"
+                    class="btn h-[40px] w-[70px]"
+                  >
+                    削除
+                  </button>
+                  <Teleport to="body">
+                    <div v-if="open" class="modal">
+                      <div class="modal-content">
+                        <p class="mb-5">本当に削除しますか？</p>
+                        <button @click="open = false" class="btn mr-5">
+                          No
+                        </button>
+                        <button class="btn" @click="deleteArticle(deleteItem)">
+                          Yes
+                        </button>
                       </div>
-                    </Teleport>
-                  </div>
+                    </div>
+                  </Teleport>
                 </div>
               </div>
             </div>
           </div>
-        </section>
-      </div>
+        </div>
+      </section>
     </div>
+  </div>
+  <!-- ページングコントロール -->
+  <div class="flex justify-center my-5">
+    <button
+      :disabled="currentPage === 1"
+      @click="goToFirstPage"
+      class="px-4 py-2 text-sm font-medium text-gray-900 bg-transparent border border-gray-200 rounded-l-lg hover:bg-[#1D8EB9] hover:text-white focus:z-10 focus:ring-2 focus:ring-[#1D8EB9] focus:bg-[#1D8EB9] focus:text-white focus:border-[#1D8EB9] dark:border-white dark:text-white dark:hover:text-white dark:hover:bg-gray-700 dark:focus:bg-gray-700"
+    >
+      先頭に戻る
+    </button>
+    <button
+      :disabled="currentPage === 1"
+      @click="currentPage--"
+      class="px-4 py-2 text-sm font-medium text-gray-900 bg-transparent border border-gray-200 rounded-l-lg hover:bg-[#1D8EB9] hover:text-white focus:z-10 focus:ring-2 focus:ring-[#1D8EB9] focus:bg-[#1D8EB9] focus:text-white focus:border-[#1D8EB9] dark:border-white dark:text-white dark:hover:text-white dark:hover:bg-gray-700 dark:focus:bg-gray-700"
+    >
+      前のページ
+    </button>
+    <span class="px-4 py-2 text-sm font-medium text-gray-900">
+      ページ {{ currentPage }} /
+      {{ Math.ceil(visibleArticleCount / itemsPerPage) }}
+    </span>
+    <button
+      :disabled="currentPage * itemsPerPage >= visibleArticleCount"
+      @click="currentPage++"
+      class="px-4 py-2 text-sm font-medium text-gray-900 bg-transparent border border-gray-200 rounded-r-md hover:bg-[#1D8EB9] hover:text-white focus:z-10 focus:ring-2 focus:ring-[#1D8EB9] focus:bg-[#1D8EB9] focus:text-white focus:border-[#1D8EB9] dark:border-white dark:text-white dark:hover:text-white dark:hover:bg-gray-700 dark:focus:bg-gray-700"
+    >
+      次のページ
+    </button>
   </div>
 </template>
 
@@ -333,9 +353,13 @@ let visibleClubItems = ref(10);
 let showAllClubItems = ref(false);
 let bannerData = ref([]);
 let tags = ref([]);
-// let perPage = 3; // 1ページに表示する記事の数
-// let currentPage = ref(1); // 現在のページ
-// const open = ref(false);
+const currentPage = ref(1); // 現在のページ番号
+const itemsPerPage = 20; // 1ページに表示する項目数
+
+// 先頭ページに移動する
+const goToFirstPage = () => {
+  currentPage.value = 1;
+};
 
 (async () => {
   let { data } = await supabase
@@ -479,6 +503,7 @@ const filterArticles = (searchParam) => {
     const bodyMatch = article.body.toLowerCase().includes(query);
     article.hide = !(titleMatch || bodyMatch);
   });
+  goToFirstPage();
 };
 
 // クエリパラメータが変更される毎にfilterArticles関数が行われる
@@ -490,16 +515,19 @@ watchEffect(() => {
 // 記事データを投稿日順にソートする
 const sortArticlesByDate = () => {
   articleData.value.sort((a, b) => new Date(a.date) - new Date(b.date));
+  goToFirstPage();
 };
 
 // 記事データを新着順にソートする
 const sortArticlesByDateDescending = () => {
   articleData.value.sort((a, b) => new Date(b.date) - new Date(a.date));
+  goToFirstPage();
 };
 
 // 記事データをいいね数の降順にソートする
 const sortByLikes = () => {
   articleData.value.sort((a, b) => b.like - a.like);
+  goToFirstPage();
 };
 
 // 職種をフィルターする関数
@@ -519,6 +547,7 @@ const filterArticlesByOccupation = () => {
       );
     }
   });
+  goToFirstPage();
 };
 
 // サークルをフィルターする関数
@@ -536,6 +565,7 @@ const filterArticlesByClub = () => {
       article.hideByClub = !selectedClubs.includes(article.clubTagId);
     }
   });
+  goToFirstPage();
 };
 
 // プログラミング言語をフィルターする関数
@@ -555,6 +585,7 @@ const filterArticlesByTag = () => {
       );
     }
   });
+  goToFirstPage();
 };
 
 // プログラミング言語のフィルターがcheckされたか判定する
@@ -590,15 +621,35 @@ const hasVisibleArticles = computed(() => {
   });
 });
 
-// const pageCount = computed(() => {
-//   return Math.ceil(articleData.value.length / perPage); // ページ数の計算
-// });
+const filteredArticles = computed(() => {
+  const filtered = articleData.value.filter((article) => {
+    // フィルタリングの条件を追加する
+    return (
+      !article.hideByOccupation &&
+      !article.hideByClub &&
+      !article.hideByTag &&
+      !article.hide
+    );
+  });
 
-// const visibleArticleData = computed(() => {
-//   const startIndex = (currentPage.value - 1) * perPage; // 表示する記事の開始インデックス
-//   const endIndex = startIndex + perPage; // 表示する記事の終了インデックス
-//   return articleData.value.slice(startIndex, endIndex); // 表示する記事データの抽出
-// });
+  // フィルタリングされた記事をページング用にスライスする
+  const startIndex = (currentPage.value - 1) * itemsPerPage;
+  const endIndex = startIndex + itemsPerPage;
+  return filtered.slice(startIndex, endIndex);
+});
+
+const visibleArticleCount = computed(() => {
+  const filtered = articleData.value.filter((article) => {
+    // フィルタリングの条件を追加する
+    return (
+      !article.hideByOccupation &&
+      !article.hideByClub &&
+      !article.hideByTag &&
+      !article.hide
+    );
+  });
+  return filtered.length;
+});
 
 // プログラミング言語の表示数を変更する
 const toggleShowAllTagItems = () => {
