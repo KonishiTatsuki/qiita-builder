@@ -105,8 +105,18 @@
         <div class="text-red-500">{{ msgForaddDisplayClub }}</div>
         <div class="flex justify-end">
           <div class="mr-2">
-            <button class="btn p-1" @click="deleteClub">削除</button>
+            <button class="btn p-1" @click="clubModal = true">削除</button>
           </div>
+          <Teleport to="body">
+            <div v-if="clubModal" class="modal">
+              <div class="modal-content">
+                <p class="mb-5">本当に削除しますか？</p>
+                <button @click="clubModal = false" class="btn mr-5">No</button>
+                <button @click="deleteClub" class="btn">Yes</button>
+                <div class="text-red-500">{{ msgForDeleteClub }}</div>
+              </div>
+            </div>
+          </Teleport>
           <div><button class="btn p-1" @click="addDisplay">表示</button></div>
         </div>
       </div>
@@ -185,6 +195,7 @@ import { Database } from "~/types/database.types";
 
 const client = useSupabaseClient<Database>();
 const open = ref(false);
+const clubModal = ref(false);
 const deleteItem = ref();
 
 const { data: allclub } = await useFetch("/api/club/get");
@@ -234,6 +245,7 @@ const newclub = ref("");
 const addDisplayClub = ref();
 const msgForaddDisplayClub = ref();
 const msgForaddnonDisplayClub = ref();
+const msgForDeleteClub = ref();
 const addnonDisplayClub = ref([]);
 
 type useClub = {
@@ -274,7 +286,7 @@ const nonDisplay = async () => {
 const deleteClub = async () => {
   console.log(addDisplayClub.value);
   if (addDisplayClub.value === undefined) {
-    msgForaddDisplayClub.value = "サークルを選択してください";
+    msgForDeleteClub.value = "サークルを選択してください";
   } else {
     const deleteClubId = addDisplayClub.value.id;
     await useFetch(`/api/club/delete?clubid=${deleteClubId}`);
@@ -333,3 +345,25 @@ const deleteOwner = async (id: number) => {
   location.reload();
 };
 </script>
+
+<style>
+.modal {
+  position: fixed;
+  z-index: 1;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  overflow: auto;
+  /* background-color: #959393; */
+  background-color: rgba(149, 147, 147, 0.3);
+}
+.modal-content {
+  background-color: #fefefe;
+  margin: 15% auto;
+  padding: 40px;
+  border: 1px solid #888;
+  width: 300px;
+  text-align: center;
+}
+</style>
