@@ -465,7 +465,45 @@ if (commentDates.value) {
 //コメント
 let comment = ref("");
 let commentError = ref("");
+const commentText = ref();
 
+import { createClient } from "@supabase/supabase-js";
+
+const supabase = createClient(
+  `https://niezwnppucjwhxwfaxyr.supabase.co`,
+  `eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5pZXp3bnBwdWNqd2h4d2ZheHlyIiwicm9sZSI6ImFub24iLCJpYXQiOjE2ODQ3MjkzNDAsImV4cCI6MjAwMDMwNTM0MH0.04tShAmtbz0zXhsyNQYo2fhcO2Tx0aQdI67Cg2f3BTo`
+);
+
+const supabaseComment = supabase
+  .channel("comment")
+  .on(
+    "postgres_changes",
+    {
+      event: "*",
+      schema: "public",
+      table: "comment",
+    },
+    async (payload) => {
+      // 変更後のデータに対しての処理を記載
+      const { data: commentDates } = await useFetch("/api/comment/get", {
+        method: "POST",
+        body: articleId,
+      });
+      if (commentDates.value) {
+        const { data: commentItem } = await useFetch(
+          "/api/user/commentUserGet",
+          {
+            method: "POST",
+            body: commentDates.value,
+          }
+        );
+        commentDate.value = commentItem.value;
+      } else {
+        console.log("投稿済みコメントなし");
+      }
+    }
+  )
+  .subscribe();
 // textareaValue.value.length >= 8;
 //コメント送信
 const submit = async () => {
@@ -480,7 +518,7 @@ const submit = async () => {
       },
     });
     errorText.value = false;
-    location.reload();
+    // location.reload();
   } else {
     errorText.value = true;
   }
@@ -495,7 +533,7 @@ const deleteComment = async (commentId) => {
       body: commentId,
     });
     open.value = false;
-    location.reload();
+    // location.reload();
     // 削除後にコメントを再取得するなどの更新処理を実行する場合はここで行う
   } catch (error) {
     console.error(error);
