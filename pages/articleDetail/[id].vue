@@ -2,23 +2,37 @@
   <div class="flex flex-col md:flex-row">
     <div class="md:w-2/3 p-4">
       <!-- アイコン・ユーザ名・投稿日 -->
-      <div class="flex items-center mb-4">
-        <!-- アイコン -->
-        <img
-          v-if="articleUsers.image"
-          :src="articleUsers.image"
-          alt="User"
-          class="w-8 h-8 rounded-full mr-2"
-        />
-        <!-- ユーザ名 -->
-        <span v-if="articleUsers" class="text-gray-600 text-sm">{{
-          articleUsers.username
-        }}</span>
-        <span class="text-gray-400 text-sm mx-2">&nbsp;&nbsp;&nbsp;</span>
-        <!-- 投稿日 -->
-        <span v-if="formattedDate" class="text-gray-600 text-sm"
-          >投稿：{{ formattedDate }}</span
+      <div class="flex items-center mb-4 justify-between">
+        <div class="flex items-center">
+          <!-- アイコン -->
+          <img
+            v-if="articleUsers.image"
+            :src="articleUsers.image"
+            alt="User"
+            class="w-8 h-8 rounded-full mr-2"
+          />
+          <!-- ユーザ名 -->
+          <span v-if="articleUsers" class="text-gray-600 text-sm">{{
+            articleUsers.username
+          }}</span>
+          <span class="text-gray-400 text-sm mx-2">&nbsp;&nbsp;&nbsp;</span>
+          <!-- 投稿日 -->
+          <span v-if="formattedDate" class="text-gray-600 text-sm"
+            >投稿：{{ formattedDate }}</span
+          >
+        </div>
+
+        <NuxtLink
+          v-if="articleDatas[0].userId === userId"
+          :to="`/articles/edit/${articleId}`"
         >
+          <button
+            type="submit"
+            class="mb-2 mr-10 mb-5 bg-[#FFFFFF] border-indigo-700 px-4 py-2 rounded-md text-base border hover:bg-[#1D8EB9] hover:text-white"
+          >
+            編集
+          </button>
+        </NuxtLink>
       </div>
       <!-- 記事タイトル -->
       <h1 v-if="articleData" class="text-4xl font-bold mb-2">
@@ -82,7 +96,12 @@
           >目標まで残り</span
         >
         <p
-          v-if="articleData && goalLike > 0 && !articleData.qiitaPost && !qiitaPostCheck"
+          v-if="
+            articleData &&
+            goalLike > 0 &&
+            !articleData.qiitaPost &&
+            !qiitaPostCheck
+          "
           class="text-red-500 text-4xl font-bold flex justify-center m-4"
         >
           {{ goalLike }}
