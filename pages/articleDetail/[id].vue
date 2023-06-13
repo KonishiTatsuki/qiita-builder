@@ -518,6 +518,7 @@ const submit = async () => {
       },
     });
     errorText.value = false;
+    comment.value = "";
     // location.reload();
   } else {
     errorText.value = true;
