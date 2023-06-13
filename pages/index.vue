@@ -318,7 +318,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed } from "vue";
+import { ref, computed, onMounted } from "vue";
 import { useRouter } from "vue-router";
 import { HeartIcon } from "@heroicons/vue/outline";
 
@@ -361,7 +361,7 @@ const goToFirstPage = () => {
   currentPage.value = 1;
 };
 
-(async () => {
+const Fn = async () => {
   let { data } = await supabase
     .from("article")
     .select("body, clubTagId, date, delete, id, occupationTagId, title, userId")
@@ -429,7 +429,8 @@ const goToFirstPage = () => {
       article.tags.push(tag.tagId);
     }
   });
-})();
+};
+Fn();
 
 // Supabaseからtagテーブルデータ（display：trueのみ）を取得
 (async function () {
@@ -704,8 +705,30 @@ const router = useRouter();
 const deleteArticle = async (id) => {
   await supabase.from("article").update({ delete: true }).eq("id", id);
   open.value = false;
-  location.reload();
+  // location.reload();
 };
+
+import { createClient } from "@supabase/supabase-js";
+const supabase1 = createClient(
+  `https://niezwnppucjwhxwfaxyr.supabase.co`,
+  `eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5pZXp3bnBwdWNqd2h4d2ZheHlyIiwicm9sZSI6ImFub24iLCJpYXQiOjE2ODQ3MjkzNDAsImV4cCI6MjAwMDMwNTM0MH0.04tShAmtbz0zXhsyNQYo2fhcO2Tx0aQdI67Cg2f3BTo`
+);
+
+// // "todos"テーブルのリアルタイムな変更を監視する例
+supabase1
+  .channel("table-db-changes") // 任意のチャンネル名
+  .on(
+    "postgres_changes",
+    {
+      event: "*", // "INSERT" | "UPDATE" | "DELETE" のように特定イベントだけの購読も可能
+      schema: "public",
+      table: "article",
+    },
+    async (payload) => {
+      Fn();
+    }
+  )
+  .subscribe();
 </script>
 
 <style>
