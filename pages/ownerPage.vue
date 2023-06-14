@@ -154,7 +154,7 @@
               </tr>
             </thead>
             <tbody>
-              <tr v-for="item in owners">
+              <tr v-for="item in ownerList">
                 <td class="border border-slate-500 px-2 max w-[400px]">
                   ユーザ名：{{ item.username }}
                 </td>
@@ -190,7 +190,7 @@
 </template>
 
 <script setup lang="ts">
-import { Club } from "~/types";
+import { Club, Profile } from "~/types";
 import { Database } from "~/types/database.types";
 import { createClient } from "@supabase/supabase-js";
 
@@ -231,6 +231,33 @@ const clubChannel = supabase
     }
   )
   .subscribe();
+// 管理者権限のリアルタイム
+const authChannel = supabase
+  .channel("table-db-auth")
+  .on(
+    "postgres_changes",
+    {
+      event: "*",
+      schema: "public",
+      table: "profiles",
+    },
+    async (payload) => {
+      ownerList.splice(0, ownerList.length);
+      const { data: owners } = await client
+        .from("profiles")
+        .select("*")
+        .eq("authority", true);
+
+      if (owners) {
+        owners.map((owner) => {
+          ownerList.push(owner);
+        });
+      }
+      open.value = false;
+      owner.value = null;
+    }
+  )
+  .subscribe();
 
 const client = useSupabaseClient<Database>();
 const open = ref(false);
@@ -241,12 +268,6 @@ const deleteItem = ref();
 const { data: advent } = await client.from("banner").select("*");
 
 const { data: showAdvent } = useFetch("/api/advent/getAll");
-
-//管理者権限あるユーザの取得
-const { data: owners } = await client
-  .from("profiles")
-  .select("*")
-  .eq("authority", true);
 
 //初期表示は現在のアドベントとして保存されているもの
 const choseAdvent = ref(`${showAdvent.value?.id}`);
@@ -342,8 +363,21 @@ const addNewClub = async () => {
 //エラーメッセージ
 const errormsg = ref("");
 
+const ownerList: Profile[] = reactive([]);
+
+//管理者権限あるユーザの取得
+const { data: owners } = await client
+  .from("profiles")
+  .select("*")
+  .eq("authority", true);
+
+if (owners) {
+  owners.map((owner) => {
+    ownerList.push(owner);
+  });
+}
 //新規管理者権限
-const owner = ref("");
+const owner = ref();
 //新規管理者の保存
 const submitOwner = async () => {
   errormsg.value = "";
@@ -360,7 +394,6 @@ const submitOwner = async () => {
         .select();
       if (data && data.length > 0) {
         console.log("完了");
-        location.reload();
       } else if (data && data.length === 0) {
         errormsg.value = "該当のメールアドレスが見つかりません";
       }
@@ -373,7 +406,6 @@ const submitOwner = async () => {
 //owner権限の削除
 const deleteOwner = async (id: number) => {
   await client.from("profiles").upsert({ id: id, authority: false });
-  location.reload();
 };
 </script>
 
