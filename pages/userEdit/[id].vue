@@ -85,7 +85,7 @@
                           required:
                             'サークルを選択してください(該当するものがない場合はその他を選択)',
                         }"
-                        :value="defaultClub"
+                        :value="data[0].clubid.id"
                       />
                     </div>
                     <div v-else class="ml-12">
@@ -122,8 +122,6 @@
               </div>
             </div>
           </FormKit>
-
-          <!-- ここまでCSS確認した -->
 
           <button class="btn ml-7" v-show="editbool" @click="editComp">
             保存
@@ -183,7 +181,9 @@
         >
       </div>
     </div>
-    <div class="border border-black m-4 p-3 flex items-center space-x-2 max-w-[1200px]">
+    <div
+      class="border border-black m-4 p-3 flex items-center space-x-2 max-w-[1200px]"
+    >
       <p v-if="data[0].qiitaToken">QiitaToken：連携済み</p>
       <NuxtLink to="/qiitaCoordination">
         <button class="btn">Qiitaと連携する</button></NuxtLink
@@ -193,6 +193,7 @@
 </template>
 
 <script setup lang="ts">
+import { ref } from "vue";
 import { submitForm } from "@formkit/core";
 import { Club, Occupation } from "~/types";
 import { Database } from "~/types/database.types";
@@ -211,15 +212,23 @@ type useOccupation = {
 };
 const client = useSupabaseClient<Database>();
 const route = useRoute();
-const { data } = await client
+let data = ref([]);
+await client
   .from("profiles")
   .select("*,clubid(*),occupation(*)")
-  .eq("id", route.params.id);
+  .eq("id", route.params.id)
+  .then((response) => {
+    data.value = response.data;
+    console.log(data.value);
+  })
+  .catch((error) => {
+    console.error(error);
+  });
 const occupation: useOccupation[] = [];
 const defaultClub = ref();
 const club: useClub[] = [];
 
-const avatarImage = ref(`${data[0].image}`);
+const avatarImage = ref(`${data.value[0].image}`);
 // console.log(avatarImage);
 const editbool = ref(false);
 const iconeditbool = ref(false);
@@ -238,8 +247,8 @@ const iconedit = () => {
   iconeditbool.value = !iconeditbool.value;
 };
 
-if (data[0].clubid) {
-  defaultClub.value = data[0].clubid.id;
+if (data.value[0].clubid) {
+  defaultClub.value = data.value[0].clubid.id;
 }
 
 type Credentials = {
@@ -263,7 +272,6 @@ const setImage = (credentials) => {
 };
 
 const iconsubmit = async (credentials: Credentials) => {
-  console.log(iconsubmit);
   const file = credentials.file[0].file; // 選択された画像を取得
   const random = Math.random().toString(32).substring(2);
   console.log(`${random}`);
@@ -277,7 +285,8 @@ const iconsubmit = async (credentials: Credentials) => {
     id: route.params.id,
     image: imageUrl,
   });
-  location.reload();
+  // location.reload();
+  iconeditbool.value = !iconeditbool.value;
 };
 
 const editComp = () => {
@@ -291,15 +300,44 @@ const submitHandler = async (credentials: Credentials) => {
     method: "POST",
     body: credentials,
   });
-  console.log(error);
-  if (!error.value) {
-    location.reload();
-  }
+  // console.log(error);
+  // if (!error.value) {
+  //   location.reload();
+  // }
+  editbool.value = !editbool.value;
 };
 
 const edit = () => {
   editbool.value = !editbool.value;
 };
+
+import { createClient } from "@supabase/supabase-js";
+const runtimeConfig = useRuntimeConfig();
+//supabaseのurlとkeyを使ってcreateClientを作成
+const supabase1 = createClient(
+  runtimeConfig.public.supabase.url,
+  runtimeConfig.public.supabase.key
+);
+
+supabase1
+  .channel("table-db-changes") // 任意のチャンネル名
+  .on(
+    "postgres_changes",
+    {
+      event: "*", // "INSERT" | "UPDATE" | "DELETE" のように特定イベントだけの購読も可能
+      schema: "public",
+      table: "profiles",
+    },
+    async (payload) => {
+      console.log(payload);
+      const { data: d } = await client
+        .from("profiles")
+        .select("*,clubid(*),occupation(*)")
+        .eq("id", route.params.id);
+      data.value = d;
+    }
+  )
+  .subscribe();
 </script>
 
 <style scoped>
