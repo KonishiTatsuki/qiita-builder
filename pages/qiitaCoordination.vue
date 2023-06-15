@@ -18,9 +18,11 @@
               type="text"
               label=" Qiita個人用アクセストークン"
               name="text"
-              validation="matches:/^[a-zA-Z0-9]/"
+              validation="required|length:39,41|matches:/^[a-zA-Z0-9]/"
               autocomplete="off"
               :validation-messages="{
+                required: 'アクセストークンを入力してください',
+                length: '39文字以上41文字以下で入力してください',
                 matches: '半角英数字で入力してください',
               }"
             />
@@ -74,7 +76,7 @@ const submit = async (submit: { text: string }) => {
   })
     .then((response) => response.json())
     .then(async (data) => {
-      confirmation = data;
+      confirmation = data.id;
       if (confirmation) {
         const postData = {
           userId: userId,
