@@ -25,7 +25,12 @@
             :key="index"
             class="h-30 flex"
           >
-            <td v-for="day in week" :key="day.date" class="w-50">
+            <td
+              v-for="day in week"
+              :key="day.date"
+              class="w-50"
+              :class="{ 'bg-gray-200': !day.period || !day.isCurrentMonth }"
+            >
               <div class="text-center pb-6">
                 <div
                   class="text-sm text-center mb-5 h-5 border-b border-indigo-500"
