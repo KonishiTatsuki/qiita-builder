@@ -357,7 +357,7 @@ const deleteClub = async () => {
 //新規クラブの追加
 const addNewClub = async () => {
   if (!newclub.value) {
-    msgForaddDisplayClub.value = "追加するクラブを入力してください";
+    msgForaddDisplayClub.value = "追加するサークル名を入力してください";
   } else if (newclub.value.length > 30) {
     msgForaddDisplayClub.value = "30字以内で入力してください";
   } else {
@@ -405,7 +405,7 @@ const submitOwner = async () => {
         errormsg.value = "該当のメールアドレスが見つかりません";
       }
     } else {
-      errormsg.value = "ラクスメールアドレスの形式で入力してください";
+      errormsg.value = "メールアドレスの形式が不正です";
     }
   }
 };
