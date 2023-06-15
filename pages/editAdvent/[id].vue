@@ -70,6 +70,13 @@ const editSubmit = async () => {
   let startDate = dayjs(date.value[0]).format("YYYY-MM-DD");
   let endDate = dayjs(date.value[1]).format("YYYY-MM-DD");
   errorMsg.value = "";
+
+  if (!date.value || date.value[1] === null) {
+    errorMsg.value = "期間の開始日と最終日を選択してください";
+    return;
+  }
+  console.log(date.value);
+
   //バナー画像が編集された時
   if (fileInput.value.files[0]) {
     if (adventName.value.length === 0) {

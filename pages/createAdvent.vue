@@ -23,7 +23,6 @@
     <h2 class="subtitle">期間</h2>
     <span class="text-xs text-red-500">(必須)</span>
     <VueDatePicker v-model="date" locale="ja" :format="format" range />
-    <div>{{ date }}</div>
 
     <h2 class="subtitle">バナー画像</h2>
     <div>
@@ -71,6 +70,8 @@ async function submitHandler() {
     errorMsg.value = "アドベントカレンダーの題名を入力してください";
   } else if (!description.value) {
     errorMsg.value = "アドベントカレンダーの説明を入力してください";
+  } else if (!date.value[0] || !date.value[1]) {
+    errorMsg.value = "期間の開始日と最終日を選択してください";
   } else if (!fileInput.value.files[0]) {
     errorMsg.value = "画像を選択してください";
   } else {
