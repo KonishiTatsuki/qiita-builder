@@ -106,7 +106,9 @@
                     <div v-else class="ml-12">
                       <div v-if="data[0].clubid">
                         {{ data[0].clubid.clubName }}
-                        <span v-if="!data[0].clubid.display">(未認証クラブ)</span>
+                        <span v-if="!data[0].clubid.display"
+                          >(未認証クラブ)</span
+                        >
                       </div>
                     </div>
                   </div>
@@ -122,9 +124,8 @@
                         name="detail"
                         rows="10"
                         cols="40"
-                        validation="required|length:0,255"
+                        validation="length:0,255"
                         :validation-messages="{
-                          required: '自己紹介を入力してください',
                           length: '255文字以内で入力してください',
                         }"
                         :value="data[0].detail"
