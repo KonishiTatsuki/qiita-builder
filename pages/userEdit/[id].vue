@@ -153,7 +153,7 @@
               <img
                 :src="avatarImage"
                 alt="アイコン"
-                class="w-32 h-32 rounded-full mx-auto"
+                class="w-32 h-32 rounded-full ml-6"
               />
             </div>
           </div>
@@ -181,7 +181,7 @@
                 @input="setImage"
               />
             </div>
-            <button class="btn ml-20" v-show="iconeditbool">
+            <button class="btn" v-show="iconeditbool">
               アイコンを保存する
             </button>
           </FormKit>
@@ -203,9 +203,9 @@
     <div
       class="border border-black m-4 p-3 flex items-center space-x-2 max-w-[1200px]"
     >
-      <p v-if="data[0].qiitaToken">QiitaToken：連携済み</p>
+      <p v-if="data[0].qiitaToken" class="m-3">QiitaToken：連携済み</p>
       <NuxtLink to="/qiitaCoordination">
-        <button class="btn">Qiitaと連携する</button></NuxtLink
+        <button class="btn m-3">Qiitaと連携する</button></NuxtLink
       >
     </div>
   </div>
