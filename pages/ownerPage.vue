@@ -6,7 +6,7 @@
       <select
         name=""
         id=""
-        class="border border-black w-96"
+        class="border border-black w-80"
         v-model="choseAdvent"
       >
         <option v-for="item in advent" :value="item.id">
@@ -29,9 +29,9 @@
         </div>
         <div class="mt-3">
           <select
-            name=""
-            id=""
-            class="border border-black w-96"
+            name="choseAdvent"
+            id="choseAdvent"
+            class="border border-black w-80"
             v-model="choseEditAdvent"
           >
             <option v-for="item in advent" :value="item.id">
@@ -135,7 +135,7 @@
         <div>
           <input
             type="text"
-            class="border border-black w-96"
+            class="border border-black w-80"
             maxlength="255"
             v-model="owner"
           />
@@ -154,7 +154,7 @@
               </tr>
             </thead>
             <tbody>
-              <tr v-for="item in owners">
+              <tr v-for="item in ownerList">
                 <td class="border border-slate-500 px-2 max w-[400px]">
                   ユーザ名：{{ item.username }}
                 </td>
@@ -190,26 +190,89 @@
 </template>
 
 <script setup lang="ts">
-import { Club } from "~/types";
+import { Club, Profile } from "~/types";
 import { Database } from "~/types/database.types";
+import { createClient } from "@supabase/supabase-js";
+
+const runtimeConfig = useRuntimeConfig();
+const supabase = createClient(
+  runtimeConfig.public.supabase.url,
+  runtimeConfig.public.supabase.key
+);
+
+useHead({
+  title: "管理者画面",
+});
+
+// clubテーブルのリアルタイム
+const clubChannel = supabase
+  .channel("table-db-club")
+  .on(
+    "postgres_changes",
+    {
+      event: "*",
+      schema: "public",
+      table: "club",
+    },
+    async (payload) => {
+      const { data: allclub } = await useFetch("/api/club/get");
+      displayClub.splice(0, displayClub.length);
+      nondisplayClub.splice(0, nondisplayClub.length);
+
+      allclub.value?.map((club: Club) => {
+        if (club.display) {
+          displayClub.push({ value: club.id, label: club.clubName });
+        } else {
+          nondisplayClub.push({ value: club.id, label: club.clubName });
+        }
+      });
+
+      // 値の初期化
+      addDisplayClub.value = null;
+      addnonDisplayClub.value = null;
+      newclub.value = "";
+      clubModal.value = false;
+      msgForaddDisplayClub.value = "";
+    }
+  )
+  .subscribe();
+// 管理者権限のリアルタイム
+const authChannel = supabase
+  .channel("table-db-auth")
+  .on(
+    "postgres_changes",
+    {
+      event: "*",
+      schema: "public",
+      table: "profiles",
+    },
+    async (payload) => {
+      ownerList.splice(0, ownerList.length);
+      const { data: owners } = await client
+        .from("profiles")
+        .select("*")
+        .eq("authority", true);
+
+      if (owners) {
+        owners.map((owner) => {
+          ownerList.push(owner);
+        });
+      }
+      open.value = false;
+      owner.value = null;
+    }
+  )
+  .subscribe();
 
 const client = useSupabaseClient<Database>();
 const open = ref(false);
 const clubModal = ref(false);
 const deleteItem = ref();
 
-const { data: allclub } = await useFetch("/api/club/get");
-
 //アドベントカレンダーのデータ取得
 const { data: advent } = await client.from("banner").select("*");
 
 const { data: showAdvent } = useFetch("/api/advent/getAll");
-
-//管理者権限あるユーザの取得
-const { data: owners } = await client
-  .from("profiles")
-  .select("*")
-  .eq("authority", true);
 
 //初期表示は現在のアドベントとして保存されているもの
 const choseAdvent = ref(`${showAdvent.value?.id}`);
@@ -234,10 +297,14 @@ const editAdvent = async () => {
   console.log(choseEditAdvent.value);
 };
 
+type useClub = {
+  label: string;
+  value: number;
+};
 //display:trueのクラブ
-const displayClub: useClub[] = [];
+const displayClub: useClub[] = reactive([]);
 //display:falseのクラブ
-const nondisplayClub: useClub[] = [];
+const nondisplayClub: useClub[] = reactive([]);
 
 //新規追加クラブ
 const newclub = ref("");
@@ -246,12 +313,10 @@ const addDisplayClub = ref();
 const msgForaddDisplayClub = ref();
 const msgForaddnonDisplayClub = ref();
 const msgForDeleteClub = ref();
-const addnonDisplayClub = ref([]);
+const addnonDisplayClub = ref();
 
-type useClub = {
-  label: string;
-  value: number;
-};
+//　サークル一覧
+const { data: allclub } = await useFetch("/api/club/get");
 
 allclub.value?.map((club: Club) => {
   if (club.display) {
@@ -266,51 +331,60 @@ const addDisplay = async () => {
   if (addDisplayClub.value === undefined) {
     msgForaddDisplayClub.value = "サークルを選択してください";
   } else {
-    console.log(addDisplayClub.value);
-    const { error } = await client.from("club").upsert(addDisplayClub.value);
-    location.reload();
+    await client.from("club").upsert(addDisplayClub.value);
   }
 };
 
 //サークルを非表示にする
 const nonDisplay = async () => {
-  if (addnonDisplayClub.value.length === 0) {
+  if (addnonDisplayClub.value === undefined) {
     msgForaddnonDisplayClub.value = "サークルを選択してください";
   } else {
-    const { error } = await client.from("club").upsert(addnonDisplayClub.value);
-    location.reload();
+    await client.from("club").upsert(addnonDisplayClub.value);
   }
 };
 
 //表示するサークルの削除
 const deleteClub = async () => {
-  console.log(addDisplayClub.value);
   if (addDisplayClub.value === undefined) {
     msgForDeleteClub.value = "サークルを選択してください";
   } else {
     const deleteClubId = addDisplayClub.value.id;
     await useFetch(`/api/club/delete?clubid=${deleteClubId}`);
-    location.reload();
   }
 };
 
 //新規クラブの追加
 const addNewClub = async () => {
   if (!newclub.value) {
-    msgForaddDisplayClub.value = "追加するクラブを入力してください";
+    msgForaddDisplayClub.value = "追加するサークル名を入力してください";
+  } else if (newclub.value.length > 30) {
+    msgForaddDisplayClub.value = "30字以内で入力してください";
   } else {
-    const { error: cluberror } = await client.from("club").insert({
+    await client.from("club").insert({
       clubName: newclub.value,
     });
-    location.reload();
   }
 };
 
 //エラーメッセージ
 const errormsg = ref("");
 
+const ownerList: Profile[] = reactive([]);
+
+//管理者権限あるユーザの取得
+const { data: owners } = await client
+  .from("profiles")
+  .select("*")
+  .eq("authority", true);
+
+if (owners) {
+  owners.map((owner) => {
+    ownerList.push(owner);
+  });
+}
 //新規管理者権限
-const owner = ref("");
+const owner = ref();
 //新規管理者の保存
 const submitOwner = async () => {
   errormsg.value = "";
@@ -327,22 +401,18 @@ const submitOwner = async () => {
         .select();
       if (data && data.length > 0) {
         console.log("完了");
-        location.reload();
       } else if (data && data.length === 0) {
         errormsg.value = "該当のメールアドレスが見つかりません";
       }
     } else {
-      errormsg.value = "ラクスメールアドレスの形式で入力してください";
+      errormsg.value = "メールアドレスの形式が不正です";
     }
   }
 };
 
 //owner権限の削除
 const deleteOwner = async (id: number) => {
-  const { data, error } = await client
-    .from("profiles")
-    .upsert({ id: id, authority: false });
-  location.reload();
+  await client.from("profiles").upsert({ id: id, authority: false });
 };
 </script>
 

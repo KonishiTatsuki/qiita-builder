@@ -709,9 +709,11 @@ const deleteArticle = async (id) => {
 };
 
 import { createClient } from "@supabase/supabase-js";
+const runtimeConfig = useRuntimeConfig();
+//supabaseのurlとkeyを使ってcreateClientを作成
 const supabase1 = createClient(
-  `https://niezwnppucjwhxwfaxyr.supabase.co`,
-  `eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5pZXp3bnBwdWNqd2h4d2ZheHlyIiwicm9sZSI6ImFub24iLCJpYXQiOjE2ODQ3MjkzNDAsImV4cCI6MjAwMDMwNTM0MH0.04tShAmtbz0zXhsyNQYo2fhcO2Tx0aQdI67Cg2f3BTo`
+  runtimeConfig.public.supabase.url,
+  runtimeConfig.public.supabase.key
 );
 
 // // "todos"テーブルのリアルタイムな変更を監視する例
