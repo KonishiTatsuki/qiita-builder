@@ -161,7 +161,7 @@
                 <td class="border border-slate-500 px-2 max w-[400px]">
                   {{ item.email }}
                 </td>
-                <td class="border border-slate-500 px-2">
+                <td class="border border-slate-500 px-2 w-[70px]">
                   <button
                     class="btn px-2"
                     @click="(open = true), (deleteItem = item.id)"
