@@ -115,7 +115,9 @@
                       />
                     </div>
                     <div v-else class="ml-12">
-                      <div>{{ data[0].detail }}</div>
+                      <div style="width: 500px; word-wrap: break-word">
+                        {{ data[0].detail }}
+                      </div>
                     </div>
                   </div>
                 </div>
