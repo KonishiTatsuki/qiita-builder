@@ -179,6 +179,20 @@
           <p class="text-gray-600">{{ commented.comment }}</p>
         </div>
       </div>
+      <button
+        v-show="showMoreComment"
+        @click="showMoreCommentClick"
+        class="mt-4 underline decoration-sky-500"
+      >
+        もっと見る
+      </button>
+      <button
+        v-show="showCloseComment"
+        @click="showCommentClick"
+        class="mt-4 underline decoration-sky-500"
+      >
+        閉じる
+      </button>
     </div>
   </div>
 </template>
@@ -192,6 +206,16 @@ import LikeButton from "~/components/LikeButton.vue";
 import RecommendButton from "~/components/RecommendButton.vue";
 import { ref } from "vue";
 import { marked } from "marked";
+import { createClient } from "@supabase/supabase-js";
+import { toUnicode } from "punycode";
+
+//.envからsupabaseのurlとkeyを取得
+const runtimeConfig = useRuntimeConfig();
+//supabaseのurlとkeyを使ってcreateClientを作成
+const supabase = createClient(
+  runtimeConfig.public.supabase.url,
+  runtimeConfig.public.supabase.key
+);
 
 //モーダルの表示非表示
 const open = ref(false);
@@ -298,7 +322,6 @@ const { data: tags } = await useFetch("/api/tag/get", {
 tagNames.value = tags.value;
 
 //　　　　　　　おすすめ数表示機能　　　　　　　　　　//
-
 //おすすめボタンクリック済みか確認
 const showRecommendButton = ref(false);
 // おすすめ数取得;
@@ -444,36 +467,42 @@ const ChangeNowLike = async (val) => {
 };
 
 //　　　　　　　　コメント機能　　　　　　　　　//
-//投稿済みコメントを取得
-const commentDate = ref();
-const { data: commentDates } = await useFetch("/api/comment/get", {
-  method: "POST",
-  body: articleId,
-});
-
-if (commentDates.value) {
-  const { data: commentItem } = await useFetch("/api/user/commentUserGet", {
-    method: "POST",
-    body: commentDates.value,
-  });
-  commentDate.value = commentItem.value;
-} else {
-  console.log("投稿済みコメントなし");
-}
-
-//コメント投稿機能
-//コメント
 let comment = ref("");
 let commentError = ref("");
-const commentText = ref();
+const commentDateOrigin = ref();
+const commentDate = ref();
+const showMoreComment = ref(false);
+const showCloseComment = ref(false);
 
-import { createClient } from "@supabase/supabase-js";
+//投稿済みコメントを取得
+const commentAcquisition = async function () {
+  const { data: commentDates } = await useFetch("/api/comment/get", {
+    method: "POST",
+    body: articleId,
+  });
+  if (commentDates.value) {
+    const { data: commentItem } = await useFetch("/api/user/commentUserGet", {
+      method: "POST",
+      body: commentDates.value,
+    });
+    commentDateOrigin.value = commentItem.value;
+    //表示するコメント数を制限
+    if (commentItem.value.length > 5) {
+      commentDate.value = commentItem.value.slice(0, 5);
+      showMoreComment.value = true;
+      showCloseComment.value = false;
+    } else {
+      commentDate.value = commentItem.value;
+      showMoreComment.value = false;
+      showCloseComment.value = false;
+    }
+  } else {
+    console.log("投稿済みコメントなし");
+  }
+};
+commentAcquisition();
 
-const supabase = createClient(
-  `https://niezwnppucjwhxwfaxyr.supabase.co`,
-  `eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5pZXp3bnBwdWNqd2h4d2ZheHlyIiwicm9sZSI6ImFub24iLCJpYXQiOjE2ODQ3MjkzNDAsImV4cCI6MjAwMDMwNTM0MH0.04tShAmtbz0zXhsyNQYo2fhcO2Tx0aQdI67Cg2f3BTo`
-);
-
+//リアルタイムでコメントを取得
 const supabaseComment = supabase
   .channel("comment")
   .on(
@@ -484,44 +513,45 @@ const supabaseComment = supabase
       table: "comment",
     },
     async (payload) => {
-      // 変更後のデータに対しての処理を記載
-      const { data: commentDates } = await useFetch("/api/comment/get", {
-        method: "POST",
-        body: articleId,
-      });
-      if (commentDates.value) {
-        const { data: commentItem } = await useFetch(
-          "/api/user/commentUserGet",
-          {
-            method: "POST",
-            body: commentDates.value,
-          }
-        );
-        commentDate.value = commentItem.value;
-      } else {
-        console.log("投稿済みコメントなし");
-      }
+      commentAcquisition();
     }
   )
   .subscribe();
-// textareaValue.value.length >= 8;
+
+//コメントをもっと見る
+const showMoreCommentClick = () => {
+  showMoreComment.value = false;
+  showCloseComment.value = true;
+  commentDate.value = commentDateOrigin.value;
+};
+//コメントを閉じる
+const showCommentClick = () => {
+  showMoreComment.value = true;
+  showCloseComment.value = false;
+  commentDate.value = commentDateOrigin.value.slice(0, 5);
+};
+
 //コメント送信
 const submit = async () => {
-  if (comment.value.length > 0) {
-    const { data: articleUser } = await useFetch("/api/comment/insert", {
-      method: "POST",
-      body: {
-        date: dateString,
-        userId: userId,
-        comment: comment.value,
-        articleId: articleId,
-      },
-    });
-    errorText.value = false;
-    comment.value = "";
-    // location.reload();
-  } else {
-    errorText.value = true;
+  try {
+    if (comment.value.length > 0) {
+      const { data: articleUser } = await useFetch("/api/comment/insert", {
+        method: "POST",
+        body: {
+          date: dateString,
+          userId: userId,
+          comment: comment.value,
+          articleId: articleId,
+        },
+      });
+      errorText.value = false;
+      comment.value = "";
+      // location.reload();
+    } else {
+      errorText.value = true;
+    }
+  } catch (error) {
+    console.log("コメント送信でエラー");
   }
 };
 
@@ -529,15 +559,13 @@ const submit = async () => {
 const deleteComment = async (commentId) => {
   try {
     // 削除処理の実行
-    const { data: articleUser } = await useFetch("/api/comment/delete", {
+    await useFetch("/api/comment/delete", {
       method: "POST",
       body: commentId,
     });
     open.value = false;
-    // location.reload();
-    // 削除後にコメントを再取得するなどの更新処理を実行する場合はここで行う
   } catch (error) {
-    console.error(error);
+    console.error("コメントを削除でエラー");
   }
 };
 </script>
