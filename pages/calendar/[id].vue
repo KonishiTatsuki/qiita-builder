@@ -2,9 +2,9 @@
   <div class="container">
     <h1 class="text-4xl text-center mt-8">{{ adventName }}</h1>
     <h2 class="text-xl text-center mt-4">{{ description }}</h2>
-    <div>作成者:{{ managerName }}</div>
-    <div>{{ startDate }}</div>
-    <div>{{ endDate }}</div>
+    <div class="mt-16">作成者:{{ managerName }}</div>
+    <div class="mt-2">アドベント期間</div>
+    <div class="mb-3">{{ startDate }} ~ {{ endDate }}</div>
     <!-- ここからカレンダーを表示する -->
     <div>
       <table class="bg-blue-50 min-w-full">
@@ -25,7 +25,12 @@
             :key="index"
             class="h-30 flex"
           >
-            <td v-for="day in week" :key="day.date" class="w-50">
+            <td
+              v-for="day in week"
+              :key="day.date"
+              class="w-50"
+              :class="{ 'bg-gray-200': !day.period || !day.isCurrentMonth }"
+            >
               <div class="text-center pb-6">
                 <div
                   class="text-sm text-center mb-5 h-5 border-b border-indigo-500"

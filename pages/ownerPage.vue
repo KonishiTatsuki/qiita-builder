@@ -6,7 +6,7 @@
       <select
         name=""
         id=""
-        class="border border-black w-96"
+        class="border border-black w-80"
         v-model="choseAdvent"
       >
         <option v-for="item in advent" :value="item.id">
@@ -29,9 +29,9 @@
         </div>
         <div class="mt-3">
           <select
-            name=""
-            id=""
-            class="border border-black w-96"
+            name="choseAdvent"
+            id="choseAdvent"
+            class="border border-black w-80"
             v-model="choseEditAdvent"
           >
             <option v-for="item in advent" :value="item.id">
@@ -135,7 +135,7 @@
         <div>
           <input
             type="text"
-            class="border border-black w-96"
+            class="border border-black w-80"
             maxlength="255"
             v-model="owner"
           />
@@ -200,6 +200,10 @@ const supabase = createClient(
   runtimeConfig.public.supabase.key
 );
 
+useHead({
+  title: "管理者画面",
+});
+
 // clubテーブルのリアルタイム
 const clubChannel = supabase
   .channel("table-db-club")
@@ -228,6 +232,7 @@ const clubChannel = supabase
       addnonDisplayClub.value = null;
       newclub.value = "";
       clubModal.value = false;
+      msgForaddDisplayClub.value = "";
     }
   )
   .subscribe();
@@ -352,7 +357,9 @@ const deleteClub = async () => {
 //新規クラブの追加
 const addNewClub = async () => {
   if (!newclub.value) {
-    msgForaddDisplayClub.value = "追加するクラブを入力してください";
+    msgForaddDisplayClub.value = "追加するサークル名を入力してください";
+  } else if (newclub.value.length > 30) {
+    msgForaddDisplayClub.value = "30字以内で入力してください";
   } else {
     await client.from("club").insert({
       clubName: newclub.value,
@@ -398,7 +405,7 @@ const submitOwner = async () => {
         errormsg.value = "該当のメールアドレスが見つかりません";
       }
     } else {
-      errormsg.value = "ラクスメールアドレスの形式で入力してください";
+      errormsg.value = "メールアドレスの形式が不正です";
     }
   }
 };
