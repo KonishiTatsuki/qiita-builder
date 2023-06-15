@@ -306,7 +306,7 @@ const submitHandler = async (credentials: Credentials) => {
         clubId = data[0].id;
       }
     }
-    if (!credentials.file.length === 0) {
+    if (!(credentials.file.length === 0)) {
       //アイコン画像を保存
       const file = credentials.file[0].file; // 選択された画像を取得
       const filePath = `${uid[0].id}`; // 画像の保存先のpathを指定

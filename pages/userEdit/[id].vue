@@ -81,16 +81,32 @@
                         placeholder="サークル選択"
                         validation="required"
                         :options="club"
+                        @input="selectClub"
                         :validation-messages="{
                           required:
                             'サークルを選択してください(該当するものがない場合はその他を選択)',
                         }"
                         :value="data[0].clubid.id"
                       />
+                      <!-- 追加した内容 -->
+                      <div v-show="othersClub">
+                        <FormKit
+                          :classes="{
+                            input: 'border border-black  py-1 px-2 rounded-md',
+                          }"
+                          type="text"
+                          label="追加サークル"
+                          placeholder="その他"
+                          name="addClub"
+                          autocomplete="off"
+                        />
+                      </div>
+                      <!-- 追加した内容 -->
                     </div>
                     <div v-else class="ml-12">
                       <div v-if="data[0].clubid">
                         {{ data[0].clubid.clubName }}
+                        <span v-if="!data[0].clubid.display">(未認証クラブ)</span>
                       </div>
                     </div>
                   </div>
@@ -228,12 +244,26 @@ await client
   });
 const occupation: useOccupation[] = [];
 const defaultClub = ref();
-const club: useClub[] = [];
+// const club: useClub[] = [];
+// 追加した内容
+const club: useClub[] = [{ label: "その他", value: 0 }];
+// 追加した内容
 
 const avatarImage = ref(`${data.value[0].image}`);
 // console.log(avatarImage);
 const editbool = ref(false);
 const iconeditbool = ref(false);
+const othersClub = ref(false);
+
+// 追加した内容
+const selectClub = (credentials) => {
+  if (credentials === 0) {
+    othersClub.value = true;
+  } else {
+    othersClub.value = false;
+  }
+};
+// 追加した内容
 
 const { data: clubb } = await useFetch("/api/club/get");
 const { data: occupationn } = await useFetch("/api/occupation/get");
