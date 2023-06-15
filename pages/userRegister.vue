@@ -44,7 +44,7 @@
                       type="email"
                       label=" メールアドレス"
                       name="email"
-                      validation="required|matches:/^[A-Za-z0-9]{1}[A-Za-z0-9_.-]*@{1}[A-Za-z0-9_.-]+.[A-Za-z0-9]+$/|ends_with:rakus-partners.co.jp|length:0,255"
+                      validation="required|length:0,255|matches:/^[A-Za-z0-9]{1}[A-Za-z0-9_.-]*@{1}[A-Za-z0-9_.-]+.[A-Za-z0-9]+$/|ends_with:rakus-partners.co.jp"
                       autocomplete="off"
                       :validation-messages="{
                         required: 'メールアドレスを入力してください',
@@ -93,7 +93,7 @@
                       validation="required|confirm"
                       autocomplete="off"
                       :validation-messages="{
-                        required: 'パスワードを入力してください',
+                        required: '確認用パスワードを入力してください',
                         confirm: 'パスワードが一致しません',
                       }"
                     />
@@ -180,7 +180,7 @@
               </div>
             </div>
           </div>
-          <p>{{ errormesssage }}</p>
+          <p class="text-red-500">{{ errormesssage }}</p>
         </div>
       </FormKit>
       <div class="flex mb-4 justify-center mt-4">

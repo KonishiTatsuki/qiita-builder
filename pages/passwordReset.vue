@@ -46,7 +46,7 @@
                   validation="required|confirm"
                   autocomplete="off"
                   :validation-messages="{
-                    required: 'パスワードを入力してください',
+                    required: '確認用パスワードを入力してください',
                     confirm: 'パスワードが一致しません',
                   }"
                 />
@@ -78,10 +78,13 @@ const password = ref("");
 const success = ref("");
 const userId = ref("");
 
+// const currentURL = router.currentRoute.value.fullPath;
+// console.log(currentURL);
+// console.log(currentURL === "/passwordReset");
+
 if (users.value) {
   userId.value = users.value.id;
 }
-
 
 const submit = async (submit: { password: string }) => {
   if (userId.value !== "") {
@@ -92,8 +95,8 @@ const submit = async (submit: { password: string }) => {
     await new Promise((r) => setTimeout(r, 1500));
     router.push({ path: "/login" });
   } else {
-    success.value = "パスワード再設定メールを送信してください";
-    await new Promise((r) => setTimeout(r, 2000));
+    // success.value = "パスワード再設定メールを送信してください";
+    // await new Promise((r) => setTimeout(r, 2000));
     router.push({ path: "/passwordForget" });
   }
 };
