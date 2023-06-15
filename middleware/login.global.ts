@@ -9,9 +9,8 @@ export default defineNuxtRouteMiddleware(async (to, from) => {
   await new Promise((r) => setTimeout(r, 1000));
 
   if (!user.value) {
-    if (to.path === path || to.path === registerpath) {
-      // console.log("ログイン");
-    } else if (
+    if (
+      to.path === path ||
       to.path === registerpath ||
       to.path === passwordForget ||
       to.path === passwordReset
