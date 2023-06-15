@@ -64,7 +64,6 @@ const submit = async (submit: { email: string }) => {
       redirectTo: "http://localhost:3000/passwordReset",
     }
   );
-  console.log("data", data);
   // console.log(data);
   // if (data !== null) {
   //   console.log(Object.keys(data).length);

@@ -78,9 +78,9 @@ const password = ref("");
 const success = ref("");
 const userId = ref("");
 
-const currentURL = router.currentRoute.value.fullPath;
-console.log(currentURL);
-console.log(currentURL === "/passwordReset");
+// const currentURL = router.currentRoute.value.fullPath;
+// console.log(currentURL);
+// console.log(currentURL === "/passwordReset");
 
 if (users.value) {
   userId.value = users.value.id;
