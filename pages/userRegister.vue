@@ -194,12 +194,12 @@
 </template>
 
 <script setup lang="ts">
-useHead({
-  title: "新規登録",
-});
 import { submitForm } from "@formkit/core";
 import { Occupation, Club } from "~/types";
 import { Database } from "~/types/database.types";
+useHead({
+  title: "新規登録",
+});
 type useClub = {
   label: string;
   value: number;
@@ -240,7 +240,7 @@ const submitRegister = async () => {
   if (succes.value) {
     router.push("/");
   }
-  console.log("トップへ遷移", succes.value);
+  // console.log("トップへ遷移", succes.value);
 };
 
 //qiitta連携
@@ -267,7 +267,7 @@ type Credentials = {
 
 //supabaseへのデータ保存
 const submitHandler = async (credentials: Credentials) => {
-  console.log(credentials);
+  // console.log(credentials);
   let clubId = credentials.club;
 
   //サインイン
@@ -306,7 +306,7 @@ const submitHandler = async (credentials: Credentials) => {
         clubId = data[0].id;
       }
     }
-    if (!credentials.file.length === 0) {
+    if (!(credentials.file.length === 0)) {
       //アイコン画像を保存
       const file = credentials.file[0].file; // 選択された画像を取得
       const filePath = `${uid[0].id}`; // 画像の保存先のpathを指定
@@ -314,7 +314,7 @@ const submitHandler = async (credentials: Credentials) => {
       const { error: avatarerror } = await client.storage
         .from("avatars")
         .upload(filePath, file);
-      console.log(avatarerror);
+      // console.log("avater", avatarerror);
       //画像のpathを取得
       const { data } = client.storage.from("avatars").getPublicUrl(filePath);
       const imageUrl = data.publicUrl;
