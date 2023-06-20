@@ -49,7 +49,7 @@
                       :validation-messages="{
                         required: 'メールアドレスを入力してください',
                         matches: '正しいメールアドレスを入力してください',
-                        ends_with: 'ラクスのメールアドレスを入力してください',
+                        ends_with: '正しい入力形式で入力してください',
                         length: '255文字以内で入力してください',
                       }"
                     />
@@ -103,7 +103,7 @@
               <div class="mb-2 flex">
                 <FormKit
                   :classes="{
-                    input: 'border border-black py-1 px-2 rounded-md',
+                    input: 'border border-black py-1 px-2 mr-5 rounded-md',
                     message: 'text-red-500',
                   }"
                   type="select"
@@ -197,6 +197,8 @@
 import { submitForm } from "@formkit/core";
 import { Occupation, Club } from "~/types";
 import { Database } from "~/types/database.types";
+
+definePageMeta({ layout: "login" });
 useHead({
   title: "新規登録",
 });
