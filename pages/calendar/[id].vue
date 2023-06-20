@@ -9,8 +9,16 @@
       "
     >
       <div class="mx-auto">
-        <h1 class="text-4xl text-center mt-8">{{ adventName }}</h1>
-        <h2 class="text-xl text-center mt-4">{{ description }}</h2>
+        <h1
+          class="text-4xl text-center mt-8 p-4 bg-gray-100 rounded-lg bg-opacity-50"
+        >
+          {{ adventName }}
+        </h1>
+        <h2
+          class="text-xl text-center mt-4 mb-3 p-5 bg-gray-100 rounded-lg bg-opacity-50"
+        >
+          {{ description }}
+        </h2>
       </div>
     </div>
     <div class="mt-16">作成者:{{ managerName }}</div>
