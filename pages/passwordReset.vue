@@ -54,7 +54,6 @@
               <div class="flex mb-4 justify-center">
                 <button class="btn">登録</button>
               </div>
-              <p>{{ success }}</p>
             </FormKit>
           </div>
         </div>
@@ -78,12 +77,13 @@ const password = ref("");
 const success = ref("");
 const userId = ref("");
 
-// const currentURL = router.currentRoute.value.fullPath;
-// console.log(currentURL);
-// console.log(currentURL === "/passwordReset");
-
 if (users.value) {
+  console.log("ログイン");
   userId.value = users.value.id;
+  definePageMeta({ layout: "login" });
+} else {
+  console.log("ログアウト");
+  definePageMeta({ layout: "default" });
 }
 
 const submit = async (submit: { password: string }) => {
@@ -95,8 +95,6 @@ const submit = async (submit: { password: string }) => {
     await new Promise((r) => setTimeout(r, 1500));
     router.push({ path: "/login" });
   } else {
-    // success.value = "パスワード再設定メールを送信してください";
-    // await new Promise((r) => setTimeout(r, 2000));
     router.push({ path: "/passwordForget" });
   }
 };
@@ -104,6 +102,6 @@ const submit = async (submit: { password: string }) => {
 
 <style scoped>
 .main {
-  min-height: calc(100vh - 168px);
+  min-height: calc(100vh - 124px);
 }
 </style>

@@ -49,7 +49,7 @@
                       :validation-messages="{
                         required: 'メールアドレスを入力してください',
                         matches: '正しいメールアドレスを入力してください',
-                        ends_with: 'ラクスのメールアドレスを入力してください',
+                        ends_with: '正しい入力形式で入力してください',
                         length: '255文字以内で入力してください',
                       }"
                     />
@@ -197,6 +197,8 @@
 import { submitForm } from "@formkit/core";
 import { Occupation, Club } from "~/types";
 import { Database } from "~/types/database.types";
+
+definePageMeta({ layout: "login" });
 useHead({
   title: "新規登録",
 });
