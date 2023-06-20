@@ -24,7 +24,7 @@
 
   <div class="flex justify-end">
     <div>
-      <button class="btn m-3 block" @click="editHandler">編集</button>
+      <button class="btn m-3 block" @click="editHandler">投稿</button>
       <button class="btn m-3 block" @click="deleteHandler">削除</button>
     </div>
   </div>
