@@ -1,7 +1,18 @@
 <template>
-  <div class="container">
-    <h1 class="text-4xl text-center mt-8">{{ adventName }}</h1>
-    <h2 class="text-xl text-center mt-4">{{ description }}</h2>
+  <div>
+    <div
+      class="rounded-lg shadow-lg flex items-center mt-3 min-w-full text-center bg-clip-padding banner-image"
+      :style="
+        'background-image: url(' +
+        (bannerData && bannerData[0]?.image) +
+        '); background-size: cover; background-position: center;'
+      "
+    >
+      <div class="mx-auto">
+        <h1 class="text-4xl text-center mt-8">{{ adventName }}</h1>
+        <h2 class="text-xl text-center mt-4">{{ description }}</h2>
+      </div>
+    </div>
     <div class="mt-16">作成者:{{ managerName }}</div>
     <div class="mt-2">アドベント期間</div>
     <div class="mb-3">{{ startDate }} ~ {{ endDate }}</div>
@@ -128,9 +139,9 @@ const startDate = ref("");
 const endDate = ref("");
 const managerName = ref("");
 const route = useRoute();
+
 const user = useSupabaseUser();
 const userId = ref(user.value.id);
-console.log("user", user.value.id);
 
 // bannerテーブル情報を取得
 const { id } = route.params;
@@ -138,14 +149,13 @@ const { data: bannerData } = await useFetch(`/api/advent/get?id=${id}`);
 const { data: articleData } = await useFetch(
   `/api/advent/articleGet?bannerId=${id}`
 );
-console.log("articleData", articleData);
-console.log("bannerData", bannerData);
+
 adventName.value = bannerData.value[0].adventName;
 description.value = bannerData.value[0].description;
 startDate.value = bannerData.value[0].startDate;
 endDate.value = bannerData.value[0].endDate;
 managerName.value = bannerData.value[0].userId.username;
-
+const bannerImage = ref(bannerData.value[0].image);
 const articleList = articleData.value;
 
 const matchingUser = () => {
@@ -154,7 +164,6 @@ const matchingUser = () => {
   );
   return userArticle;
 };
-console.log("matchingUser", matchingUser());
 
 // ここからカレンダーの処理
 // 曜日の配列
@@ -215,7 +224,6 @@ const calendarChunks = computed(() => {
   }
   return chunks;
 });
-console.log("calendarChunks", calendarChunks.value);
 
 const isDateBetween = (date, startDate, endDate) => {
   const articleDate = new Date(date);
@@ -251,5 +259,12 @@ const isDatePast = (date) => {
 .disabled-link {
   pointer-events: none;
   color: gray;
+}
+.banner-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  position: relative;
+  background-image: url(""); /* 初期値として空のURLを設定 */
 }
 </style>
