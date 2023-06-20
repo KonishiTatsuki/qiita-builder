@@ -117,13 +117,19 @@
                   <FormKit
                     :classes="{
                       input: 'border border-black  py-1 px-2 rounded-md',
+                      message: 'text-red-500',
                     }"
                     type="text"
                     label="追加サークル"
                     placeholder="その他"
                     name="addClub"
                     autocomplete="off"
+                    validation="length:0,30"
+                    :validation-messages="{
+                      length: '30文字以内で入力してください',
+                    }"
                   />
+                  <p class="text-red-500">{{ addClubError }}</p>
                 </div>
               </div>
               <div class="mb-2">
@@ -212,6 +218,7 @@ type useOccupation = {
   value: number;
 };
 const errormesssage = ref("");
+const addClubError = ref("");
 const club: useClub[] = [{ label: "その他", value: 0 }];
 const occupation: useOccupation[] = [];
 const othersClub = ref(false);
@@ -242,7 +249,6 @@ const submitRegister = async () => {
   if (succes.value) {
     router.push("/");
   }
-  // console.log("トップへ遷移", succes.value);
 };
 
 //qiitta連携
@@ -269,25 +275,37 @@ type Credentials = {
 
 //supabaseへのデータ保存
 const submitHandler = async (credentials: Credentials) => {
-  // console.log(credentials);
   let clubId = credentials.club;
+  errormesssage.value = "";
+  addClubError.value = "";
+
+  const { data: correctMaill } = await client
+    .from("profiles")
+    .select("*")
+    .eq("email", credentials.email);
+
+  if (!(correctMaill?.length === 0)) {
+    errormesssage.value = "既に登録されているメールアドレスです。";
+  }
+
+  if (credentials.club === 0 && !credentials.addClub) {
+    addClubError.value = "追加クラブ名を入力してください。";
+  }
 
   //サインイン
-  const { error } = await client.auth.signUp({
-    email: credentials.email,
-    password: credentials.password,
-    options: {
-      data: {
-        username: credentials.userName,
-        detail: credentials.detail,
-        email: credentials.email,
-        occupation: credentials.occupation,
+  if (errormesssage.value === "" && addClubError.value === "") {
+    await client.auth.signUp({
+      email: credentials.email,
+      password: credentials.password,
+      options: {
+        data: {
+          username: credentials.userName,
+          detail: credentials.detail,
+          email: credentials.email,
+          occupation: credentials.occupation,
+        },
       },
-    },
-  });
-  if (error) {
-    errormesssage.value = "既に登録されているメールアドレスです。";
-  } else {
+    });
     //保存したuidを取得
     const { data: uid } = await client
       .from("profiles")
@@ -316,7 +334,6 @@ const submitHandler = async (credentials: Credentials) => {
       const { error: avatarerror } = await client.storage
         .from("avatars")
         .upload(filePath, file);
-      // console.log("avater", avatarerror);
       //画像のpathを取得
       const { data } = client.storage.from("avatars").getPublicUrl(filePath);
       const imageUrl = data.publicUrl;
