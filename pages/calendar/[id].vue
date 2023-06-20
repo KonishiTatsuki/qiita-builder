@@ -1,5 +1,5 @@
 <template>
-  <div class="">
+  <div>
     <div
       class="rounded-lg shadow-lg flex items-center mt-3 min-w-full text-center bg-clip-padding banner-image"
       :style="
@@ -142,7 +142,6 @@ const route = useRoute();
 
 const user = useSupabaseUser();
 const userId = ref(user.value.id);
-console.log("user", user.value.id);
 
 // bannerテーブル情報を取得
 const { id } = route.params;
@@ -150,8 +149,7 @@ const { data: bannerData } = await useFetch(`/api/advent/get?id=${id}`);
 const { data: articleData } = await useFetch(
   `/api/advent/articleGet?bannerId=${id}`
 );
-console.log("articleData", articleData);
-console.log("bannerData", bannerData);
+
 adventName.value = bannerData.value[0].adventName;
 description.value = bannerData.value[0].description;
 startDate.value = bannerData.value[0].startDate;
@@ -166,7 +164,6 @@ const matchingUser = () => {
   );
   return userArticle;
 };
-console.log("matchingUser", matchingUser());
 
 // ここからカレンダーの処理
 // 曜日の配列
@@ -227,7 +224,6 @@ const calendarChunks = computed(() => {
   }
   return chunks;
 });
-console.log("calendarChunks", calendarChunks.value);
 
 const isDateBetween = (date, startDate, endDate) => {
   const articleDate = new Date(date);
