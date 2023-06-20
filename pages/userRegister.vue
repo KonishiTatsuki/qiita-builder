@@ -117,12 +117,18 @@
                   <FormKit
                     :classes="{
                       input: 'border border-black  py-1 px-2 rounded-md',
+                      message: 'text-red-500',
                     }"
                     type="text"
                     label="追加サークル"
                     placeholder="その他"
                     name="addClub"
                     autocomplete="off"
+                    validation="required|length:1,30"
+                    :validation-messages="{
+                      required: '入力してください',
+                      length: '30字以内で入力してください',
+                    }"
                   />
                 </div>
               </div>
