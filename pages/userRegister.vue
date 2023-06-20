@@ -103,7 +103,7 @@
               <div class="mb-2 flex">
                 <FormKit
                   :classes="{
-                    input: 'border border-black py-1 px-2 rounded-md',
+                    input: 'border border-black py-1 px-2 mr-5 rounded-md',
                     message: 'text-red-500',
                   }"
                   type="select"
