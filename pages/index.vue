@@ -1,5 +1,5 @@
 <template>
-  <div class="flex mb-0">
+  <div class="flex justify-center mb-0">
     <!-- カテゴリ検索欄 -->
     <div class="flex flex-col">
       <!-- プログラミング言語 -->
@@ -113,7 +113,7 @@
       </div>
     </div>
 
-    <div class="w-full">
+    <div>
       <!-- アドベントカレンダーバナー -->
       <NuxtLink
         v-if="bannerData && bannerData[0]?.id"
