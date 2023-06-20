@@ -249,7 +249,6 @@ const submitRegister = async () => {
   if (succes.value) {
     router.push("/");
   }
-  // console.log("トップへ遷移", succes.value);
 };
 
 //qiitta連携
@@ -277,8 +276,6 @@ type Credentials = {
 //supabaseへのデータ保存
 const submitHandler = async (credentials: Credentials) => {
   let clubId = credentials.club;
-  console.log(errormesssage.value);
-  console.log(addClubError.value);
   errormesssage.value = "";
   addClubError.value = "";
 
@@ -337,7 +334,6 @@ const submitHandler = async (credentials: Credentials) => {
       const { error: avatarerror } = await client.storage
         .from("avatars")
         .upload(filePath, file);
-      // console.log("avater", avatarerror);
       //画像のpathを取得
       const { data } = client.storage.from("avatars").getPublicUrl(filePath);
       const imageUrl = data.publicUrl;
