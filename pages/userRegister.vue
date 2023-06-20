@@ -124,12 +124,12 @@
                     placeholder="その他"
                     name="addClub"
                     autocomplete="off"
-                    validation="required|length:1,30"
+                    validation="length:0,30"
                     :validation-messages="{
-                      required: '入力してください',
-                      length: '30字以内で入力してください',
+                      length: '30文字以内で入力してください',
                     }"
                   />
+                  <p class="text-red-500">{{ addClubError }}</p>
                 </div>
               </div>
               <div class="mb-2">
@@ -218,6 +218,7 @@ type useOccupation = {
   value: number;
 };
 const errormesssage = ref("");
+const addClubError = ref("");
 const club: useClub[] = [{ label: "その他", value: 0 }];
 const occupation: useOccupation[] = [];
 const othersClub = ref(false);
@@ -275,25 +276,39 @@ type Credentials = {
 
 //supabaseへのデータ保存
 const submitHandler = async (credentials: Credentials) => {
-  // console.log(credentials);
   let clubId = credentials.club;
+  console.log(errormesssage.value);
+  console.log(addClubError.value);
+  errormesssage.value = "";
+  addClubError.value = "";
+
+  const { data: correctMaill } = await client
+    .from("profiles")
+    .select("*")
+    .eq("email", credentials.email);
+
+  if (!(correctMaill?.length === 0)) {
+    errormesssage.value = "既に登録されているメールアドレスです。";
+  }
+
+  if (credentials.club === 0 && !credentials.addClub) {
+    addClubError.value = "追加クラブ名を入力してください。";
+  }
 
   //サインイン
-  const { error } = await client.auth.signUp({
-    email: credentials.email,
-    password: credentials.password,
-    options: {
-      data: {
-        username: credentials.userName,
-        detail: credentials.detail,
-        email: credentials.email,
-        occupation: credentials.occupation,
+  if (errormesssage.value === "" && addClubError.value === "") {
+    await client.auth.signUp({
+      email: credentials.email,
+      password: credentials.password,
+      options: {
+        data: {
+          username: credentials.userName,
+          detail: credentials.detail,
+          email: credentials.email,
+          occupation: credentials.occupation,
+        },
       },
-    },
-  });
-  if (error) {
-    errormesssage.value = "既に登録されているメールアドレスです。";
-  } else {
+    });
     //保存したuidを取得
     const { data: uid } = await client
       .from("profiles")
