@@ -25,7 +25,8 @@
                   :validation-messages="{
                     required: 'メールアドレスを入力してください',
                     matches: '正しいメールアドレスを入力してください',
-                    ends_with: 'ラクスのメールアドレスを入力してください',
+                    ends_with: '正しい入力形式で入力してください',
+                    length: '255文字以内で入力してください',
                   }"
                 />
               </div>
@@ -63,7 +64,6 @@ const submit = async (submit: { email: string }) => {
       redirectTo: "http://localhost:3000/passwordReset",
     }
   );
-  console.log("data",data)
   // console.log(data);
   // if (data !== null) {
   //   console.log(Object.keys(data).length);

@@ -44,12 +44,12 @@
                       type="email"
                       label=" メールアドレス"
                       name="email"
-                      validation="required|matches:/^[A-Za-z0-9]{1}[A-Za-z0-9_.-]*@{1}[A-Za-z0-9_.-]+.[A-Za-z0-9]+$/|ends_with:rakus-partners.co.jp|length:0,255"
+                      validation="required|length:0,255|matches:/^[A-Za-z0-9]{1}[A-Za-z0-9_.-]*@{1}[A-Za-z0-9_.-]+.[A-Za-z0-9]+$/|ends_with:rakus-partners.co.jp"
                       autocomplete="off"
                       :validation-messages="{
                         required: 'メールアドレスを入力してください',
                         matches: '正しいメールアドレスを入力してください',
-                        ends_with: 'ラクスのメールアドレスを入力してください',
+                        ends_with: '正しい入力形式で入力してください',
                         length: '255文字以内で入力してください',
                       }"
                     />
@@ -93,7 +93,7 @@
                       validation="required|confirm"
                       autocomplete="off"
                       :validation-messages="{
-                        required: 'パスワードを入力してください',
+                        required: '確認用パスワードを入力してください',
                         confirm: 'パスワードが一致しません',
                       }"
                     />
@@ -103,7 +103,7 @@
               <div class="mb-2 flex">
                 <FormKit
                   :classes="{
-                    input: 'border border-black py-1 px-2 rounded-md',
+                    input: 'border border-black py-1 px-2 mr-5 rounded-md',
                     message: 'text-red-500',
                   }"
                   type="select"
@@ -117,13 +117,19 @@
                   <FormKit
                     :classes="{
                       input: 'border border-black  py-1 px-2 rounded-md',
+                      message: 'text-red-500',
                     }"
                     type="text"
                     label="追加サークル"
                     placeholder="その他"
                     name="addClub"
                     autocomplete="off"
+                    validation="length:0,30"
+                    :validation-messages="{
+                      length: '30文字以内で入力してください',
+                    }"
                   />
+                  <p class="text-red-500">{{ addClubError }}</p>
                 </div>
               </div>
               <div class="mb-2">
@@ -180,7 +186,7 @@
               </div>
             </div>
           </div>
-          <p>{{ errormesssage }}</p>
+          <p class="text-red-500">{{ errormesssage }}</p>
         </div>
       </FormKit>
       <div class="flex mb-4 justify-center mt-4">
@@ -197,6 +203,8 @@
 import { submitForm } from "@formkit/core";
 import { Occupation, Club } from "~/types";
 import { Database } from "~/types/database.types";
+
+definePageMeta({ layout: "login" });
 useHead({
   title: "新規登録",
 });
@@ -210,6 +218,7 @@ type useOccupation = {
   value: number;
 };
 const errormesssage = ref("");
+const addClubError = ref("");
 const club: useClub[] = [{ label: "その他", value: 0 }];
 const occupation: useOccupation[] = [];
 const othersClub = ref(false);
@@ -240,7 +249,6 @@ const submitRegister = async () => {
   if (succes.value) {
     router.push("/");
   }
-  // console.log("トップへ遷移", succes.value);
 };
 
 //qiitta連携
@@ -267,25 +275,37 @@ type Credentials = {
 
 //supabaseへのデータ保存
 const submitHandler = async (credentials: Credentials) => {
-  // console.log(credentials);
   let clubId = credentials.club;
+  errormesssage.value = "";
+  addClubError.value = "";
+
+  const { data: correctMaill } = await client
+    .from("profiles")
+    .select("*")
+    .eq("email", credentials.email);
+
+  if (!(correctMaill?.length === 0)) {
+    errormesssage.value = "既に登録されているメールアドレスです。";
+  }
+
+  if (credentials.club === 0 && !credentials.addClub) {
+    addClubError.value = "追加クラブ名を入力してください。";
+  }
 
   //サインイン
-  const { error } = await client.auth.signUp({
-    email: credentials.email,
-    password: credentials.password,
-    options: {
-      data: {
-        username: credentials.userName,
-        detail: credentials.detail,
-        email: credentials.email,
-        occupation: credentials.occupation,
+  if (errormesssage.value === "" && addClubError.value === "") {
+    await client.auth.signUp({
+      email: credentials.email,
+      password: credentials.password,
+      options: {
+        data: {
+          username: credentials.userName,
+          detail: credentials.detail,
+          email: credentials.email,
+          occupation: credentials.occupation,
+        },
       },
-    },
-  });
-  if (error) {
-    errormesssage.value = "既に登録されているメールアドレスです。";
-  } else {
+    });
     //保存したuidを取得
     const { data: uid } = await client
       .from("profiles")
@@ -314,7 +334,6 @@ const submitHandler = async (credentials: Credentials) => {
       const { error: avatarerror } = await client.storage
         .from("avatars")
         .upload(filePath, file);
-      // console.log("avater", avatarerror);
       //画像のpathを取得
       const { data } = client.storage.from("avatars").getPublicUrl(filePath);
       const imageUrl = data.publicUrl;

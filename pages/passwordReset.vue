@@ -46,7 +46,7 @@
                   validation="required|confirm"
                   autocomplete="off"
                   :validation-messages="{
-                    required: 'パスワードを入力してください',
+                    required: '確認用パスワードを入力してください',
                     confirm: 'パスワードが一致しません',
                   }"
                 />
@@ -54,7 +54,6 @@
               <div class="flex mb-4 justify-center">
                 <button class="btn">登録</button>
               </div>
-              <p>{{ success }}</p>
             </FormKit>
           </div>
         </div>
@@ -79,9 +78,13 @@ const success = ref("");
 const userId = ref("");
 
 if (users.value) {
+  console.log("ログイン");
   userId.value = users.value.id;
+  definePageMeta({ layout: "login" });
+} else {
+  console.log("ログアウト");
+  definePageMeta({ layout: "default" });
 }
-
 
 const submit = async (submit: { password: string }) => {
   if (userId.value !== "") {
@@ -92,8 +95,6 @@ const submit = async (submit: { password: string }) => {
     await new Promise((r) => setTimeout(r, 1500));
     router.push({ path: "/login" });
   } else {
-    success.value = "パスワード再設定メールを送信してください";
-    await new Promise((r) => setTimeout(r, 2000));
     router.push({ path: "/passwordForget" });
   }
 };
@@ -101,6 +102,6 @@ const submit = async (submit: { password: string }) => {
 
 <style scoped>
 .main {
-  min-height: calc(100vh - 168px);
+  min-height: calc(100vh - 124px);
 }
 </style>

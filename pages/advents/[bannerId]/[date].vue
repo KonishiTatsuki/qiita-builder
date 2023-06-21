@@ -70,7 +70,9 @@ onMounted(() => {
 const { data: articles } = await supabase
   .from("article")
   .select("*")
-  .eq("userId", userId);
+  .eq("userId", userId)
+  .eq("publish", true)
+  .eq("delete", false);
 console.log("articles", articles);
 
 // 投稿ボタンを押した時の処理
