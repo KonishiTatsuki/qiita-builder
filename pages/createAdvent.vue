@@ -70,77 +70,90 @@ let errorTitle = ref("");
 let errorContent = ref("");
 let errorDate = ref("");
 let errorImage = ref("");
-
 const errorMsg = ref("");
 const user = useSupabaseUser();
 const adventName = ref("");
 const description = ref("");
-
-const fileInput = ref();
+const date = ref([]);
+const fileInput = ref(null);
 
 const format = "yyyy/MM/dd";
-
-const startDate = new Date();
-const endDate = new Date(new Date().setDate(startDate.getDate() + 7));
-const date = ref([startDate, endDate]);
 
 // supabaseにデータを送信する
 
 async function submitHandler() {
+  // バリデーションエラーメッセージの初期化
+  errorTitle.value = "";
+  errorContent.value = "";
+  errorDate.value = "";
+  errorImage.value = "";
+  errorMsg.value = "";
+
   if (!adventName.value) {
     errorTitle.value = "題名を入力してください";
-    return;
   } else if (adventName.value.length > 255) {
     errorTitle.value = "題名を255字以内で入力してください";
-    return;
-  } else if (!description.value) {
+  }
+
+  if (!description.value) {
     errorContent.value = "説明を入力してください";
-    return;
   } else if (description.value.length > 255) {
     errorContent.value = "説明を255字以内で入力してください";
-    return;
-  } else if (!date.value) {
-    errorDate.value = "期間を入力してください";
-  } else if (!date.value[0] || !date.value[1]) {
+  }
+
+  if (!date.value || !date.value[0] || !date.value[1]) {
     errorDate.value = "適切な期間を入力してください";
-  } else if (!fileInput.value.files[0]) {
+  }
+
+  if (!fileInput.value.files[0]) {
     errorImage.value = "画像を選択してください";
-  } else {
-    let startDate = dayjs(date.value[0]).format("YYYY-MM-DD");
-    let endDate = dayjs(date.value[1]).format("YYYY-MM-DD");
+  }
 
-    //ファイル名作成
-    const random = Math.random().toString(32).substring(2);
-    const filePath = random;
-    const file = fileInput.value.files[0];
-    // バナー画像の保存;
-    const { error: avatarerror } = await supabase.storage
-      .from("bannarImage")
-      .upload(filePath, file);
+  if (
+    errorTitle.value ||
+    errorContent.value ||
+    errorDate.value ||
+    errorImage.value
+  ) {
+    return;
+  }
 
-    //バナー画像のpathを取得
-    const { data } = await supabase.storage
-      .from("bannarImage")
-      .createSignedUrl(filePath, 2592000);
-    const imageUrl = data?.signedUrl;
+  //ファイル名作成
+  const random = Math.random().toString(32).substring(2);
+  const filePath = random;
+  const file = fileInput.value.files[0];
+  // バナー画像の保存;
+  const { error: avatarerror } = await supabase.storage
+    .from("bannarImage")
+    .upload(filePath, file);
+  if (avatarerror) {
+    errorMsg.value = "バナー画像の保存に失敗しました";
+    return;
+  }
+  //バナー画像のpathを取得
+  const { data } = await supabase.storage
+    .from("bannarImage")
+    .createSignedUrl(filePath, 2592000);
+  const imageUrl = data?.signedUrl;
 
-    try {
-      const user = useSupabaseUser();
-      const create = {
-        adventName: adventName.value,
-        description: description.value,
-        startDate: startDate,
-        endDate: endDate,
-        userId: user.value?.id,
-        image: imageUrl,
-      };
+  try {
+    const startDate = dayjs(date.value[0]).format("YYYY-MM-DD");
+    const endDate = dayjs(date.value[1]).format("YYYY-MM-DD");
+    const user = useSupabaseUser();
+    const create = {
+      adventName: adventName.value,
+      description: description.value,
+      startDate,
+      endDate,
+      userId: user.value?.id,
+      image: imageUrl,
+    };
 
-      let { error } = await supabase.from("banner").upsert(create);
-      if (error) throw error;
-      router.push("/ownerPage");
-    } catch (error) {
-      errorMsg.value = "登録失敗";
-    }
+    let { error } = await supabase.from("banner").upsert(create);
+    if (error) throw error;
+    router.push("/ownerPage");
+  } catch (error) {
+    errorMsg.value = "登録失敗";
   }
 }
 </script>
