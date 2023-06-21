@@ -75,7 +75,7 @@ const user = useSupabaseUser();
 const adventName = ref("");
 const description = ref("");
 const date = ref([]);
-const fileInput = ref(null);
+const fileInput = ref();
 
 const format = "yyyy/MM/dd";
 
