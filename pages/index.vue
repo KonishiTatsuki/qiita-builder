@@ -120,7 +120,7 @@
         :to="{ path: `/calendar/${bannerData[0].id}` }"
       >
         <div
-          class="bg-gradient-to-r from-purple-400 via-pink-500 to-red-500 p-4 rounded-lg shadow-lg flex items-center justify-between mt-3 max-w-[1200px]"
+          class="bg-gradient-to-r from-purple-400 via-pink-500 to-red-500 p-4 rounded-lg shadow-lg flex items-center justify-between mt-3 w-[1200px]"
           :style="
             'background-image: url(' +
             (bannerData && bannerData[0]?.image) +
