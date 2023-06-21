@@ -6,9 +6,10 @@
         placeholder="タイトル"
         v-model="title"
         style="width: 100%; height: 50px"
+        maxlength="255"
       />
-      <p v-if="errorTitle" class="text-red-500 mt-2">
-        *タイトルは1〜255字で入力してください
+      <p class="text-red-500 mt-2">
+        {{ errorTitle }}
       </p>
     </div>
     <div>
@@ -20,8 +21,8 @@
           placeholder="markdown形式で説明を記述できます。"
           maxlength="255"
         />
-        <p v-if="errorContent" class="text-red-500">
-          *内容は1〜255字で入力してください
+        <p class="text-red-500">
+          {{ errorContent }}
         </p>
       </div>
     </div>
@@ -30,7 +31,7 @@
         <FormKit type="list" #default="{ value }">
           <FormKit
             :classes="{
-              input: 'border border-black py-1 px-2 rounded-md',
+              input: 'border border-black py-1 px-2 rounded-md mt-2',
               message: 'text-red-500',
             }"
             label="Qiita自動投稿"
@@ -42,7 +43,12 @@
         </FormKit>
       </div>
       <div>
-        <p>公開日</p>
+        <div class="flex">
+          <p>公開日</p>
+          <span class="text-xs w-40 ml-2"
+            >※設定しない場合、自動的に本日の日付が入ります。</span
+          >
+        </div>
         <input
           type="date"
           class="border border-black py-1 px-2 rounded-md"
@@ -63,8 +69,8 @@
             ></v-combobox>
           </v-col>
         </div>
-        <p v-if="errorTag" class="text-red-500 ml-5">
-          *タグは各30字以内で入力してください
+        <p class="text-red-500 ml-5">
+          {{ errorTag }}
         </p>
       </div>
       <div class="mt-4">
@@ -106,6 +112,9 @@ let items = ref([
   "バックエンド",
   "クラウド",
 ]);
+
+const date = new Date();
+
 const select = ref([]);
 const content = ref("");
 const contentArea = ref();
@@ -116,9 +125,9 @@ const router = useRouter();
 const users = useSupabaseUser();
 const userId = users.value?.id;
 let club: number | null | undefined;
-let errorTitle = ref(false);
-let errorContent = ref(false);
-let errorTag = ref(false);
+let errorTitle = ref("");
+let errorContent = ref("");
+let errorTag = ref("");
 
 const { data: user } = await useFetch("/api/user/get", {
   method: "POST",
@@ -159,28 +168,49 @@ const goalLikeArray = [
 
 //記事投稿
 async function submitHandler() {
-  if (errorTitle.value || errorContent.value || errorTag.value) {
-    return;
+  //エラーの初期化
+  errorTitle.value = "";
+  errorContent.value = "";
+  errorTag.value = "";
+
+  //バリデーションチェック
+  if (title.value.length === 0) {
+    errorTitle.value = "タイトルを入力してください";
   }
-  const postData = {
-    userId: userId,
-    clubTagId: club,
-    occupationTagId: occupation,
-    bannerId: null,
-    qiitaPost: false,
-    delete: false,
-    title: title,
-    body: content,
-    goalLike: goalLike,
-    date: new Date().toLocaleString("ja-JP", { timeZone: "Asia/Tokyo" }),
-    publishDate: publishDate,
-    publish: true,
-  };
-  const { data, error } = await useFetch("/api/article/post", {
-    method: "POST",
-    body: { article: postData, tagArray: select.value },
+  if (content.value.length === 0) {
+    errorContent.value = "内容を入力してください";
+  }
+  select.value.map((tag: string) => {
+    if (tag.length > 30) {
+      errorTag.value = "タグは各30字以内で入力してください";
+    }
   });
-  router.push("/");
+
+  if (
+    errorTitle.value === "" &&
+    errorContent.value === "" &&
+    errorTag.value === ""
+  ) {
+    const postData = {
+      userId: userId,
+      clubTagId: club,
+      occupationTagId: occupation,
+      bannerId: null,
+      qiitaPost: false,
+      delete: false,
+      title: title,
+      body: content,
+      goalLike: goalLike,
+      date: new Date().toLocaleString("ja-JP", { timeZone: "Asia/Tokyo" }),
+      publishDate: publishDate,
+      publish: true,
+    };
+    const { data, error } = await useFetch("/api/article/post", {
+      method: "POST",
+      body: { article: postData, tagArray: select.value },
+    });
+    router.push("/");
+  }
 }
 
 // 下書き記事の投稿
@@ -219,36 +249,6 @@ onMounted(async () => {
   mde.codemirror.on("change", () => {
     if (mde) {
       content.value = mde.value();
-    }
-  });
-});
-
-watch(title, () => {
-  if (!title.value) {
-    errorTitle.value = true;
-  } else if (title.value.length > 255) {
-    errorTitle.value = true;
-  } else {
-    errorTitle.value = false;
-  }
-});
-watch(content, () => {
-  if (!content.value) {
-    errorContent.value = true;
-  } else if (content.value.length > 255) {
-    errorContent.value = true;
-  } else {
-    errorContent.value = false;
-  }
-});
-watch(select, () => {
-  select.value.map((tag: string) => {
-    if (tag.length > 30) {
-      errorTag.value = true;
-    } else if (!tag) {
-      errorTag.value = false;
-    } else {
-      errorTag.value = false;
     }
   });
 });
