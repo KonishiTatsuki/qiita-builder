@@ -1,5 +1,5 @@
 <template>
-  <div class="flex mb-0">
+  <div class="flex justify-center mb-0">
     <!-- カテゴリ検索欄 -->
     <div class="flex flex-col">
       <!-- プログラミング言語 -->
@@ -23,7 +23,7 @@
                 value="tag"
                 class="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-700 dark:focus:ring-offset-gray-700 focus:ring-2 dark:bg-gray-600 dark:border-gray-500 cursor-pointer"
                 v-model="tag.checked"
-                @change="filterArticlesByTag"
+                @change="filterArticlesByTag(tag)"
               />
               <label
                 :for="'tag-checkbox-' + index"
@@ -60,7 +60,7 @@
                 :value="occupation"
                 class="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-700 dark:focus:ring-offset-gray-700 focus:ring-2 dark:bg-gray-600 dark:border-gray-500 cursor-pointer"
                 v-model="occupation.checked"
-                @change="filterArticlesByOccupation"
+                @change="filterArticlesByOccupation(occupation)"
               />
               <label
                 :for="'occupation-checkbox-' + index"
@@ -92,7 +92,7 @@
                 value="club"
                 class="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-700 dark:focus:ring-offset-gray-700 focus:ring-2 dark:bg-gray-600 dark:border-gray-500 cursor-pointer"
                 v-model="club.checked"
-                @change="filterArticlesByClub"
+                @change="filterArticlesByClub(club)"
               />
               <label
                 :for="'club-checkbox-' + index"
@@ -113,7 +113,7 @@
       </div>
     </div>
 
-    <div class="w-full">
+    <div>
       <!-- アドベントカレンダーバナー -->
       <NuxtLink
         v-if="bannerData && bannerData[0]?.id"
@@ -437,7 +437,8 @@ Fn();
   let { data: name, error } = await supabase
     .from("tag")
     .select("*")
-    .eq("display", "true");
+    .eq("display", "true")
+    .order("count", { ascending: false });
   tagName.value = name;
 
   // 全ての要素にcheckedプロパティを追加し、初期値を設定する
@@ -456,7 +457,8 @@ Fn();
 (async function () {
   let { data: occupation, error } = await supabase
     .from("occupation")
-    .select("*");
+    .select("*")
+    .order("count", { ascending: false });
   occupationName.value = occupation;
 
   // 全ての要素にcheckedプロパティを追加し、初期値を設定する
@@ -470,7 +472,8 @@ Fn();
   let { data: club, error } = await supabase
     .from("club")
     .select("*")
-    .eq("display", "true");
+    .eq("display", "true")
+    .order("count", { ascending: false });
   clubName.value = club;
 
   // 全ての要素にcheckedプロパティを追加し、初期値を設定する
@@ -532,7 +535,7 @@ const sortByLikes = () => {
 };
 
 // 職種をフィルターする関数
-const filterArticlesByOccupation = () => {
+const filterArticlesByOccupation = (occupationData) => {
   const selectedOccupations = occupationName.value
     .filter((occupation) => occupation.checked)
     .map((occupation) => occupation.id);
@@ -549,10 +552,18 @@ const filterArticlesByOccupation = () => {
     }
   });
   goToFirstPage();
+
+  if (occupationData.checked) {
+    //Supabaseのcountをcountを+1する
+    let { data } = useFetch("/api/occupation/increaseCount", {
+      method: "POST",
+      body: occupationData,
+    });
+  }
 };
 
 // サークルをフィルターする関数
-const filterArticlesByClub = () => {
+const filterArticlesByClub = (clubData) => {
   const selectedClubs = clubName.value
     .filter((club) => club.checked)
     .map((club) => club.id);
@@ -567,10 +578,18 @@ const filterArticlesByClub = () => {
     }
   });
   goToFirstPage();
+
+  if (clubData.checked) {
+    //Supabaseのcountをcountを+1する
+    let { data } = useFetch("/api/club/increaseCount", {
+      method: "POST",
+      body: clubData,
+    });
+  }
 };
 
 // プログラミング言語をフィルターする関数
-const filterArticlesByTag = () => {
+const filterArticlesByTag = (tag) => {
   const selectedTags = tagName.value
     .filter((tag) => tag.checked)
     .map((tag) => tag.id);
@@ -587,6 +606,14 @@ const filterArticlesByTag = () => {
     }
   });
   goToFirstPage();
+
+  if (tag.checked) {
+    //Supabaseのcountをcountを+1する
+    let { data } = useFetch("/api/tag/increaseCount", {
+      method: "POST",
+      body: tag,
+    });
+  }
 };
 
 // プログラミング言語のフィルターがcheckされたか判定する
