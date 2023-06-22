@@ -2,25 +2,6 @@
   <div class="flex justify-center mb-0">
     <!-- カテゴリ検索欄 -->
     <div class="flex flex-col">
-      <!-- プログラミング言語 -->
-      <!-- <LanguageList
-        :tagName="tagName"
-        :visibleTagItems="visibleTagItems"
-        :showAllTagItems="showAllTagItems"
-        @languagecheckbox-change="changeLanguageCheckbox"
-      /> -->
-      <!-- 職種 -->
-      <!-- <OccupationList
-        :occupationName="occupationName"
-        @occupationcheckbox-change="changeOccupationCheckbox"
-      /> -->
-      <!-- サークル -->
-      <!-- <ClubList
-        :clubName="clubName"
-        :visibleClubItems="visibleClubItems"
-        :showAllClubItems="showAllClubItems"
-        @clubcheckbox-change="changeClubCheckbox"
-      /> -->
       <!-- コンポーネントのループ -->
       <component
         v-if="tagName && occupationName && clubName"
@@ -47,11 +28,11 @@
         :to="{ path: `/calendar/${bannerData[0].id}` }"
       >
         <div
-          class="bg-gradient-to-r from-purple-400 via-pink-500 to-red-500 p-4 rounded-lg shadow-lg flex items-center justify-between mt-3 w-[1200px]"
+          class="bg-gradient-to-r from-purple-400 via-pink-500 to-red-500 p-4 rounded-lg shadow-lg flex items-center justify-between mt-3 w-[1000px]"
           :style="
             'background-image: url(' +
             (bannerData && bannerData[0]?.image) +
-            '); background-size: 1200px 350px;'
+            '); background-size: 1000px 350px;'
           "
         >
           <!-- メッセージ -->
@@ -62,7 +43,7 @@
         </div>
       </NuxtLink>
       <!-- ソート機能 -->
-      <div class="flex justify-end max-w-[1200px]">
+      <div class="flex justify-end w-[1000px]">
         <div class="inline-flex rounded-md shadow-sm pt-5 pb-3" role="group">
           <button
             @click="sortArticlesByDateDescending"
@@ -88,7 +69,7 @@
         </div>
       </div>
       <!-- 記事一覧 -->
-      <section class="text-gray-600 body-font overflow-hidden max-w-[1200px]">
+      <section class="text-gray-600 body-font overflow-hidden w-[1000px]">
         <div class="container px-5 pb-24 mx-auto">
           <div
             v-if="
@@ -285,24 +266,6 @@ let bannerData = ref([]);
 let tags = ref([]);
 const currentPage = ref(1); // 現在のページ番号
 const itemsPerPage = 20; // 1ページに表示する項目数
-// componentsの配列
-// const components = [
-//   {
-//     name: LanguageList,
-//     // order: tagName.value.reduce((sum, tag) => sum + tag.count, 0),
-//     order: sortedCategories[0].sumCount,
-//   },
-//   {
-//     name: OccupationList,
-//     order: occupationName.value.reduce((sum, tag) => sum + tag.count, 0),
-//   },
-//   {
-//     name: ClubList,
-//     order: clubName.value.reduce((sum, tag) => sum + tag.count, 0),
-//   },
-// ];
-// console.log(tagName)
-// console.log(components)
 
 // 先頭ページに移動する
 const goToFirstPage = () => {
@@ -339,7 +302,7 @@ const Fn = async () => {
   }));
 
   // likeテーブルを取得し、articleData配列にいいね数が表示されたlikeプロパティを持たせる
-  let { data: db, error } = await supabase.from("like").select("*");
+  let { data: db } = await supabase.from("like").select("*");
   likeData.value = db;
 
   const likeTable = likeData.value.reduce((acc, like) => {
@@ -381,63 +344,70 @@ const Fn = async () => {
 Fn();
 
 // Supabaseからtagテーブルデータ（display：trueのみ）を取得
-(async function () {
-  let { data: name, error } = await supabase
-    .from("tag")
-    .select("*")
-    .eq("display", "true")
-    .order("count", { ascending: false });
-  tagName.value = name;
 
-  // 全ての要素にcheckedプロパティを追加し、初期値を設定する
-  tagName.value.forEach((tag) => {
-    tag.checked = false;
-  });
-})();
+let { data: name } = await supabase
+  .from("tag")
+  .select("*")
+  .eq("display", "true")
+  .order("count", { ascending: false });
+tagName.value = name;
+
+// 全ての要素にcheckedプロパティを追加し、初期値を設定する
+tagName.value.forEach((tag) => {
+  tag.checked = false;
+});
 
 // Supabaseからtagテーブルデータ（全て）を取得
-(async function () {
-  let { data: t } = await supabase.from("tag").select("id,name");
-  tags.value = t;
-})();
+let { data: t } = await supabase.from("tag").select("id,name");
+tags.value = t;
 
 // Supabaseから職種テーブルデータを取得
-(async function () {
-  let { data: occupation, error } = await supabase
-    .from("occupation")
-    .select("*")
-    .order("count", { ascending: false });
-  occupationName.value = occupation;
+let { data: occupation } = await supabase
+  .from("occupation")
+  .select("*")
+  .order("count", { ascending: false });
+occupationName.value = occupation;
 
-  // 全ての要素にcheckedプロパティを追加し、初期値を設定する
-  occupationName.value.forEach((occupation) => {
-    occupation.checked = false;
-  });
-})();
+// 全ての要素にcheckedプロパティを追加し、初期値を設定する
+occupationName.value.forEach((occupation) => {
+  occupation.checked = false;
+});
 
 // Supabaseからサークルテーブルデータを取得
-(async function () {
-  let { data: club, error } = await supabase
-    .from("club")
-    .select("*")
-    .eq("display", "true")
-    .order("count", { ascending: false });
-  clubName.value = club;
+let { data: club } = await supabase
+  .from("club")
+  .select("*")
+  .eq("display", "true")
+  .order("count", { ascending: false });
+clubName.value = club;
 
-  // 全ての要素にcheckedプロパティを追加し、初期値を設定する
-  clubName.value.forEach((club) => {
-    club.checked = false;
-  });
-})();
+// 全ての要素にcheckedプロパティを追加し、初期値を設定する
+clubName.value.forEach((club) => {
+  club.checked = false;
+});
+
+let components = [
+  {
+    name: LanguageList,
+    order: tagName.value.reduce((sum, tag) => sum + tag.count, 0),
+  },
+  {
+    name: OccupationList,
+    order: occupationName.value.reduce((sum, tag) => sum + tag.count, 0),
+  },
+  {
+    name: ClubList,
+    order: clubName.value.reduce((sum, tag) => sum + tag.count, 0),
+  },
+];
+components.sort((a, b) => b.order - a.order);
 
 // Supabaseからbannerテーブルデータを取得
-(async function () {
-  let { data: banner } = await supabase
-    .from("banner")
-    .select("*")
-    .eq("display", "true");
-  bannerData.value = banner;
-})();
+let { data: banner } = await supabase
+  .from("banner")
+  .select("*")
+  .eq("display", "true");
+bannerData.value = banner;
 
 // データフィルタリング用のメソッド
 const filterArticles = (searchParam) => {
@@ -644,61 +614,6 @@ const visibleArticleCount = computed(() => {
   });
   return filtered.length;
 });
-
-// フィルターする見出しを検索順に表示するための算出プロパティ
-const sortedCategories = computed(() => {
-  //見出しを検索順に表示するため、プログラミング言語のcount(検索された回数)の合計を計算
-  const tagNameCountSum = () => {
-    return tagName.value.reduce((sum, tag) => sum + tag.count, 0);
-  };
-
-  //見出しを検索順に表示するため、職種のcount(検索された回数)の合計を計算
-  // const occupationNameCountSum = () => {
-  //   return occupationName.value.reduce((sum, tag) => sum + tag.count, 0);
-  // };
-
-  //見出しを検索順に表示するため、サークルのcount(検索された回数)の合計を計算
-  const clubNameCountSum = () => {
-    return clubName.value.reduce((sum, tag) => sum + tag.count, 0);
-  };
-  return [
-    {
-      name: "プログラミング言語",
-      sumCount: tagNameCountSum(),
-      data: tagName.value,
-    },
-    {
-      name: "職種",
-      sumCount: occupationNameCountSum(),
-      data: occupationName.value,
-    },
-    { name: "サークル", sumCount: clubNameCountSum(), data: clubName.value },
-  ];
-  // .sort((a, b) => b.sumCount - a.sumCount) // count(検索された回数)の合計で降順にソート
-  // .map((category) => category); // 配列にマッピング
-});
-console.log(sortedCategories);
-
-const occupationNameCountSum = () => {
-  return occupationName.value.reduce((sum, tag) => sum + tag.count, 0);
-};
-
-const components = [
-  {
-    name: LanguageList,
-    order: occupationNameCountSum(),
-    // order: sortedCategories.value[0],
-  },
-  {
-    name: OccupationList,
-    order: occupationName.value.reduce((sum, tag) => sum + tag.count, 0),
-  },
-  {
-    name: ClubList,
-    order: clubName.value.reduce((sum, tag) => sum + tag.count, 0),
-  },
-];
-console.log(components);
 
 // 職種の名称表示
 function getOccupationName(occupationTagId) {
