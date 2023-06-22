@@ -372,9 +372,3 @@ supabase1
   )
   .subscribe();
 </script>
-
-<style scoped>
-.main {
-  min-height: calc(100vh - 184px);
-}
-</style>

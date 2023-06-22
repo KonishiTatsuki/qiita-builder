@@ -1,246 +1,253 @@
 <template>
-  <div class="flex justify-center mb-0">
-    <!-- カテゴリ検索欄 -->
-    <div class="flex flex-col">
-      <!-- プログラミング言語 -->
-      <!-- <LanguageList
+  <div class="main">
+    <div class="flex justify-center mb-0">
+      <!-- カテゴリ検索欄 -->
+      <div class="flex flex-col">
+        <!-- プログラミング言語 -->
+        <!-- <LanguageList
         :tagName="tagName"
         :visibleTagItems="visibleTagItems"
         :showAllTagItems="showAllTagItems"
         @languagecheckbox-change="changeLanguageCheckbox"
       /> -->
-      <!-- 職種 -->
-      <!-- <OccupationList
+        <!-- 職種 -->
+        <!-- <OccupationList
         :occupationName="occupationName"
         @occupationcheckbox-change="changeOccupationCheckbox"
       /> -->
-      <!-- サークル -->
-      <!-- <ClubList
+        <!-- サークル -->
+        <!-- <ClubList
         :clubName="clubName"
         :visibleClubItems="visibleClubItems"
         :showAllClubItems="showAllClubItems"
         @clubcheckbox-change="changeClubCheckbox"
       /> -->
-      <!-- コンポーネントのループ -->
-      <component
-        v-if="tagName && occupationName && clubName"
-        v-for="component in components"
-        :key="component.name"
-        :is="component.name"
-        :tagName="tagName"
-        :visibleTagItems="visibleTagItems"
-        :showAllTagItems="showAllTagItems"
-        :occupationName="occupationName"
-        :clubName="clubName"
-        :visibleClubItems="visibleClubItems"
-        :showAllClubItems="showAllClubItems"
-        @languagecheckbox-change="changeLanguageCheckbox"
-        @occupationcheckbox-change="changeOccupationCheckbox"
-        @clubcheckbox-change="changeClubCheckbox"
-      />
-    </div>
-
-    <div>
-      <!-- アドベントカレンダーバナー -->
-      <NuxtLink
-        v-if="bannerData && bannerData[0]?.id"
-        :to="{ path: `/calendar/${bannerData[0].id}` }"
-      >
-        <div
-          class="bg-gradient-to-r from-purple-400 via-pink-500 to-red-500 p-4 rounded-lg shadow-lg flex items-center justify-between mt-3 w-[1200px]"
-          :style="
-            'background-image: url(' +
-            (bannerData && bannerData[0]?.image) +
-            '); background-size: 1200px 350px;'
-          "
-        >
-          <!-- メッセージ -->
-          <div class="text-white font-bold title">
-            <p class="ml-5">Qiita Builder Advent Calendar</p>
-            <p class="ml-5">開催中</p>
-          </div>
-        </div>
-      </NuxtLink>
-      <!-- ソート機能 -->
-      <div class="flex justify-end max-w-[1200px]">
-        <div class="inline-flex rounded-md shadow-sm pt-5 pb-3" role="group">
-          <button
-            @click="sortArticlesByDateDescending"
-            type="button"
-            class="px-4 py-2 text-sm font-medium text-gray-900 bg-transparent border border-gray-200 rounded-l-lg hover:bg-[#1D8EB9] hover:text-white focus:z-10 focus:ring-2 focus:ring-[#1D8EB9] focus:bg-[#1D8EB9] focus:text-white focus:border-[#1D8EB9] dark:border-white dark:text-white dark:hover:text-white dark:hover:bg-gray-700 dark:focus:bg-gray-700"
-          >
-            新着順
-          </button>
-          <button
-            @click="sortArticlesByDate"
-            type="button"
-            class="px-4 py-2 text-sm font-medium text-gray-900 bg-transparent border-t border-b border-gray-200 hover:bg-[#1D8EB9] hover:text-white focus:z-10 focus:ring-2 focus:ring-[#1D8EB9] focus:bg-[#1D8EB9] focus:text-white focus:border-[#1D8EB9] dark:border-white dark:text-white dark:hover:text-white dark:hover:bg-gray-700 dark:focus:bg-gray-700"
-          >
-            投稿日順
-          </button>
-          <button
-            @click="sortByLikes"
-            type="button"
-            class="px-4 py-2 text-sm font-medium text-gray-900 bg-transparent border border-gray-200 rounded-r-md hover:bg-[#1D8EB9] hover:text-white focus:z-10 focus:ring-2 focus:ring-[#1D8EB9] focus:bg-[#1D8EB9] focus:text-white focus:border-[#1D8EB9] dark:border-white dark:text-white dark:hover:text-white dark:hover:bg-gray-700 dark:focus:bg-gray-700"
-          >
-            いいね数
-          </button>
-        </div>
+        <!-- コンポーネントのループ -->
+        <component
+          v-for="component in components"
+          :key="component.name"
+          :is="component.name"
+          :tagName="tagName"
+          :visibleTagItems="visibleTagItems"
+          :showAllTagItems="showAllTagItems"
+          :occupationName="occupationName"
+          :clubName="clubName"
+          :visibleClubItems="visibleClubItems"
+          :showAllClubItems="showAllClubItems"
+          @languagecheckbox-change="changeLanguageCheckbox"
+          @occupationcheckbox-change="changeOccupationCheckbox"
+          @clubcheckbox-change="changeClubCheckbox"
+        />
       </div>
-      <!-- 記事一覧 -->
-      <section class="text-gray-600 body-font overflow-hidden max-w-[1200px]">
-        <div class="container px-5 pb-24 mx-auto">
-          <div
-            v-if="
-              (!hasVisibleArticles && route.currentRoute.value.query.search) ||
-              (!hasVisibleArticles && hasCheckedTags) ||
-              (!hasVisibleArticles && hasCheckedOccupations) ||
-              (!hasVisibleArticles && hasCheckedClubs)
-            "
-            class="text-center text-gray-500 py-8"
-          >
-            申し訳ございません。記事が見つかりませんでした。
-          </div>
-          <div class="-my-8 divide-y-2 divide-gray-100">
-            <div
-              class="flex flex-wrap md:flex-nowrap rounded-lg px-6 pt-6 pb-3 m-8 shadow-md relative"
-              v-for="article in filteredArticles"
-              :key="article.id"
-              v-show="
-                !article.hideByOccupation &&
-                !article.hideByClub &&
-                !article.hideByTag &&
-                !article.hide
-              "
-            >
-              <div class="flex w-full">
-                <div class="md:w-64 md:mb-0 mb-6 flex-shrink-0 flex flex-col">
-                  <div class="flex items-center">
-                    <!-- アイコン -->
-                    <img
-                      v-if="article.image"
-                      :src="article.image"
-                      alt="Icon"
-                      class="w-8 h-8 rounded-full mr-2"
-                    />
-                    <span
-                      class="font-semibold title-font text-gray-700 mr-1 tooltip"
-                      >{{ article.username }}&nbsp;（{{
-                        getOccupationName(article.occupationTagId)
-                      }}）</span
-                    >
-                  </div>
-                  <div v-if="article.clubTagId" class="mt-1">
-                    <span class="text-gray-500">
-                      {{ getClubsName(article.clubTagId) }}
-                    </span>
-                  </div>
 
-                  <div class="flex mt-1">
-                    <HeartIcon class="h-6 w-6" />
-                    <span class="font-semibold title-font text-gray-700 ml-1">
-                      {{ article.like }}
-                    </span>
-                  </div>
-                </div>
-                <div class="md:flex-grow mr-5 overflow-hidden">
-                  <router-link
-                    :to="`/articleDetail/${article.id}`"
-                    class="hover:underline"
-                  >
-                    <h2
-                      class="text-4xl font-medium text-gray-900 title-font mb-2"
-                    >
-                      {{
-                        article.title.length > 30
-                          ? article.title.slice(0, 30) + "..."
-                          : article.title
-                      }}
-                    </h2>
-                  </router-link>
-                  <router-link
-                    :to="`/articleDetail/${article.id}`"
-                    class="hover:underline"
-                  >
-                    <p class="leading-relaxed" id="custom-prose">
-                      {{
-                        article.body.length > 100
-                          ? article.body.slice(0, 100) + "..."
-                          : article.body
-                      }}
-                    </p>
-                  </router-link>
-                  <div
-                    v-if="article.tags"
-                    class="flex flex-wrap space-x-2 space-y-2 m-4"
-                  >
-                    <span
-                      class="bg-blue-100 text-blue-600 px-2 py-1 rounded my-1"
-                      v-for="tag in article.tags"
-                      :key="tag"
-                      >{{ getTagsName(tag) }}</span
-                    >
-                  </div>
-                  <div class="text-gray-500 text-sm absolute bottom-1 right-3">
-                    投稿日：{{ formatDate(article.date) }}
-                  </div>
-                </div>
-                <div>
-                  <button
-                    v-if="authority"
-                    @click="(open = true), (deleteItem = article.id)"
-                    class="btn h-[40px] w-[70px]"
-                  >
-                    削除
-                  </button>
-                  <Teleport to="body">
-                    <div v-if="open" class="modal">
-                      <div class="modal-content">
-                        <p class="mb-5">本当に削除しますか？</p>
-                        <button @click="open = false" class="btn mr-5">
-                          No
-                        </button>
-                        <button class="btn" @click="deleteArticle(deleteItem)">
-                          Yes
-                        </button>
-                      </div>
+      <div>
+        <!-- アドベントカレンダーバナー -->
+        <NuxtLink
+          v-if="bannerData && bannerData[0]?.id"
+          :to="{ path: `/calendar/${bannerData[0].id}` }"
+        >
+          <div
+            class="bg-gradient-to-r from-purple-400 via-pink-500 to-red-500 p-4 rounded-lg shadow-lg flex items-center justify-between mt-3 w-[1200px]"
+            :style="
+              'background-image: url(' +
+              (bannerData && bannerData[0]?.image) +
+              '); background-size: 1200px 350px;'
+            "
+          >
+            <!-- メッセージ -->
+            <div class="text-white font-bold title">
+              <p class="ml-5">Qiita Builder Advent Calendar</p>
+              <p class="ml-5">開催中</p>
+            </div>
+          </div>
+        </NuxtLink>
+        <!-- ソート機能 -->
+        <div class="flex justify-end max-w-[1200px]">
+          <div class="inline-flex rounded-md shadow-sm pt-5 pb-3" role="group">
+            <button
+              @click="sortArticlesByDateDescending"
+              type="button"
+              class="px-4 py-2 text-sm font-medium text-gray-900 bg-transparent border border-gray-200 rounded-l-lg hover:bg-[#1D8EB9] hover:text-white focus:z-10 focus:ring-2 focus:ring-[#1D8EB9] focus:bg-[#1D8EB9] focus:text-white focus:border-[#1D8EB9] dark:border-white dark:text-white dark:hover:text-white dark:hover:bg-gray-700 dark:focus:bg-gray-700"
+            >
+              新着順
+            </button>
+            <button
+              @click="sortArticlesByDate"
+              type="button"
+              class="px-4 py-2 text-sm font-medium text-gray-900 bg-transparent border-t border-b border-gray-200 hover:bg-[#1D8EB9] hover:text-white focus:z-10 focus:ring-2 focus:ring-[#1D8EB9] focus:bg-[#1D8EB9] focus:text-white focus:border-[#1D8EB9] dark:border-white dark:text-white dark:hover:text-white dark:hover:bg-gray-700 dark:focus:bg-gray-700"
+            >
+              投稿日順
+            </button>
+            <button
+              @click="sortByLikes"
+              type="button"
+              class="px-4 py-2 text-sm font-medium text-gray-900 bg-transparent border border-gray-200 rounded-r-md hover:bg-[#1D8EB9] hover:text-white focus:z-10 focus:ring-2 focus:ring-[#1D8EB9] focus:bg-[#1D8EB9] focus:text-white focus:border-[#1D8EB9] dark:border-white dark:text-white dark:hover:text-white dark:hover:bg-gray-700 dark:focus:bg-gray-700"
+            >
+              いいね数
+            </button>
+          </div>
+        </div>
+        <!-- 記事一覧 -->
+        <section class="text-gray-600 body-font overflow-hidden max-w-[1200px]">
+          <div class="container px-5 pb-24 mx-auto">
+            <div
+              v-if="
+                (!hasVisibleArticles &&
+                  route.currentRoute.value.query.search) ||
+                (!hasVisibleArticles && hasCheckedTags) ||
+                (!hasVisibleArticles && hasCheckedOccupations) ||
+                (!hasVisibleArticles && hasCheckedClubs)
+              "
+              class="text-center text-gray-500 py-8"
+            >
+              申し訳ございません。記事が見つかりませんでした。
+            </div>
+            <div class="-my-8 divide-y-2 divide-gray-100">
+              <div
+                class="flex flex-wrap md:flex-nowrap rounded-lg px-6 pt-6 pb-3 m-8 shadow-md relative"
+                v-for="article in filteredArticles"
+                :key="article.id"
+                v-show="
+                  !article.hideByOccupation &&
+                  !article.hideByClub &&
+                  !article.hideByTag &&
+                  !article.hide
+                "
+              >
+                <div class="flex w-full">
+                  <div class="md:w-64 md:mb-0 mb-6 flex-shrink-0 flex flex-col">
+                    <div class="flex items-center">
+                      <!-- アイコン -->
+                      <img
+                        v-if="article.image"
+                        :src="article.image"
+                        alt="Icon"
+                        class="w-8 h-8 rounded-full mr-2"
+                      />
+                      <span
+                        class="font-semibold title-font text-gray-700 mr-1 tooltip"
+                        >{{ article.username }}&nbsp;（{{
+                          getOccupationName(article.occupationTagId)
+                        }}）</span
+                      >
                     </div>
-                  </Teleport>
+                    <div v-if="article.clubTagId" class="mt-1">
+                      <span class="text-gray-500">
+                        {{ getClubsName(article.clubTagId) }}
+                      </span>
+                    </div>
+
+                    <div class="flex mt-1">
+                      <HeartIcon class="h-6 w-6" />
+                      <span class="font-semibold title-font text-gray-700 ml-1">
+                        {{ article.like }}
+                      </span>
+                    </div>
+                  </div>
+                  <div class="md:flex-grow mr-5 overflow-hidden">
+                    <router-link
+                      :to="`/articleDetail/${article.id}`"
+                      class="hover:underline"
+                    >
+                      <h2
+                        class="text-4xl font-medium text-gray-900 title-font mb-2"
+                      >
+                        {{
+                          article.title.length > 30
+                            ? article.title.slice(0, 30) + "..."
+                            : article.title
+                        }}
+                      </h2>
+                    </router-link>
+                    <router-link
+                      :to="`/articleDetail/${article.id}`"
+                      class="hover:underline"
+                    >
+                      <p class="leading-relaxed" id="custom-prose">
+                        {{
+                          article.body.length > 100
+                            ? article.body.slice(0, 100) + "..."
+                            : article.body
+                        }}
+                      </p>
+                    </router-link>
+                    <div
+                      v-if="article.tags"
+                      class="flex flex-wrap space-x-2 space-y-2 m-4"
+                    >
+                      <span
+                        class="bg-blue-100 text-blue-600 px-2 py-1 rounded my-1"
+                        v-for="tag in article.tags"
+                        :key="tag"
+                        >{{ getTagsName(tag) }}</span
+                      >
+                    </div>
+                    <div
+                      class="text-gray-500 text-sm absolute bottom-1 right-3"
+                    >
+                      投稿日：{{ formatDate(article.date) }}
+                    </div>
+                  </div>
+                  <div>
+                    <button
+                      v-if="authority"
+                      @click="(open = true), (deleteItem = article.id)"
+                      class="btn h-[40px] w-[70px]"
+                    >
+                      削除
+                    </button>
+                    <Teleport to="body">
+                      <div v-if="open" class="modal">
+                        <div class="modal-content">
+                          <p class="mb-5">本当に削除しますか？</p>
+                          <button @click="open = false" class="btn mr-5">
+                            No
+                          </button>
+                          <button
+                            class="btn"
+                            @click="deleteArticle(deleteItem)"
+                          >
+                            Yes
+                          </button>
+                        </div>
+                      </div>
+                    </Teleport>
+                  </div>
                 </div>
               </div>
             </div>
           </div>
-        </div>
-      </section>
+        </section>
+      </div>
     </div>
-  </div>
-  <!-- ページングコントロール -->
-  <div class="flex justify-center my-5">
-    <button
-      :disabled="currentPage === 1"
-      @click="goToFirstPage"
-      class="px-4 py-2 text-sm font-medium text-gray-900 bg-transparent border border-gray-200 rounded-l-lg hover:bg-[#1D8EB9] hover:text-white focus:z-10 focus:ring-2 focus:ring-[#1D8EB9] focus:bg-[#1D8EB9] focus:text-white focus:border-[#1D8EB9] dark:border-white dark:text-white dark:hover:text-white dark:hover:bg-gray-700 dark:focus:bg-gray-700"
-    >
-      先頭に戻る
-    </button>
-    <button
-      :disabled="currentPage === 1"
-      @click="currentPage--"
-      class="px-4 py-2 text-sm font-medium text-gray-900 bg-transparent border border-gray-200 rounded-l-lg hover:bg-[#1D8EB9] hover:text-white focus:z-10 focus:ring-2 focus:ring-[#1D8EB9] focus:bg-[#1D8EB9] focus:text-white focus:border-[#1D8EB9] dark:border-white dark:text-white dark:hover:text-white dark:hover:bg-gray-700 dark:focus:bg-gray-700"
-    >
-      前のページ
-    </button>
-    <span class="px-4 py-2 text-sm font-medium text-gray-900">
-      ページ {{ currentPage }} /
-      {{ Math.ceil(visibleArticleCount / itemsPerPage) }}
-    </span>
-    <button
-      :disabled="currentPage * itemsPerPage >= visibleArticleCount"
-      @click="currentPage++"
-      class="px-4 py-2 text-sm font-medium text-gray-900 bg-transparent border border-gray-200 rounded-r-md hover:bg-[#1D8EB9] hover:text-white focus:z-10 focus:ring-2 focus:ring-[#1D8EB9] focus:bg-[#1D8EB9] focus:text-white focus:border-[#1D8EB9] dark:border-white dark:text-white dark:hover:text-white dark:hover:bg-gray-700 dark:focus:bg-gray-700"
-    >
-      次のページ
-    </button>
+    <!-- ページングコントロール -->
+    <div class="flex justify-center my-5">
+      <button
+        :disabled="currentPage === 1"
+        @click="goToFirstPage"
+        class="px-4 py-2 text-sm font-medium text-gray-900 bg-transparent border border-gray-200 rounded-l-lg hover:bg-[#1D8EB9] hover:text-white focus:z-10 focus:ring-2 focus:ring-[#1D8EB9] focus:bg-[#1D8EB9] focus:text-white focus:border-[#1D8EB9] dark:border-white dark:text-white dark:hover:text-white dark:hover:bg-gray-700 dark:focus:bg-gray-700"
+      >
+        先頭に戻る
+      </button>
+      <button
+        :disabled="currentPage === 1"
+        @click="currentPage--"
+        class="px-4 py-2 text-sm font-medium text-gray-900 bg-transparent border border-gray-200 rounded-l-lg hover:bg-[#1D8EB9] hover:text-white focus:z-10 focus:ring-2 focus:ring-[#1D8EB9] focus:bg-[#1D8EB9] focus:text-white focus:border-[#1D8EB9] dark:border-white dark:text-white dark:hover:text-white dark:hover:bg-gray-700 dark:focus:bg-gray-700"
+      >
+        前のページ
+      </button>
+      <span class="px-4 py-2 text-sm font-medium text-gray-900">
+        ページ {{ currentPage }} /
+        {{ Math.ceil(visibleArticleCount / itemsPerPage) }}
+      </span>
+      <button
+        :disabled="currentPage * itemsPerPage >= visibleArticleCount"
+        @click="currentPage++"
+        class="px-4 py-2 text-sm font-medium text-gray-900 bg-transparent border border-gray-200 rounded-r-md hover:bg-[#1D8EB9] hover:text-white focus:z-10 focus:ring-2 focus:ring-[#1D8EB9] focus:bg-[#1D8EB9] focus:text-white focus:border-[#1D8EB9] dark:border-white dark:text-white dark:hover:text-white dark:hover:bg-gray-700 dark:focus:bg-gray-700"
+      >
+        次のページ
+      </button>
+    </div>
   </div>
 </template>
 
@@ -285,24 +292,30 @@ let bannerData = ref([]);
 let tags = ref([]);
 const currentPage = ref(1); // 現在のページ番号
 const itemsPerPage = 20; // 1ページに表示する項目数
-// componentsの配列
-// const components = [
+
+// let { data: name, error } = await supabase
+//   .from("tag")
+//   .select("*")
+//   .eq("display", "true")
+//   .order("count", { ascending: false });
+
+// console.log(name);
+// tagName.value = name;
+
+// // const tagNameCountSum = () => {
+// //   return tagName.value.reduce((sum, tag) => sum + tag.count, 0);
+// // };
+// const tagNameCountSum = tagName.value.reduce((sum, tag) => sum + tag.count, 0);
+// console.log("tagNameCountSum", tagNameCountSum);
+
+// const componentsa = [
 //   {
 //     name: LanguageList,
-//     // order: tagName.value.reduce((sum, tag) => sum + tag.count, 0),
-//     order: sortedCategories[0].sumCount,
-//   },
-//   {
-//     name: OccupationList,
-//     order: occupationName.value.reduce((sum, tag) => sum + tag.count, 0),
-//   },
-//   {
-//     name: ClubList,
-//     order: clubName.value.reduce((sum, tag) => sum + tag.count, 0),
+//     order: tagNameCountSum,
 //   },
 // ];
-// console.log(tagName)
-// console.log(components)
+
+// console.log("componentsa", componentsa);
 
 // 先頭ページに移動する
 const goToFirstPage = () => {
@@ -381,63 +394,57 @@ const Fn = async () => {
 Fn();
 
 // Supabaseからtagテーブルデータ（display：trueのみ）を取得
-(async function () {
-  let { data: name, error } = await supabase
-    .from("tag")
-    .select("*")
-    .eq("display", "true")
-    .order("count", { ascending: false });
-  tagName.value = name;
 
-  // 全ての要素にcheckedプロパティを追加し、初期値を設定する
-  tagName.value.forEach((tag) => {
-    tag.checked = false;
-  });
-})();
+let { data: name } = await supabase
+  .from("tag")
+  .select("*")
+  .eq("display", "true")
+  .order("count", { ascending: false });
+tagName.value = name;
+
+// 全ての要素にcheckedプロパティを追加し、初期値を設定する
+tagName.value.forEach((tag) => {
+  tag.checked = false;
+});
 
 // Supabaseからtagテーブルデータ（全て）を取得
-(async function () {
-  let { data: t } = await supabase.from("tag").select("id,name");
-  tags.value = t;
-})();
+
+let { data: t } = await supabase.from("tag").select("id,name");
+tags.value = t;
 
 // Supabaseから職種テーブルデータを取得
-(async function () {
-  let { data: occupation, error } = await supabase
-    .from("occupation")
-    .select("*")
-    .order("count", { ascending: false });
-  occupationName.value = occupation;
 
-  // 全ての要素にcheckedプロパティを追加し、初期値を設定する
-  occupationName.value.forEach((occupation) => {
-    occupation.checked = false;
-  });
-})();
+let { data: occupation } = await supabase
+  .from("occupation")
+  .select("*")
+  .order("count", { ascending: false });
+occupationName.value = occupation;
+
+// 全ての要素にcheckedプロパティを追加し、初期値を設定する
+occupationName.value.forEach((occupation) => {
+  occupation.checked = false;
+});
 
 // Supabaseからサークルテーブルデータを取得
-(async function () {
-  let { data: club, error } = await supabase
-    .from("club")
-    .select("*")
-    .eq("display", "true")
-    .order("count", { ascending: false });
-  clubName.value = club;
+let { data: club } = await supabase
+  .from("club")
+  .select("*")
+  .eq("display", "true")
+  .order("count", { ascending: false });
+clubName.value = club;
 
-  // 全ての要素にcheckedプロパティを追加し、初期値を設定する
-  clubName.value.forEach((club) => {
-    club.checked = false;
-  });
-})();
+// 全ての要素にcheckedプロパティを追加し、初期値を設定する
+clubName.value.forEach((club) => {
+  club.checked = false;
+});
 
 // Supabaseからbannerテーブルデータを取得
-(async function () {
-  let { data: banner } = await supabase
-    .from("banner")
-    .select("*")
-    .eq("display", "true");
-  bannerData.value = banner;
-})();
+
+let { data: banner } = await supabase
+  .from("banner")
+  .select("*")
+  .eq("display", "true");
+bannerData.value = banner;
 
 // データフィルタリング用のメソッド
 const filterArticles = (searchParam) => {
@@ -652,36 +659,27 @@ const sortedCategories = computed(() => {
     return tagName.value.reduce((sum, tag) => sum + tag.count, 0);
   };
 
-  //見出しを検索順に表示するため、職種のcount(検索された回数)の合計を計算
-  // const occupationNameCountSum = () => {
-  //   return occupationName.value.reduce((sum, tag) => sum + tag.count, 0);
-  // };
-
-  //見出しを検索順に表示するため、サークルのcount(検索された回数)の合計を計算
-  const clubNameCountSum = () => {
-    return clubName.value.reduce((sum, tag) => sum + tag.count, 0);
-  };
   return [
     {
       name: "プログラミング言語",
       sumCount: tagNameCountSum(),
       data: tagName.value,
     },
-    {
-      name: "職種",
-      sumCount: occupationNameCountSum(),
-      data: occupationName.value,
-    },
-    { name: "サークル", sumCount: clubNameCountSum(), data: clubName.value },
+    // {
+    //   name: "職種",
+    //   sumCount: occupationNameCountSum(),
+    //   data: occupationName.value,
+    // },
+    // { name: "サークル", sumCount: clubNameCountSum(), data: clubName.value },
   ];
-  // .sort((a, b) => b.sumCount - a.sumCount) // count(検索された回数)の合計で降順にソート
-  // .map((category) => category); // 配列にマッピング
 });
-console.log(sortedCategories);
+console.log("sortedCategories", sortedCategories);
 
 const occupationNameCountSum = () => {
   return occupationName.value.reduce((sum, tag) => sum + tag.count, 0);
 };
+const tagNameCountSums = tagName.value;
+console.log(tagName.value);
 
 const components = [
   {
@@ -698,7 +696,7 @@ const components = [
     order: clubName.value.reduce((sum, tag) => sum + tag.count, 0),
   },
 ];
-console.log(components);
+// console.log(components);
 
 // 職種の名称表示
 function getOccupationName(occupationTagId) {

@@ -188,9 +188,3 @@ if (likeArticleArray.value) {
   });
 }
 </script>
-
-<style scoped>
-.main {
-  min-height: calc(100vh - 168px);
-}
-</style>

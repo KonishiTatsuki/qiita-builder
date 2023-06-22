@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div class="main">
     <div
       class="rounded-lg shadow-lg flex items-center mt-3 min-w-full text-center bg-clip-padding banner-image"
       :style="
