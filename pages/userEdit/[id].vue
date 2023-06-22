@@ -1,5 +1,5 @@
 <template>
-  <div v-if="data" class="max-w-[1200px] mx-auto main">
+  <div v-if="data" class="max-w-[1200px] mx-auto mt-32 main">
     <div class="border border-black m-4 max-w-[1200px]">
       <div class="ml-6 flex">
         <div>
