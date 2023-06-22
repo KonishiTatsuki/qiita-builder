@@ -113,14 +113,14 @@ let items = ref([
   "クラウド",
 ]);
 
-const date = new Date();
+const date = new Date().toLocaleString("ja-JP", { timeZone: "Asia/Tokyo" });
 
 const select = ref([]);
 const content = ref("");
 const contentArea = ref();
 const title = ref("");
 const goalLike = ref("");
-const publishDate = ref(new Date());
+const publishDate = ref(date);
 const router = useRouter();
 const users = useSupabaseUser();
 const userId = users.value?.id;
