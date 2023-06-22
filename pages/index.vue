@@ -1,30 +1,11 @@
 <template>
-<<<<<<< HEAD
   <div class="main">
     <div class="flex justify-center mb-0">
       <!-- カテゴリ検索欄 -->
       <div class="flex flex-col">
-        <!-- プログラミング言語 -->
-        <!-- <LanguageList
-        :tagName="tagName"
-        :visibleTagItems="visibleTagItems"
-        :showAllTagItems="showAllTagItems"
-        @languagecheckbox-change="changeLanguageCheckbox"
-      /> -->
-        <!-- 職種 -->
-        <!-- <OccupationList
-        :occupationName="occupationName"
-        @occupationcheckbox-change="changeOccupationCheckbox"
-      /> -->
-        <!-- サークル -->
-        <!-- <ClubList
-        :clubName="clubName"
-        :visibleClubItems="visibleClubItems"
-        :showAllClubItems="showAllClubItems"
-        @clubcheckbox-change="changeClubCheckbox"
-      /> -->
         <!-- コンポーネントのループ -->
         <component
+          v-if="tagName && occupationName && clubName"
           v-for="component in components"
           :key="component.name"
           :is="component.name"
@@ -40,125 +21,6 @@
           @clubcheckbox-change="changeClubCheckbox"
         />
       </div>
-=======
-  <div class="flex justify-center mb-0">
-    <!-- カテゴリ検索欄 -->
-    <div class="flex flex-col">
-      <!-- コンポーネントのループ -->
-      <component
-        v-if="tagName && occupationName && clubName"
-        v-for="component in components"
-        :key="component.name"
-        :is="component.name"
-        :tagName="tagName"
-        :visibleTagItems="visibleTagItems"
-        :showAllTagItems="showAllTagItems"
-        :occupationName="occupationName"
-        :clubName="clubName"
-        :visibleClubItems="visibleClubItems"
-        :showAllClubItems="showAllClubItems"
-        @languagecheckbox-change="changeLanguageCheckbox"
-        @occupationcheckbox-change="changeOccupationCheckbox"
-        @clubcheckbox-change="changeClubCheckbox"
-      />
-    </div>
-
-    <div>
-      <!-- アドベントカレンダーバナー -->
-      <NuxtLink
-        v-if="bannerData && bannerData[0]?.id"
-        :to="{ path: `/calendar/${bannerData[0].id}` }"
-      >
-        <div
-          class="bg-gradient-to-r from-purple-400 via-pink-500 to-red-500 p-4 rounded-lg shadow-lg flex items-center justify-between mt-3 w-[1000px]"
-          :style="
-            'background-image: url(' +
-            (bannerData && bannerData[0]?.image) +
-            '); background-size: 1000px 350px;'
-          "
-        >
-          <!-- メッセージ -->
-          <div class="text-white font-bold title">
-            <p class="ml-5">Qiita Builder Advent Calendar</p>
-            <p class="ml-5">開催中</p>
-          </div>
-        </div>
-      </NuxtLink>
-      <!-- ソート機能 -->
-      <div class="flex justify-end w-[1000px]">
-        <div class="inline-flex rounded-md shadow-sm pt-5 pb-3" role="group">
-          <button
-            @click="sortArticlesByDateDescending"
-            type="button"
-            class="px-4 py-2 text-sm font-medium text-gray-900 bg-transparent border border-gray-200 rounded-l-lg hover:bg-[#1D8EB9] hover:text-white focus:z-10 focus:ring-2 focus:ring-[#1D8EB9] focus:bg-[#1D8EB9] focus:text-white focus:border-[#1D8EB9] dark:border-white dark:text-white dark:hover:text-white dark:hover:bg-gray-700 dark:focus:bg-gray-700"
-          >
-            新着順
-          </button>
-          <button
-            @click="sortArticlesByDate"
-            type="button"
-            class="px-4 py-2 text-sm font-medium text-gray-900 bg-transparent border-t border-b border-gray-200 hover:bg-[#1D8EB9] hover:text-white focus:z-10 focus:ring-2 focus:ring-[#1D8EB9] focus:bg-[#1D8EB9] focus:text-white focus:border-[#1D8EB9] dark:border-white dark:text-white dark:hover:text-white dark:hover:bg-gray-700 dark:focus:bg-gray-700"
-          >
-            投稿日順
-          </button>
-          <button
-            @click="sortByLikes"
-            type="button"
-            class="px-4 py-2 text-sm font-medium text-gray-900 bg-transparent border border-gray-200 rounded-r-md hover:bg-[#1D8EB9] hover:text-white focus:z-10 focus:ring-2 focus:ring-[#1D8EB9] focus:bg-[#1D8EB9] focus:text-white focus:border-[#1D8EB9] dark:border-white dark:text-white dark:hover:text-white dark:hover:bg-gray-700 dark:focus:bg-gray-700"
-          >
-            いいね数
-          </button>
-        </div>
-      </div>
-      <!-- 記事一覧 -->
-      <section class="text-gray-600 body-font overflow-hidden w-[1000px]">
-        <div class="container px-5 pb-24 mx-auto">
-          <div
-            v-if="
-              (!hasVisibleArticles && route.currentRoute.value.query.search) ||
-              (!hasVisibleArticles && hasCheckedTags) ||
-              (!hasVisibleArticles && hasCheckedOccupations) ||
-              (!hasVisibleArticles && hasCheckedClubs)
-            "
-            class="text-center text-gray-500 py-8"
-          >
-            申し訳ございません。記事が見つかりませんでした。
-          </div>
-          <div class="-my-8 divide-y-2 divide-gray-100">
-            <div
-              class="flex flex-wrap md:flex-nowrap rounded-lg px-6 pt-6 pb-3 m-8 shadow-md relative"
-              v-for="article in filteredArticles"
-              :key="article.id"
-              v-show="
-                !article.hideByOccupation &&
-                !article.hideByClub &&
-                !article.hideByTag &&
-                !article.hide
-              "
-            >
-              <div class="flex w-full">
-                <div class="md:w-64 md:mb-0 mb-6 flex-shrink-0 flex flex-col">
-                  <div class="flex items-center">
-                    <!-- アイコン -->
-                    <img
-                      v-if="article.image"
-                      :src="article.image"
-                      alt="Icon"
-                      class="w-8 h-8 rounded-full mr-2"
-                    />
-                    <span
-                      class="font-semibold title-font text-gray-700 mr-1 tooltip"
-                      >{{ article.username }}&nbsp;（{{
-                        getOccupationName(article.occupationTagId)
-                      }}）</span
-                    >
-                  </div>
-                  <div v-if="article.clubTagId" class="mt-1">
-                    <span class="text-gray-500">
-                      {{ getClubsName(article.clubTagId) }}
-                    </span>
-                  </div>
->>>>>>> main
 
       <div>
         <!-- アドベントカレンダーバナー -->
@@ -167,11 +29,11 @@
           :to="{ path: `/calendar/${bannerData[0].id}` }"
         >
           <div
-            class="bg-gradient-to-r from-purple-400 via-pink-500 to-red-500 p-4 rounded-lg shadow-lg flex items-center justify-between mt-3 w-[1200px]"
+            class="bg-gradient-to-r from-purple-400 via-pink-500 to-red-500 p-4 rounded-lg shadow-lg flex items-center justify-between mt-3 w-[1000px]"
             :style="
               'background-image: url(' +
               (bannerData && bannerData[0]?.image) +
-              '); background-size: 1200px 350px;'
+              '); background-size: 1000px 350px;'
             "
           >
             <!-- メッセージ -->
@@ -182,7 +44,7 @@
           </div>
         </NuxtLink>
         <!-- ソート機能 -->
-        <div class="flex justify-end max-w-[1200px]">
+        <div class="flex justify-end w-[1000px]">
           <div class="inline-flex rounded-md shadow-sm pt-5 pb-3" role="group">
             <button
               @click="sortArticlesByDateDescending"
@@ -208,7 +70,7 @@
           </div>
         </div>
         <!-- 記事一覧 -->
-        <section class="text-gray-600 body-font overflow-hidden max-w-[1200px]">
+        <section class="text-gray-600 body-font overflow-hidden w-[1000px]">
           <div class="container px-5 pb-24 mx-auto">
             <div
               v-if="
@@ -504,30 +366,16 @@ tagName.value.forEach((tag) => {
 });
 
 // Supabaseからtagテーブルデータ（全て）を取得
-<<<<<<< HEAD
-
-=======
->>>>>>> main
 let { data: t } = await supabase.from("tag").select("id,name");
 tags.value = t;
 
 // Supabaseから職種テーブルデータを取得
-<<<<<<< HEAD
-
 let { data: occupation } = await supabase
   .from("occupation")
   .select("*")
   .order("count", { ascending: false });
 occupationName.value = occupation;
 
-=======
-let { data: occupation } = await supabase
-  .from("occupation")
-  .select("*")
-  .order("count", { ascending: false });
-occupationName.value = occupation;
-
->>>>>>> main
 // 全ての要素にcheckedプロパティを追加し、初期値を設定する
 occupationName.value.forEach((occupation) => {
   occupation.checked = false;
@@ -545,11 +393,6 @@ clubName.value = club;
 clubName.value.forEach((club) => {
   club.checked = false;
 });
-<<<<<<< HEAD
-
-// Supabaseからbannerテーブルデータを取得
-
-=======
 
 let components = [
   {
@@ -568,7 +411,6 @@ let components = [
 components.sort((a, b) => b.order - a.order);
 
 // Supabaseからbannerテーブルデータを取得
->>>>>>> main
 let { data: banner } = await supabase
   .from("banner")
   .select("*")
@@ -781,55 +623,6 @@ const visibleArticleCount = computed(() => {
   return filtered.length;
 });
 
-<<<<<<< HEAD
-// フィルターする見出しを検索順に表示するための算出プロパティ
-const sortedCategories = computed(() => {
-  //見出しを検索順に表示するため、プログラミング言語のcount(検索された回数)の合計を計算
-  const tagNameCountSum = () => {
-    return tagName.value.reduce((sum, tag) => sum + tag.count, 0);
-  };
-
-  return [
-    {
-      name: "プログラミング言語",
-      sumCount: tagNameCountSum(),
-      data: tagName.value,
-    },
-    // {
-    //   name: "職種",
-    //   sumCount: occupationNameCountSum(),
-    //   data: occupationName.value,
-    // },
-    // { name: "サークル", sumCount: clubNameCountSum(), data: clubName.value },
-  ];
-});
-console.log("sortedCategories", sortedCategories);
-
-const occupationNameCountSum = () => {
-  return occupationName.value.reduce((sum, tag) => sum + tag.count, 0);
-};
-const tagNameCountSums = tagName.value;
-console.log(tagName.value);
-
-const components = [
-  {
-    name: LanguageList,
-    order: occupationNameCountSum(),
-    // order: sortedCategories.value[0],
-  },
-  {
-    name: OccupationList,
-    order: occupationName.value.reduce((sum, tag) => sum + tag.count, 0),
-  },
-  {
-    name: ClubList,
-    order: clubName.value.reduce((sum, tag) => sum + tag.count, 0),
-  },
-];
-// console.log(components);
-
-=======
->>>>>>> main
 // 職種の名称表示
 function getOccupationName(occupationTagId) {
   const occupation = occupationName.value.find(
