@@ -65,7 +65,7 @@
               label="タグを設定してください"
               multiple
               chips
-              style="min-width: 300px"
+              style="width: 350px"
             ></v-combobox>
           </v-col>
         </div>
