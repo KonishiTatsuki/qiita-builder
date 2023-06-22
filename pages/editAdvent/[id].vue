@@ -79,17 +79,22 @@ const setImage = () => {
 let create = {};
 
 const editSubmit = async () => {
+  errorTitle.value = "";
+  errorContent.value = "";
+  errorDate.value = "";
+  errorMsg.value = "";
+
   if (!adventName.value) {
     errorTitle.value = "題名を入力してください";
   } else if (adventName.value.length > 255) {
     errorTitle.value = "題名を255字以内で入力してください";
-    return;
-  } else if (!description.value) {
+  }
+  if (!description.value) {
     errorContent.value = "説明を入力してください";
   } else if (description.value.length > 255) {
     errorContent.value = "説明を255字以内で入力してください";
-    return;
-  } else if (!date.value) {
+  }
+  if (!date.value) {
     errorDate.value = "期間の開始日と最終日を選択してください";
     return;
   } else if (date.value[1] === null) {
