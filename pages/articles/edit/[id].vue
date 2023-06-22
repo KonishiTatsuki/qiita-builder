@@ -32,8 +32,8 @@
         v-model="title"
         style="width: 100%; height: 50px"
       />
-      <p v-if="errorTitle" class="text-red-500 mt-2">
-        *タイトルが未入力、または255字を超えています。
+      <p class="text-red-500 mt-2">
+        {{ errorTitle }}
       </p>
     </div>
     <div>
@@ -45,8 +45,8 @@
           placeholder="markdown形式で説明を記述できます。"
           maxlength="300"
         />
-        <p v-if="errorContent" class="text-red-500">
-          *内容が未入力、または255字を超えています。
+        <p class="text-red-500">
+          {{ errorContent }}
         </p>
       </div>
     </div>
@@ -65,9 +65,6 @@
             v-model="goalLike"
           />
         </FormKit>
-        <div v-if="errorGoalLike" class="text-red-500 mt-2">
-          *いいねの数を入力してください
-        </div>
       </div>
       <div>
         <p>公開日</p>
@@ -90,8 +87,8 @@
             ></v-combobox>
           </v-col>
         </div>
-        <p v-if="errorTag" class="text-red-500 ml-5">
-          *タグは各30字以内で入力してください
+        <p class="text-red-500 ml-5">
+          {{ errorTag }}
         </p>
       </div>
       <div class="mt-4">
@@ -136,10 +133,9 @@ const goalLike = ref(data.value?.article[0].goalLike);
 const publishDate = ref(data.value?.article[0].publishDate);
 const dialog = ref(false);
 const router = useRouter();
-let errorTitle = ref(false);
-let errorContent = ref(false);
-let errorGoalLike = ref(false);
-let errorTag = ref(false);
+let errorTitle = ref("");
+let errorContent = ref("");
+let errorTag = ref("");
 
 // いいね数のプルダウンに活用
 const goalLikeArray = [
@@ -166,30 +162,44 @@ const goalLikeArray = [
 ];
 
 const submitHandler = async () => {
-  if (
-    errorTitle.value ||
-    errorContent.value ||
-    errorGoalLike.value ||
-    errorTag.value
-  ) {
-    return;
-  }
-  const postData = {
-    id: id,
-    title: title,
-    body: content,
-    goalLike: goalLike,
-    date: new Date(),
-    publishDate: publishDate,
-    publish: true,
-  };
-  await useFetch("/api/article/patch", {
-    method: "PATCH",
-    body: { postData: postData, tag: select },
-  });
-  router.push(`/articleDetail/${id}`);
-};
+  //エラーの初期化
+  errorTitle.value = "";
+  errorContent.value = "";
+  errorTag.value = "";
 
+  //バリデーションチェック
+  if (title.value?.length === 0) {
+    errorTitle.value = "タイトルを入力してください";
+  }
+  if (content.value?.length === 0) {
+    errorContent.value = "内容を入力してください";
+  }
+  select.value?.map((tag: string) => {
+    if (tag.length > 30) {
+      errorTag.value = "タグは各30字以内で入力してください";
+    }
+  });
+  if (
+    errorTitle.value === "" &&
+    errorContent.value === "" &&
+    errorTag.value === ""
+  ) {
+    const postData = {
+      id: id,
+      title: title,
+      body: content,
+      goalLike: goalLike,
+      date: new Date(),
+      publishDate: publishDate,
+      publish: true,
+    };
+    await useFetch("/api/article/patch", {
+      method: "PATCH",
+      body: { postData: postData, tag: select },
+    });
+    router.push(`/articleDetail/${id}`);
+  }
+};
 const draftHandler = async () => {
   const postData = {
     id: id,
@@ -230,47 +240,6 @@ onMounted(async () => {
       content.value = mde.value();
     }
   });
-});
-
-watch(title, () => {
-  if (!title.value) {
-    errorTitle.value = true;
-  } else if (title.value.length > 255) {
-    errorTitle.value = true;
-  } else {
-    errorTitle.value = false;
-  }
-});
-watch(content, () => {
-  if (!content.value) {
-    errorContent.value = true;
-  } else if (content.value.length > 255) {
-    errorContent.value = true;
-  } else {
-    errorContent.value = false;
-  }
-});
-watch(goalLike, () => {
-  if (!goalLike.value) {
-    errorGoalLike.value = true;
-  } else {
-    errorGoalLike.value = false;
-  }
-});
-console.log(select.value);
-console.log(errorTag);
-watch(select, () => {
-  if (select.value) {
-    select.value.map((tag: string) => {
-      if (tag.length > 30) {
-        errorTag.value = true;
-      } else if (!tag) {
-        errorTag.value = false;
-      } else {
-        errorTag.value = false;
-      }
-    });
-  }
 });
 </script>
 

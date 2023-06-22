@@ -1,14 +1,17 @@
 <template>
   <div>
     <h1 class="title">アドベントカレンダー編集</h1>
-    <h2 class="subtitle">アドベントカレンダーの題名</h2>
+    <h2 class="subtitle">題名</h2>
     <input
-      maxlength="30"
+      maxlength="255"
       type="text"
       name="title"
       class="border border-blue-500 w-96"
       v-model="adventName"
     />
+    <p class="text-red-500">
+      {{ errorTitle }}
+    </p>
     <h2 class="subtitle">アドベントカレンダーの説明</h2>
     <textarea
       name="body"
@@ -18,8 +21,14 @@
       class="border border-blue-500"
       v-model="description"
     ></textarea>
+    <p class="text-red-500">
+      {{ errorContent }}
+    </p>
     <h2 class="subtitle">期間</h2>
     <VueDatePicker v-model="date" locale="ja" :format="format" range />
+    <p class="text-red-500">
+      {{ errorDate }}
+    </p>
     <h2 class="subtitle">バナー画像</h2>
     <div>
       <div>
@@ -45,6 +54,9 @@ const route = useRoute();
 const fileInput = ref();
 const client = useSupabaseClient();
 const user = useSupabaseUser();
+let errorTitle = ref("");
+let errorContent = ref("");
+let errorDate = ref("");
 const errorMsg = ref("");
 const format = "yyyy/MM/dd";
 
@@ -67,32 +79,39 @@ const setImage = () => {
 let create = {};
 
 const editSubmit = async () => {
-  let startDate = dayjs(date.value[0]).format("YYYY-MM-DD");
-  let endDate = dayjs(date.value[1]).format("YYYY-MM-DD");
+  errorTitle.value = "";
+  errorContent.value = "";
+  errorDate.value = "";
   errorMsg.value = "";
 
-  if (!date.value || date.value[1] === null) {
-    errorMsg.value = "期間の開始日と最終日を選択してください";
-    return;
+  if (!adventName.value) {
+    errorTitle.value = "題名を入力してください";
+  } else if (adventName.value.length > 255) {
+    errorTitle.value = "題名を255字以内で入力してください";
   }
-  console.log(date.value);
-
-  //バナー画像が編集された時
-  if (fileInput.value.files[0]) {
-    if (adventName.value.length === 0) {
-      errorMsg.value = "アドベントカレンダーの題名を入力してください";
-    } else if (description.value.length === 0) {
-      errorMsg.value = "アドベントカレンダーの説明を入力してください";
-    } else {
+  if (!description.value) {
+    errorContent.value = "説明を入力してください";
+  } else if (description.value.length > 255) {
+    errorContent.value = "説明を255字以内で入力してください";
+  }
+  if (!date.value) {
+    errorDate.value = "期間の開始日と最終日を選択してください";
+    return;
+  } else if (date.value[1] === null) {
+    errorDate.value = "期間の開始日と最終日を選択してください";
+    return;
+  } else {
+    let startDate = dayjs(date.value[0]).format("YYYY-MM-DD");
+    let endDate = dayjs(date.value[1]).format("YYYY-MM-DD");
+    //バナー画像が編集された時
+    if (fileInput.value.files[0]) {
       const file = fileInput.value.files[0];
       //ファイル名作成
       const random = Math.random().toString(32).substring(2);
-      console.log(`${random}`);
       const filePath = random;
-
       await client.storage.from("bannarImage").upload(filePath, file);
-      //バナー画像のpathを取得
 
+      //バナー画像のpathを取得
       const { data } = await client.storage
         .from("bannarImage")
         .createSignedUrl(filePath, 2592000);
@@ -109,13 +128,7 @@ const editSubmit = async () => {
       let { error } = await client.from("banner").upsert(create);
       if (error) throw error;
       router.push("/ownerPage");
-    }
-    //バナー画像が編集されてない時
-  } else {
-    if (adventName.value.length === 0) {
-      errorMsg.value = "アドベントカレンダーの題名を入力してください";
-    } else if (description.value.length === 0) {
-      errorMsg.value = "アドベントカレンダーの説明を入力してください";
+      //バナー画像が編集されてない時
     } else {
       create = {
         id: route.params.id,
