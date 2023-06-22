@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div class="main">
     <h1 class="title">アドベントカレンダー編集</h1>
     <h2 class="subtitle">題名</h2>
     <input

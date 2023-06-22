@@ -1,198 +1,200 @@
 <template>
-  <div class="flex flex-col md:flex-row">
-    <div class="md:w-2/3 p-4">
-      <!-- アイコン・ユーザ名・投稿日 -->
-      <div class="flex items-center mb-4 justify-between">
-        <div class="flex items-center">
-          <!-- アイコン -->
-          <img
-            v-if="articleUsers.image"
-            :src="articleUsers.image"
-            alt="User"
-            class="w-8 h-8 rounded-full mr-2"
-          />
-          <!-- ユーザ名 -->
-          <span v-if="articleUsers" class="text-gray-600 text-sm">{{
-            articleUsers.username
-          }}</span>
-          <span class="text-gray-400 text-sm mx-2">&nbsp;&nbsp;&nbsp;</span>
-          <!-- 投稿日 -->
-          <span v-if="formattedDate" class="text-gray-600 text-sm"
-            >投稿：{{ formattedDate }}</span
-          >
-        </div>
-
-        <NuxtLink
-          v-if="articleDatas[0].userId === userId"
-          :to="`/articles/edit/${articleId}`"
-        >
-          <button
-            type="submit"
-            class="mb-2 mr-10 mb-5 bg-[#FFFFFF] border-indigo-700 px-4 py-2 rounded-md text-base border hover:bg-[#1D8EB9] hover:text-white"
-          >
-            編集
-          </button>
-        </NuxtLink>
-      </div>
-      <!-- 記事タイトル -->
-      <h1 v-if="articleData" class="text-4xl font-bold mb-2">
-        <span class="break-words">
-          {{ articleData.title }}
-        </span>
-      </h1>
-      <hr class="border-t-2 border-gray-200" />
-      <!-- カテゴリタグ -->
-      <div v-if="tagNames" class="flex flex-wrap space-x-2 space-y-2 m-4">
-        <span
-          v-for="(tagName, index) in tagNames"
-          :key="index"
-          class="bg-blue-100 text-blue-600 px-2 py-1 rounded my-1"
-          >{{ tagName }}</span
-        >
-      </div>
-
-      <div class="text-gray-800 mb-4" id="parent-element">
-        <!-- tailwindcssのスタイルを無効化するcustom-proseクラス -->
-        <template v-if="htmlText">
-          <span class="custom-prose" v-html="htmlText"></span>
-        </template>
-        <template v-else>
-          <span></span>
-        </template>
-      </div>
-
-      <div class="flex justify-end space-x-4">
-        <LikeButton
-          :userId="userId"
-          :articleId="Number(articleId)"
-          :showLikeButton="showLikeButton"
-          :nowLike="nowLike"
-          :goalLike="goalLike"
-          @eventEmit="ChangeNowLike"
-        />
-        <RecommendButton
-          :userId="userId"
-          :articleId="Number(articleId)"
-          :showRecommendButton="showRecommendButton"
-          :nowRecommend="nowRecommend"
-          @eventEmit="ChangeNowRecommend"
-        />
-      </div>
-    </div>
-
-    <!-- いいね数・目標までのいいね数・Qiitaオススメした人数 -->
-    <div class="md:w-1/3 m-4 p-4 bg-gray-100 max-h-96">
-      <div class="mb-4">
-        <p class="text-gray-600 text-lg flex justify-center">
-          現在の「いいね！」
-        </p>
-        <p class="text-red-500 text-4xl font-bold flex justify-center m-4">
-          {{ nowLike }}
-          <span class="text-lg text-gray-600 align-text-bottom pt-3">件</span>
-        </p>
-      </div>
-      <div v-show="goalLike !== null" class="my-8">
-        <span class="text-gray-600 text-lg flex justify-center"
-          >目標まで残り</span
-        >
-        <p
-          v-if="
-            articleData &&
-            goalLike > 0 &&
-            !articleData.qiitaPost &&
-            !qiitaPostCheck
-          "
-          class="text-red-500 text-4xl font-bold flex justify-center m-4"
-        >
-          {{ goalLike }}
-          <span class="text-lg text-gray-600 align-text-bottom pt-3">件</span>
-        </p>
-        <p
-          v-else
-          class="text-red-500 text-4xl font-bold flex justify-center m-4"
-        >
-          {{ goalLikeSuccess }}
-        </p>
-      </div>
-      <div class="mb-4">
-        <span class="text-gray-600 text-lg flex justify-center"
-          >Qiitaオススメ</span
-        >
-        <p class="text-[#1D8EB9] text-4xl font-bold flex justify-center m-4">
-          {{ nowRecommend }}
-          <span class="text-lg text-gray-600 align-text-bottom pt-3">人</span>
-        </p>
-      </div>
-    </div>
-  </div>
-
-  <!-- コメントフォーム -->
-  <div class="p-4 bg-gray-100">
-    <h2 class="text-xl font-bold mb-2">コメント</h2>
-    <form class="flex flex-col items-end" @submit.prevent="submit">
-      <textarea
-        v-model="comment"
-        name="comment"
-        id="comment"
-        rows="5"
-        placeholder="コメントを入力してください"
-        class="w-full border border-gray-200 p-2 rounded"
-        maxlength="255"
-        oninput="document.getElementById('charCount').textContent = this.value.length + '/255'"
-      ></textarea>
-      <p v-if="errorText" class="text-red-500">コメントを入力してください</p>
-      <div class="flex mt-3">
-        <div id="charCount" class="mt-4 mr-2">0/255</div>
-        <button type="submit" class="btn">送信</button>
-      </div>
-    </form>
-    <div>
-      <h2 class="text-xl font-bold mb-2">投稿済みのコメント</h2>
-      <!-- 過去のコメントを表示するループ -->
-      <div
-        class="bg-gray-200 p-2 rounded my-3 flex justify-between items-center"
-        v-for="commented in commentDate"
-        :key="commented.id"
-      >
-        <div class="mr-5 w-full">
-          <div class="flex justify-between">
-            <div class="font-semibold">{{ commented.username }}</div>
-            <button
-              class="btn"
-              @click="(open = true), (deleteItem = commented.id)"
-              v-show="commented.userId == userId"
+  <div class="main">
+    <div class="flex flex-col md:flex-row">
+      <div class="md:w-2/3 p-4">
+        <!-- アイコン・ユーザ名・投稿日 -->
+        <div class="flex items-center mb-4 justify-between">
+          <div class="flex items-center">
+            <!-- アイコン -->
+            <img
+              v-if="articleUsers.image"
+              :src="articleUsers.image"
+              alt="User"
+              class="w-8 h-8 rounded-full mr-2"
+            />
+            <!-- ユーザ名 -->
+            <span v-if="articleUsers" class="text-gray-600 text-sm">{{
+              articleUsers.username
+            }}</span>
+            <span class="text-gray-400 text-sm mx-2">&nbsp;&nbsp;&nbsp;</span>
+            <!-- 投稿日 -->
+            <span v-if="formattedDate" class="text-gray-600 text-sm"
+              >投稿：{{ formattedDate }}</span
             >
-              削除
-            </button>
-            <Teleport to="body">
-              <div v-if="open" class="modal">
-                <div class="modal-content">
-                  <p class="mb-5">本当に削除しますか？</p>
-                  <button @click="open = false" class="btn mr-5">No</button>
-                  <button @click="deleteComment(deleteItem)" class="btn">
-                    Yes
-                  </button>
-                </div>
-              </div>
-            </Teleport>
           </div>
-          <p class="text-gray-600">{{ commented.comment }}</p>
+
+          <NuxtLink
+            v-if="articleDatas[0].userId === userId"
+            :to="`/articles/edit/${articleId}`"
+          >
+            <button
+              type="submit"
+              class="mb-2 mr-10 mb-5 bg-[#FFFFFF] border-indigo-700 px-4 py-2 rounded-md text-base border hover:bg-[#1D8EB9] hover:text-white"
+            >
+              編集
+            </button>
+          </NuxtLink>
+        </div>
+        <!-- 記事タイトル -->
+        <h1 v-if="articleData" class="text-4xl font-bold mb-2">
+          <span class="break-words">
+            {{ articleData.title }}
+          </span>
+        </h1>
+        <hr class="border-t-2 border-gray-200" />
+        <!-- カテゴリタグ -->
+        <div v-if="tagNames" class="flex flex-wrap space-x-2 space-y-2 m-4">
+          <span
+            v-for="(tagName, index) in tagNames"
+            :key="index"
+            class="bg-blue-100 text-blue-600 px-2 py-1 rounded my-1"
+            >{{ tagName }}</span
+          >
+        </div>
+
+        <div class="text-gray-800 mb-4" id="parent-element">
+          <!-- tailwindcssのスタイルを無効化するcustom-proseクラス -->
+          <template v-if="htmlText">
+            <span class="custom-prose" v-html="htmlText"></span>
+          </template>
+          <template v-else>
+            <span></span>
+          </template>
+        </div>
+
+        <div class="flex justify-end space-x-4">
+          <LikeButton
+            :userId="userId"
+            :articleId="Number(articleId)"
+            :showLikeButton="showLikeButton"
+            :nowLike="nowLike"
+            :goalLike="goalLike"
+            @eventEmit="ChangeNowLike"
+          />
+          <RecommendButton
+            :userId="userId"
+            :articleId="Number(articleId)"
+            :showRecommendButton="showRecommendButton"
+            :nowRecommend="nowRecommend"
+            @eventEmit="ChangeNowRecommend"
+          />
         </div>
       </div>
-      <button
-        v-show="showMoreComment"
-        @click="showMoreCommentClick"
-        class="mt-4 underline decoration-sky-500"
-      >
-        もっと見る
-      </button>
-      <button
-        v-show="showCloseComment"
-        @click="showCommentClick"
-        class="mt-4 underline decoration-sky-500"
-      >
-        閉じる
-      </button>
+
+      <!-- いいね数・目標までのいいね数・Qiitaオススメした人数 -->
+      <div class="md:w-1/3 m-4 p-4 bg-gray-100 max-h-96">
+        <div class="mb-4">
+          <p class="text-gray-600 text-lg flex justify-center">
+            現在の「いいね！」
+          </p>
+          <p class="text-red-500 text-4xl font-bold flex justify-center m-4">
+            {{ nowLike }}
+            <span class="text-lg text-gray-600 align-text-bottom pt-3">件</span>
+          </p>
+        </div>
+        <div v-show="goalLike !== null" class="my-8">
+          <span class="text-gray-600 text-lg flex justify-center"
+            >目標まで残り</span
+          >
+          <p
+            v-if="
+              articleData &&
+              goalLike > 0 &&
+              !articleData.qiitaPost &&
+              !qiitaPostCheck
+            "
+            class="text-red-500 text-4xl font-bold flex justify-center m-4"
+          >
+            {{ goalLike }}
+            <span class="text-lg text-gray-600 align-text-bottom pt-3">件</span>
+          </p>
+          <p
+            v-else
+            class="text-red-500 text-4xl font-bold flex justify-center m-4"
+          >
+            {{ goalLikeSuccess }}
+          </p>
+        </div>
+        <div class="mb-4">
+          <span class="text-gray-600 text-lg flex justify-center"
+            >Qiitaオススメ</span
+          >
+          <p class="text-[#1D8EB9] text-4xl font-bold flex justify-center m-4">
+            {{ nowRecommend }}
+            <span class="text-lg text-gray-600 align-text-bottom pt-3">人</span>
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <!-- コメントフォーム -->
+    <div class="p-4 bg-gray-100">
+      <h2 class="text-xl font-bold mb-2">コメント</h2>
+      <form class="flex flex-col items-end" @submit.prevent="submit">
+        <textarea
+          v-model="comment"
+          name="comment"
+          id="comment"
+          rows="5"
+          placeholder="コメントを入力してください"
+          class="w-full border border-gray-200 p-2 rounded"
+          maxlength="255"
+          oninput="document.getElementById('charCount').textContent = this.value.length + '/255'"
+        ></textarea>
+        <p v-if="errorText" class="text-red-500">コメントを入力してください</p>
+        <div class="flex mt-3">
+          <div id="charCount" class="mt-4 mr-2">0/255</div>
+          <button type="submit" class="btn">送信</button>
+        </div>
+      </form>
+      <div>
+        <h2 class="text-xl font-bold mb-2">投稿済みのコメント</h2>
+        <!-- 過去のコメントを表示するループ -->
+        <div
+          class="bg-gray-200 p-2 rounded my-3 flex justify-between items-center"
+          v-for="commented in commentDate"
+          :key="commented.id"
+        >
+          <div class="mr-5 w-full">
+            <div class="flex justify-between">
+              <div class="font-semibold">{{ commented.username }}</div>
+              <button
+                class="btn"
+                @click="(open = true), (deleteItem = commented.id)"
+                v-show="commented.userId == userId"
+              >
+                削除
+              </button>
+              <Teleport to="body">
+                <div v-if="open" class="modal">
+                  <div class="modal-content">
+                    <p class="mb-5">本当に削除しますか？</p>
+                    <button @click="open = false" class="btn mr-5">No</button>
+                    <button @click="deleteComment(deleteItem)" class="btn">
+                      Yes
+                    </button>
+                  </div>
+                </div>
+              </Teleport>
+            </div>
+            <p class="text-gray-600">{{ commented.comment }}</p>
+          </div>
+        </div>
+        <button
+          v-show="showMoreComment"
+          @click="showMoreCommentClick"
+          class="mt-4 underline decoration-sky-500"
+        >
+          もっと見る
+        </button>
+        <button
+          v-show="showCloseComment"
+          @click="showCommentClick"
+          class="mt-4 underline decoration-sky-500"
+        >
+          閉じる
+        </button>
+      </div>
     </div>
   </div>
 </template>

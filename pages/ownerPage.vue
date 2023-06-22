@@ -1,188 +1,194 @@
 <template>
-  <h1 class="title">管理者画面</h1>
-  <div class="flex items-center my-16">
-    <div class="w-1/5">バナー表示：</div>
-    <div class="w-4/5">
-      <select
-        name=""
-        id=""
-        class="border border-black w-80"
-        v-model="choseAdvent"
-      >
-        <option v-for="item in advent" :value="item.id">
-          {{ item.adventName }}
-        </option>
-      </select>
-      <span class="btn ml-4" @click="registerAdvent">保存</span>
-    </div>
-  </div>
-
-  <!-- アドベントカレンダー -->
-  <div class="my-16 flex items-center">
-    <div class="w-1/5">アドベントカレンダー：</div>
-    <div class="flex">
+  <div class="main">
+    <h1 class="title">管理者画面</h1>
+    <div class="flex items-center my-16">
+      <div class="w-1/5">バナー表示：</div>
       <div class="w-4/5">
-        <div>
-          <NuxtLink to="createAdvent"
-            ><button class="btn mb-3">新規登録</button></NuxtLink
-          >
-        </div>
-        <div class="mt-3">
-          <select
-            name="choseAdvent"
-            id="choseAdvent"
-            class="border border-black w-80"
-            v-model="choseEditAdvent"
-          >
-            <option v-for="item in advent" :value="item.id">
-              {{ item.adventName }}
-            </option>
-          </select>
-        </div>
-      </div>
-    </div>
-    <div class="flex mt-12 ml-4">
-      <div>
-        <NuxtLink :to="`/editAdvent/${choseEditAdvent}`"
-          ><button class="btn" @click="editAdvent">編集</button></NuxtLink
+        <select
+          name=""
+          id=""
+          class="border border-black w-80"
+          v-model="choseAdvent"
         >
+          <option v-for="item in advent" :value="item.id">
+            {{ item.adventName }}
+          </option>
+        </select>
+        <span class="btn ml-4" @click="registerAdvent">保存</span>
       </div>
     </div>
-  </div>
 
-  <!-- タグ編集 -->
-  <div class="flex my-20">
-    <div class="w-1/5">タグ編集：</div>
-    <div class="w-4/5 flex">
-      <div class="border border-black p-4 min-w-[420px] mr-2">
-        <p class="font-bold">認証済みサークルタグ</p>
-        <hr />
-        <div class="mt-6">
-          <ul class="flex" v-for="display in displayClub">
-            <li>
-              <input
-                type="radio"
-                :value="{ id: `${display.value}`, display: false }"
-                v-model="addnonDisplayClub"
-              />{{ display.label }}
-            </li>
-          </ul>
-        </div>
-        <div class="text-red-500">{{ msgForaddnonDisplayClub }}</div>
-        <div class="flex justify-end">
-          <div class="mr-2">
-            <button class="btn p-1" @click="nonDisplay">非表示</button>
+    <!-- アドベントカレンダー -->
+    <div class="my-16 flex items-center">
+      <div class="w-1/5">アドベントカレンダー：</div>
+      <div class="flex">
+        <div class="w-4/5">
+          <div>
+            <NuxtLink to="createAdvent"
+              ><button class="btn mb-3">新規登録</button></NuxtLink
+            >
+          </div>
+          <div class="mt-3">
+            <select
+              name="choseAdvent"
+              id="choseAdvent"
+              class="border border-black w-80"
+              v-model="choseEditAdvent"
+            >
+              <option v-for="item in advent" :value="item.id">
+                {{ item.adventName }}
+              </option>
+            </select>
           </div>
         </div>
       </div>
-      <div class="border border-black p-4 min-w-[420px] ml-2">
-        <p class="font-bold">未認証サークルタグ</p>
-        <hr />
-        <div class="flex mt-6">
+      <div class="flex mt-12 ml-4">
+        <div>
+          <NuxtLink :to="`/editAdvent/${choseEditAdvent}`"
+            ><button class="btn" @click="editAdvent">編集</button></NuxtLink
+          >
+        </div>
+      </div>
+    </div>
+
+    <!-- タグ編集 -->
+    <div class="flex my-20">
+      <div class="w-1/5">タグ編集：</div>
+      <div class="w-4/5 flex">
+        <div class="border border-black p-4 min-w-[420px] mr-2">
+          <p class="font-bold">認証済みサークルタグ</p>
+          <hr />
+          <div class="mt-6">
+            <ul class="flex" v-for="display in displayClub">
+              <li>
+                <input
+                  type="radio"
+                  :value="{ id: `${display.value}`, display: false }"
+                  v-model="addnonDisplayClub"
+                />{{ display.label }}
+              </li>
+            </ul>
+          </div>
+          <div class="text-red-500">{{ msgForaddnonDisplayClub }}</div>
+          <div class="flex justify-end">
+            <div class="mr-2">
+              <button class="btn p-1" @click="nonDisplay">非表示</button>
+            </div>
+          </div>
+        </div>
+        <div class="border border-black p-4 min-w-[420px] ml-2">
+          <p class="font-bold">未認証サークルタグ</p>
+          <hr />
+          <div class="flex mt-6">
+            <div>
+              <input
+                type="text"
+                class="border border-black ml-2 p-1"
+                v-model="newclub"
+              />
+            </div>
+            <div>
+              <button class="ml-2 p-1 btn" @click="addNewClub">追加</button>
+            </div>
+          </div>
+          <div class="mt-3">
+            <ul class="flex" v-for="display in nondisplayClub">
+              <li>
+                <input
+                  type="radio"
+                  :value="{ id: `${display.value}`, display: true }"
+                  v-model="addDisplayClub"
+                />
+                {{ display.label }}
+              </li>
+            </ul>
+          </div>
+          <div class="text-red-500">{{ msgForaddDisplayClub }}</div>
+          <div class="flex justify-end">
+            <div class="mr-2">
+              <button class="btn p-1" @click="clubModal = true">削除</button>
+            </div>
+            <Teleport to="body">
+              <div v-if="clubModal" class="modal">
+                <div class="modal-content">
+                  <p class="mb-5">本当に削除しますか？</p>
+                  <button @click="clubModal = false" class="btn mr-5">
+                    No
+                  </button>
+                  <button @click="deleteClub" class="btn">Yes</button>
+                  <div class="text-red-500">{{ msgForDeleteClub }}</div>
+                </div>
+              </div>
+            </Teleport>
+            <div><button class="btn p-1" @click="addDisplay">表示</button></div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div></div>
+
+    <!-- 管理者権限  -->
+    <div class="mt-5 flex my-16">
+      <div class="w-1/5">管理者権限：</div>
+      <div class="w-4/5">
+        <p class="mb-3">
+          管理者権限を与えたい社員のメールアドレスを入力してください
+        </p>
+        <div class="flex items-center">
           <div>
             <input
               type="text"
-              class="border border-black ml-2 p-1"
-              v-model="newclub"
+              class="border border-black w-80"
+              maxlength="255"
+              v-model="owner"
             />
           </div>
+          <div><button class="btn ml-4" @click="submitOwner">保存</button></div>
+        </div>
+        <p class="text-red-500">{{ errormsg }}</p>
+        <div class="mt-5">
           <div>
-            <button class="ml-2 p-1 btn" @click="addNewClub">追加</button>
-          </div>
-        </div>
-        <div class="mt-3">
-          <ul class="flex" v-for="display in nondisplayClub">
-            <li>
-              <input
-                type="radio"
-                :value="{ id: `${display.value}`, display: true }"
-                v-model="addDisplayClub"
-              />
-              {{ display.label }}
-            </li>
-          </ul>
-        </div>
-        <div class="text-red-500">{{ msgForaddDisplayClub }}</div>
-        <div class="flex justify-end">
-          <div class="mr-2">
-            <button class="btn p-1" @click="clubModal = true">削除</button>
-          </div>
-          <Teleport to="body">
-            <div v-if="clubModal" class="modal">
-              <div class="modal-content">
-                <p class="mb-5">本当に削除しますか？</p>
-                <button @click="clubModal = false" class="btn mr-5">No</button>
-                <button @click="deleteClub" class="btn">Yes</button>
-                <div class="text-red-500">{{ msgForDeleteClub }}</div>
-              </div>
-            </div>
-          </Teleport>
-          <div><button class="btn p-1" @click="addDisplay">表示</button></div>
-        </div>
-      </div>
-    </div>
-  </div>
-  <div></div>
-
-  <!-- 管理者権限  -->
-  <div class="mt-5 flex my-16">
-    <div class="w-1/5">管理者権限：</div>
-    <div class="w-4/5">
-      <p class="mb-3">
-        管理者権限を与えたい社員のメールアドレスを入力してください
-      </p>
-      <div class="flex items-center">
-        <div>
-          <input
-            type="text"
-            class="border border-black w-80"
-            maxlength="255"
-            v-model="owner"
-          />
-        </div>
-        <div><button class="btn ml-4" @click="submitOwner">保存</button></div>
-      </div>
-      <p class="text-red-500">{{ errormsg }}</p>
-      <div class="mt-5">
-        <div>
-          <table
-            class="border-collapse border border-slate-500 border-spacing-2 my-12"
-          >
-            <thead>
-              <tr>
-                <th colspan="3">管理者一覧</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr v-for="item in ownerList">
-                <td class="border border-slate-500 px-2 max w-[400px]">
-                  ユーザ名：{{ item.username }}
-                </td>
-                <td class="border border-slate-500 px-2 max w-[400px]">
-                  {{ item.email }}
-                </td>
-                <td class="border border-slate-500 px-2 w-[70px]">
-                  <button
-                    class="btn px-2"
-                    @click="(open = true), (deleteItem = item.id)"
-                  >
-                    削除
-                  </button>
-                </td>
-                <Teleport to="body">
-                  <div v-if="open" class="modal">
-                    <div class="modal-content">
-                      <p class="mb-5">本当に削除しますか？</p>
-                      <button @click="open = false" class="btn mr-5">No</button>
-                      <button @click="deleteOwner(deleteItem)" class="btn">
-                        Yes
-                      </button>
+            <table
+              class="border-collapse border border-slate-500 border-spacing-2 my-12"
+            >
+              <thead>
+                <tr>
+                  <th colspan="3">管理者一覧</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr v-for="item in ownerList">
+                  <td class="border border-slate-500 px-2 max w-[400px]">
+                    ユーザ名：{{ item.username }}
+                  </td>
+                  <td class="border border-slate-500 px-2 max w-[400px]">
+                    {{ item.email }}
+                  </td>
+                  <td class="border border-slate-500 px-2 w-[70px]">
+                    <button
+                      class="btn px-2"
+                      @click="(open = true), (deleteItem = item.id)"
+                    >
+                      削除
+                    </button>
+                  </td>
+                  <Teleport to="body">
+                    <div v-if="open" class="modal">
+                      <div class="modal-content">
+                        <p class="mb-5">本当に削除しますか？</p>
+                        <button @click="open = false" class="btn mr-5">
+                          No
+                        </button>
+                        <button @click="deleteOwner(deleteItem)" class="btn">
+                          Yes
+                        </button>
+                      </div>
                     </div>
-                  </div>
-                </Teleport>
-              </tr>
-            </tbody>
-          </table>
+                  </Teleport>
+                </tr>
+              </tbody>
+            </table>
+          </div>
         </div>
       </div>
     </div>

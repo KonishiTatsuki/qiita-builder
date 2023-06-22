@@ -120,9 +120,3 @@ const deleteHandler = async () => {
 
 console.log("selectedArticle", selectedArticleId.value);
 </script>
-
-<style scoped>
-.main {
-  min-height: calc(100vh - 255px);
-}
-</style>

@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div class="main">
     <div class="mb-10">
       <h1 class="title">アドベントカレンダー新規作成</h1>
       <div class="flex">
@@ -157,5 +157,3 @@ async function submitHandler() {
   }
 }
 </script>
-
-<style lang="scss" scoped></style>
