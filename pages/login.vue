@@ -92,9 +92,3 @@ const submit = async (submit: { email: string; password: string }) => {
   }
 };
 </script>
-
-<style scoped>
-.main {
-  min-height: calc(100vh - 124px);
-}
-</style>

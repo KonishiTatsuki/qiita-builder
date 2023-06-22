@@ -1,5 +1,5 @@
 <template>
-  <div class="my-15">
+  <div class="my-15 main">
     <div class="text-right mb-4">
       <v-dialog v-model="dialog" persistent width="auto">
         <template v-slot:activator="{ props }">

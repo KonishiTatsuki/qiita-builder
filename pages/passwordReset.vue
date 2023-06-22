@@ -99,9 +99,3 @@ const submit = async (submit: { password: string }) => {
   }
 };
 </script>
-
-<style scoped>
-.main {
-  min-height: calc(100vh - 124px);
-}
-</style>

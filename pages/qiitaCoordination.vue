@@ -97,9 +97,3 @@ const submit = async (submit: { text: string }) => {
     });
 };
 </script>
-
-<style scoped>
-.main {
-  min-height: calc(100vh - 168px);
-}
-</style>
