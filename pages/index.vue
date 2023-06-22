@@ -3,114 +3,41 @@
     <!-- カテゴリ検索欄 -->
     <div class="flex flex-col">
       <!-- プログラミング言語 -->
-      <div class="pt-12 mr-5">
-        <h3 class="mb-4 font-semibold text-gray-900 dark:text-white">
-          プログラミング言語
-        </h3>
-        <ul
-          class="w-48 text-sm font-medium text-gray-900 bg-white border border-gray-200 rounded-lg dark:bg-gray-700 dark:border-gray-600 dark:text-white"
-        >
-          <li
-            v-for="(tag, index) in tagName"
-            :key="index"
-            v-show="index < visibleTagItems"
-            class="w-full border-b border-gray-200 rounded-t-lg dark:border-gray-600"
-          >
-            <div class="flex items-center pl-3">
-              <input
-                :id="'tag-checkbox-' + index"
-                type="checkbox"
-                value="tag"
-                class="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-700 dark:focus:ring-offset-gray-700 focus:ring-2 dark:bg-gray-600 dark:border-gray-500 cursor-pointer"
-                v-model="tag.checked"
-                @change="filterArticlesByTag(tag)"
-              />
-              <label
-                :for="'tag-checkbox-' + index"
-                class="w-full py-3 ml-2 text-sm font-medium text-gray-900 dark:text-gray-300 cursor-pointer"
-                >{{ tag.name }}</label
-              >
-            </div>
-          </li>
-        </ul>
-        <div v-if="tagName.length > 10" class="text-right">
-          <button
-            class="text-blue-600 text-sm font-medium"
-            @click="toggleShowAllTagItems"
-          >
-            {{ showAllTagItems ? "閉じる" : "もっと見る" }}
-          </button>
-        </div>
-      </div>
+      <!-- <LanguageList
+        :tagName="tagName"
+        :visibleTagItems="visibleTagItems"
+        :showAllTagItems="showAllTagItems"
+        @languagecheckbox-change="changeLanguageCheckbox"
+      /> -->
       <!-- 職種 -->
-      <div class="pt-12 mr-5">
-        <h3 class="mb-4 font-semibold text-gray-900 dark:text-white">職種</h3>
-        <ul
-          class="w-48 text-sm font-medium text-gray-900 bg-white border border-gray-200 rounded-lg dark:bg-gray-700 dark:border-gray-600 dark:text-white"
-        >
-          <li
-            v-for="(occupation, index) in occupationName"
-            :key="index"
-            class="w-full border-b border-gray-200 rounded-t-lg dark:border-gray-600"
-          >
-            <div class="flex items-center pl-3">
-              <input
-                :id="'occupation-checkbox-' + index"
-                type="checkbox"
-                :value="occupation"
-                class="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-700 dark:focus:ring-offset-gray-700 focus:ring-2 dark:bg-gray-600 dark:border-gray-500 cursor-pointer"
-                v-model="occupation.checked"
-                @change="filterArticlesByOccupation(occupation)"
-              />
-              <label
-                :for="'occupation-checkbox-' + index"
-                class="w-full py-3 ml-2 text-sm font-medium text-gray-900 dark:text-gray-300 cursor-pointer"
-                >{{ occupation.occupationName }}</label
-              >
-            </div>
-          </li>
-        </ul>
-      </div>
+      <!-- <OccupationList
+        :occupationName="occupationName"
+        @occupationcheckbox-change="changeOccupationCheckbox"
+      /> -->
       <!-- サークル -->
-      <div class="pt-12 mr-5">
-        <h3 class="mb-4 font-semibold text-gray-900 dark:text-white">
-          サークル
-        </h3>
-        <ul
-          class="w-48 text-sm font-medium text-gray-900 bg-white border border-gray-200 rounded-lg dark:bg-gray-700 dark:border-gray-600 dark:text-white"
-        >
-          <li
-            v-for="(club, index) in clubName"
-            :key="index"
-            v-show="index < visibleClubItems"
-            class="w-full border-b border-gray-200 rounded-t-lg dark:border-gray-600"
-          >
-            <div class="flex items-center pl-3">
-              <input
-                :id="'club-checkbox-' + index"
-                type="checkbox"
-                value="club"
-                class="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-700 dark:focus:ring-offset-gray-700 focus:ring-2 dark:bg-gray-600 dark:border-gray-500 cursor-pointer"
-                v-model="club.checked"
-                @change="filterArticlesByClub(club)"
-              />
-              <label
-                :for="'club-checkbox-' + index"
-                class="w-full py-3 ml-2 text-sm font-medium text-gray-900 dark:text-gray-300 cursor-pointer"
-                >{{ club.clubName }}</label
-              >
-            </div>
-          </li>
-        </ul>
-        <div v-if="clubName.length > 10" class="text-right">
-          <button
-            class="text-blue-600 text-sm font-medium"
-            @click="toggleShowAllClubItems"
-          >
-            {{ showAllClubItems ? "閉じる" : "もっと見る" }}
-          </button>
-        </div>
-      </div>
+      <!-- <ClubList
+        :clubName="clubName"
+        :visibleClubItems="visibleClubItems"
+        :showAllClubItems="showAllClubItems"
+        @clubcheckbox-change="changeClubCheckbox"
+      /> -->
+      <!-- コンポーネントのループ -->
+      <component
+        v-if="tagName && occupationName && clubName"
+        v-for="component in components"
+        :key="component.name"
+        :is="component.name"
+        :tagName="tagName"
+        :visibleTagItems="visibleTagItems"
+        :showAllTagItems="showAllTagItems"
+        :occupationName="occupationName"
+        :clubName="clubName"
+        :visibleClubItems="visibleClubItems"
+        :showAllClubItems="showAllClubItems"
+        @languagecheckbox-change="changeLanguageCheckbox"
+        @occupationcheckbox-change="changeOccupationCheckbox"
+        @clubcheckbox-change="changeClubCheckbox"
+      />
     </div>
 
     <div>
@@ -120,7 +47,7 @@
         :to="{ path: `/calendar/${bannerData[0].id}` }"
       >
         <div
-          class="bg-gradient-to-r from-purple-400 via-pink-500 to-red-500 p-4 rounded-lg shadow-lg flex items-center justify-between mt-3 max-w-[1200px]"
+          class="bg-gradient-to-r from-purple-400 via-pink-500 to-red-500 p-4 rounded-lg shadow-lg flex items-center justify-between mt-3 w-[1200px]"
           :style="
             'background-image: url(' +
             (bannerData && bannerData[0]?.image) +
@@ -321,6 +248,9 @@
 import { ref, computed, onMounted } from "vue";
 import { useRouter } from "vue-router";
 import { HeartIcon } from "@heroicons/vue/outline";
+import LanguageList from "../components/LanguageList.vue";
+import OccupationList from "../components/OccupationList.vue";
+import ClubList from "../components/ClubList.vue";
 
 useHead({
   title: "記事一覧",
@@ -355,6 +285,24 @@ let bannerData = ref([]);
 let tags = ref([]);
 const currentPage = ref(1); // 現在のページ番号
 const itemsPerPage = 20; // 1ページに表示する項目数
+// componentsの配列
+// const components = [
+//   {
+//     name: LanguageList,
+//     // order: tagName.value.reduce((sum, tag) => sum + tag.count, 0),
+//     order: sortedCategories[0].sumCount,
+//   },
+//   {
+//     name: OccupationList,
+//     order: occupationName.value.reduce((sum, tag) => sum + tag.count, 0),
+//   },
+//   {
+//     name: ClubList,
+//     order: clubName.value.reduce((sum, tag) => sum + tag.count, 0),
+//   },
+// ];
+// console.log(tagName)
+// console.log(components)
 
 // 先頭ページに移動する
 const goToFirstPage = () => {
@@ -616,6 +564,24 @@ const filterArticlesByTag = (tag) => {
   }
 };
 
+//emitで子コンポーネントからデータ取得
+const changeLanguageCheckbox = (tagName, tag) => {
+  tagName.value = tagName;
+  filterArticlesByTag(tag);
+};
+
+//emitで子コンポーネントからデータ取得
+const changeOccupationCheckbox = (occupationName, occupation) => {
+  occupationName.value = occupationName;
+  filterArticlesByOccupation(occupation);
+};
+
+//emitで子コンポーネントからデータ取得
+const changeClubCheckbox = (clubName, club) => {
+  clubName.value = clubName;
+  filterArticlesByClub(club);
+};
+
 // プログラミング言語のフィルターがcheckされたか判定する
 const hasCheckedTags = computed(() => {
   return tagName.value.some((tag) => {
@@ -679,27 +645,60 @@ const visibleArticleCount = computed(() => {
   return filtered.length;
 });
 
-// プログラミング言語の表示数を変更する
-const toggleShowAllTagItems = () => {
-  if (showAllTagItems.value) {
-    visibleTagItems.value = 10;
-    showAllTagItems.value = false;
-  } else {
-    visibleTagItems.value = tagName.value.length;
-    showAllTagItems.value = true;
-  }
+// フィルターする見出しを検索順に表示するための算出プロパティ
+const sortedCategories = computed(() => {
+  //見出しを検索順に表示するため、プログラミング言語のcount(検索された回数)の合計を計算
+  const tagNameCountSum = () => {
+    return tagName.value.reduce((sum, tag) => sum + tag.count, 0);
+  };
+
+  //見出しを検索順に表示するため、職種のcount(検索された回数)の合計を計算
+  // const occupationNameCountSum = () => {
+  //   return occupationName.value.reduce((sum, tag) => sum + tag.count, 0);
+  // };
+
+  //見出しを検索順に表示するため、サークルのcount(検索された回数)の合計を計算
+  const clubNameCountSum = () => {
+    return clubName.value.reduce((sum, tag) => sum + tag.count, 0);
+  };
+  return [
+    {
+      name: "プログラミング言語",
+      sumCount: tagNameCountSum(),
+      data: tagName.value,
+    },
+    {
+      name: "職種",
+      sumCount: occupationNameCountSum(),
+      data: occupationName.value,
+    },
+    { name: "サークル", sumCount: clubNameCountSum(), data: clubName.value },
+  ];
+  // .sort((a, b) => b.sumCount - a.sumCount) // count(検索された回数)の合計で降順にソート
+  // .map((category) => category); // 配列にマッピング
+});
+console.log(sortedCategories);
+
+const occupationNameCountSum = () => {
+  return occupationName.value.reduce((sum, tag) => sum + tag.count, 0);
 };
 
-// サークルの表示数を変更する
-const toggleShowAllClubItems = () => {
-  if (showAllClubItems.value) {
-    visibleClubItems.value = 10;
-    showAllClubItems.value = false;
-  } else {
-    visibleClubItems.value = clubName.value.length;
-    showAllClubItems.value = true;
-  }
-};
+const components = [
+  {
+    name: LanguageList,
+    order: occupationNameCountSum(),
+    // order: sortedCategories.value[0],
+  },
+  {
+    name: OccupationList,
+    order: occupationName.value.reduce((sum, tag) => sum + tag.count, 0),
+  },
+  {
+    name: ClubList,
+    order: clubName.value.reduce((sum, tag) => sum + tag.count, 0),
+  },
+];
+console.log(components);
 
 // 職種の名称表示
 function getOccupationName(occupationTagId) {
