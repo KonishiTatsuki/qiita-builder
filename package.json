@@ -7,9 +7,12 @@
     "generate": "nuxt generate",
     "preview": "nuxt preview",
     "postinstall": "nuxt prepare",
-    "mock-api": "json-server --watch data/db.json --port 8000"
+    "mock-api": "json-server --watch data/db.json --port 8000",
+    "test": "jest"
   },
   "dependencies": {
+    "@babel/preset-env": "^7.22.5",
+    "@babel/preset-typescript": "^7.22.5",
     "@formkit/nuxt": "^0.17.2",
     "@formkit/themes": "^0.17.2",
     "@formkit/vue": "^0.17.2",
@@ -19,19 +22,26 @@
     "@types/node": "^18",
     "@vue-hero-icons/outline": "^1.7.2",
     "@vue/test-utils": "^2.3.2",
+    "@vue/vue3-jest": "^29.2.4",
     "@vuepic/vue-datepicker": "^5.1.2",
+    "babel-jest": "^29.5.0",
+    "babel-plugin-transform-import-meta": "^2.2.0",
+    "babel-preset-vite": "^1.1.0",
     "dayjs": "^1.11.8",
     "easymde": "^2.18.0",
     "flowbite": "^1.6.5",
     "jest": "^29.5.0",
+    "jest-environment-jsdom": "^29.5.0",
     "json-server": "^0.17.3",
     "marked": "^5.0.2",
     "msw": "^1.2.2",
     "nuxt": "^3.4.3",
-    "tailwindcss": "^3.3.2"
+    "tailwindcss": "^3.3.2",
+    "ts-jest": "^29.1.0"
   },
   "devDependencies": {
     "@invictus.codes/nuxt-vuetify": "^0.2.20",
-    "@nuxtjs/supabase": "^0.3.5"
+    "@nuxtjs/supabase": "^0.3.5",
+    "typescript": "^5.1.3"
   }
 }
