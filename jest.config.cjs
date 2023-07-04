@@ -14,4 +14,7 @@ module.exports = {
     "^.+\\.(ts|js)?$": "babel-jest",
     "^.+\\.vue$": "@vue/vue3-jest",
   },
+  transformIgnorePatterns: [
+    "node_modules/(?!(jest-)?vue)", // node_modules内の.vueファイルをトランスパイル対象にする
+  ],
 };

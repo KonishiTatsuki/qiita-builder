@@ -6,7 +6,6 @@
           <FormKit
             type="form"
             @submit="submitHandler"
-            #default="{ value }"
             id="edit"
             :actions="false"
           >
@@ -160,7 +159,6 @@
           <FormKit
             type="form"
             @submit="iconsubmit"
-            #default="{ value }"
             id="register"
             :actions="false"
           >
@@ -222,11 +220,11 @@ export default {
   data() {
     return {
       // userId: this.$supabase.auth.user()?.id,
-      users: useSupabaseUser(),
-      userId: this.users?.id,
+      // users: this.client.auth.user(),
+      // userId: this.users?.id,
       data: null,
       occupation: [],
-      defaultClub: null,
+      // defaultClub: null,
       club: [{ label: "その他", value: 0 }],
       avatarImage: null,
       editbool: false,
@@ -266,9 +264,9 @@ export default {
       clubb?.map((c: Club) => {
         this.club.push({ label: c.clubName, value: c.id });
       });
-      if (this.data[0].clubid) {
-        this.defaultClub = this.data[0].clubid.id;
-      }
+      // if (this.data[0] && this.data[0].clubid) {
+      //   this.defaultClub = this.data[0].clubid.id;
+      // }
       this.client
         .channel("table-db-changes") // 任意のチャンネル名
         .on(
@@ -321,7 +319,7 @@ export default {
     async iconsubmit(credentials) {
       const file = credentials.file[0].file; // 選択された画像を取得
       const random = Math.random().toString(32).substring(2);
-      const filePath = this.userId + random;
+      const filePath = this.$route.params.id + random;
       await this.client.storage.from("avatars").upload(filePath, file);
 
       const { data } = this.client.storage
