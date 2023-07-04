@@ -37,47 +37,42 @@ jest.mock("@formkit/core", () => ({
   submitForm: jest.fn(),
 }));
 
+global.URL.createObjectURL = jest.fn();
+
 describe('UserEdit', () => {
-    let wrapper;
     const $config = {
-      public: {
-        supabase: {
-          url: "test-url",
-          key: "test-key",
+        public: {
+          supabase: {
+            url: "test-url",
+            key: "test-key",
+          },
         },
-      },
-    };
-     const $route = {
-      params: {
-        id: "test-id",
-      },
-    };
-
-    beforeEach(() => {
-        wrapper = mount(UserEdit, {
-            global: {
-              plugins: [
-                {
-                  install: (app) => {
-                    app.config.globalProperties.$config = $config;
-                    app.config.globalProperties.$route = $route;
-                  },
-                },
-              ],
+      };
+       const $route = {
+        params: {
+          id: "test-id",
+        },
+      };
+    let wrapper = mount(UserEdit, {
+      global: {
+        plugins: [
+          {
+            install: (app) => {
+              app.config.globalProperties.$config = $config;
+              app.config.globalProperties.$route = $route;
             },
-          });
-      });
-      
-      it('selectClubが0という引数で呼び出されると、othersClubがtrueになることをテスト', async () => {
-        await wrapper.vm.$nextTick();
-        wrapper.vm.selectClub(0);
-        expect(wrapper.vm.othersClub).toBe(true);
-      });
-    
-      it('selectClubが0以外の引数で呼び出されると、othersClubがfalseになることをテスト', async () => {
-        await wrapper.vm.$nextTick();
-        wrapper.vm.selectClub(1);
-        expect(wrapper.vm.othersClub).toBe(false);
-      });
-})
+          },
+        ],
+      },
+    });
 
+    it('setImageが呼び出されると、avatarImageが適切にセットされることをテスト', () => {
+        const mockFile = new File([""], "filename", { type: "image/png" });
+        global.URL.createObjectURL.mockReturnValue("mock-file-url");
+        console.log("1st",wrapper.vm.avatarImage)
+        wrapper.vm.setImage([{ file: mockFile }]);
+        console.log("2st",wrapper.vm.avatarImage)
+        expect(global.URL.createObjectURL).toHaveBeenCalledWith(mockFile);
+        expect(wrapper.vm.avatarImage).toBe("mock-file-url");
+      });
+});
