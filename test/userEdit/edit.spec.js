@@ -1,5 +1,5 @@
 import { mount } from '@vue/test-utils'
-import UserEdit from "../pages/userEdit/[id].vue";
+import UserEdit from "../../pages/userEdit/[id].vue";
 
 jest.mock("@supabase/supabase-js", () => ({
   createClient: jest.fn(() => ({
@@ -34,14 +34,13 @@ jest.mock("@supabase/supabase-js", () => ({
 }));
 
 describe('UserEdit', () => {
-  it('calls iconedit method when the button is clicked', async () => {
+  it('calls edit method when the button is clicked', async () => {
     // ここでthis.$configのモックを設定する
     const $config = {
       public: {
         supabase: {
-          // 適当なurlとkeyで行けるかも（早川）
-          url: "https://niezwnppucjwhxwfaxyr.supabase.co",
-          key: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5pZXp3bnBwdWNqd2h4d2ZheHlyIiwicm9sZSI6ImFub24iLCJpYXQiOjE2ODQ3MjkzNDAsImV4cCI6MjAwMDMwNTM0MH0.04tShAmtbz0zXhsyNQYo2fhcO2Tx0aQdI67Cg2f3BTo",
+          url: "test-url",
+          key: "test-key",
         },
       },
     };
@@ -70,9 +69,9 @@ describe('UserEdit', () => {
     await wrapper.vm.$nextTick();
 
     // ここではfalse
-    console.log(wrapper.vm.iconeditbool)
+    console.log(wrapper.vm.editbool)
 
-    wrapper.vm.iconedit();
-    expect(wrapper.vm.iconeditbool).toBe(true)
+    wrapper.vm.edit();
+    expect(wrapper.vm.editbool).toBe(true)
   })
 })
