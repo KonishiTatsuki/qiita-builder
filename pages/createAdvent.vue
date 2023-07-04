@@ -45,7 +45,7 @@
     </div>
 
     <div class="mb-10">
-      <div class="flex mb-6">
+      <div class="flex">
         <h2 class="text-2xl">バナー画像</h2>
         <span class="text-xs text-red-500">(必須)</span>
       </div>

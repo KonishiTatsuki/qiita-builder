@@ -12,7 +12,7 @@
     <p class="text-red-500">
       {{ errorTitle }}
     </p>
-    <h2 class="subtitle">アドベントカレンダーの説明</h2>
+    <h2 class="subtitle">説明</h2>
     <textarea
       name="body"
       cols="100"
@@ -31,12 +31,16 @@
     </p>
     <h2 class="subtitle">バナー画像</h2>
     <div>
-      <div>
-        <img :src="bannerImage" alt="アイコン" width="200" height="150" />
-      </div>
+      <img :src="bannerImage" alt="アイコン" width="200" height="150" />
     </div>
     <div>
-      <input type="file" accept="image/*" ref="fileInput" @change="setImage" />
+      <input
+        type="file"
+        accept="image/*"
+        ref="fileInput"
+        @change="setImage"
+        class="mt-5"
+      />
     </div>
     <p class="text-red-500">{{ errorMsg }}</p>
     <div class="flex justify-end">
