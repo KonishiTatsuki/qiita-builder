@@ -257,7 +257,6 @@ export default {
 
       const { data: clubb } = await axios.get("/api/club/get");
       const { data: occupationn } = await axios.get("/api/occupation/get");
-
       occupationn?.map((c: Occupation) => {
         this.occupation.push({ label: c.occupationName, value: c.id });
       });
@@ -322,11 +321,11 @@ export default {
       const filePath = this.$route.params.id + random;
       await this.client.storage.from("avatars").upload(filePath, file);
 
-      const { data } = this.client.storage
+      const { data } = await this.client.storage
         .from("avatars")
         .getPublicUrl(filePath);
       const imageUrl = data.publicUrl;
-      const { error } = await this.client.from("profiles").upsert({
+      await this.client.from("profiles").upsert({
         id: this.$route.params.id,
         image: imageUrl,
       });
