@@ -25,11 +25,6 @@ jest.mock("@supabase/supabase-js", () => ({
     channel: jest.fn().mockReturnThis(),
     on: jest.fn().mockReturnThis(),
     subscribe: jest.fn(),
-    storage: {
-      from: jest.fn().mockReturnThis(),
-      upload: jest.fn(),
-      getPublicUrl: jest.fn().mockResolvedValue({ data: { publicUrl: "test-url" } }),
-    },
   })),
 }));
 
