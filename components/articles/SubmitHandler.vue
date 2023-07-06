@@ -7,8 +7,9 @@
         v-model="title"
         style="width: 100%; height: 50px"
         maxlength="255"
+        id="title"
       />
-      <p class="text-red-500 mt-2">
+      <p class="text-red-500 mt-2" id="errorTitle">
         {{ errorTitle }}
       </p>
     </div>
@@ -20,8 +21,9 @@
           rows="5"
           placeholder="markdown形式で説明を記述できます。"
           maxlength="255"
+          id="content"
         />
-        <p class="text-red-500">
+        <p class="text-red-500" id="errorContent">
           {{ errorContent }}
         </p>
       </div>
@@ -81,32 +83,17 @@
             投稿する
           </button>
         </span>
-        <span>
-          <button
-            type="submit"
-            class="border py-2 px-2 rounded-md"
-            @click="draftHandler"
-          >
-            下書き保存
-          </button>
-        </span>
+        <span> </span>
       </div>
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import type EasyMDE from "easymde";
-import { marked } from "marked";
-import { useHead } from "@vueuse/head";
 import { ref } from "vue";
 import { useRouter } from "vue-router";
+import axios from "axios";
 
-useHead({
-  title: "新規記事投稿",
-});
-
-let mde: InstanceType<typeof EasyMDE> | null = null;
 let items = ref([
   "Java",
   "PHP",
@@ -127,10 +114,6 @@ const title = ref("");
 const goalLike = ref("");
 const publishDate = ref(date);
 const router = useRouter();
-// const users = useSupabaseUser();
-// const userId = users.value?.id;
-let occupationId = ref(null);
-let clubId = ref(null);
 let errorTitle = ref("");
 let errorContent = ref("");
 let errorTag = ref("");
@@ -140,7 +123,6 @@ async function submitHandler() {
   //エラーの初期化
   errorTitle.value = "";
   errorContent.value = "";
-  errorTag.value = "";
 
   //バリデーションチェック
   if (title.value.length === 0) {
@@ -149,98 +131,19 @@ async function submitHandler() {
   if (content.value.length === 0) {
     errorContent.value = "内容を入力してください";
   }
-  select.value.map((tag: string) => {
-    if (tag.length > 30) {
-      errorTag.value = "タグは各30字以内で入力してください";
-    }
-  });
 
-  if (
-    errorTitle.value === "" &&
-    errorContent.value === "" &&
-    errorTag.value === ""
-  ) {
+  if (errorTitle.value === "" && errorContent.value === "") {
     const postData = {
-      // userId: userId,
-      clubTagId: clubId,
-      occupationTagId: occupationId,
-      bannerId: null,
-      qiitaPost: false,
-      delete: false,
-      title: title,
-      body: content,
-      goalLike: goalLike,
-      date: new Date().toLocaleString("ja-JP", { timeZone: "Asia/Tokyo" }),
-      publishDate: publishDate,
-      publish: true,
+      title: title.value,
+      body: content.value,
     };
-    const { data, error } = await useFetch("/api/article/post", {
-      method: "POST",
-      body: { article: postData, tagArray: select.value },
+
+    const { data } = await axios.post("/api/article/post", {
+      article: postData,
     });
     router.push("/");
   }
 }
-
-// 下書き記事の投稿
-const draftHandler = async () => {
-  const postData = {
-    // userId: userId,
-    clubTagId: clubId,
-    occupationTagId: occupationId,
-    bannerId: null,
-    qiitaPost: false,
-    delete: false,
-    title: title,
-    body: content,
-    goalLike: goalLike,
-    date: new Date().toLocaleString("ja-JP", { timeZone: "Asia/Tokyo" }),
-    publishDate: publishDate,
-    publish: false,
-  };
-  const { data, error } = await useFetch("/api/article/post", {
-    method: "POST",
-    body: { article: postData, tagArray: select.value },
-  });
-  router.push("/myPage");
-};
-
-onMounted(async () => {
-  try {
-    const EasyMDE = (await import("easymde")).default;
-    mde = new EasyMDE({
-      element: contentArea.value!.$el,
-      spellChecker: false,
-      previewRender: (markdownPlaintext) => {
-        const htmlContent = marked(markdownPlaintext);
-        return `<div class="markdown-preview">${htmlContent}</div>`;
-      },
-    });
-    mde.codemirror.on("change", () => {
-      if (mde) {
-        content.value = mde.value();
-      }
-    });
-    //ユーザーIDからクラブと職種を取得したい
-    const users = useSupabaseUser();
-    const userId = users.value?.id;
-    clubId.value = (
-      await useFetch("/api/user/get", {
-        method: "POST",
-        body: userId,
-      })
-    ).data.value?.clubid.id;
-
-    occupationId.value = (
-      await useFetch("/api/user/get", {
-        method: "POST",
-        body: userId,
-      })
-    ).data.value?.occupation.id;
-  } catch (error) {
-    console.log(error);
-  }
-});
 </script>
 <style>
 .markdown-preview ul,
