@@ -1,21 +1,3 @@
-// import { shallowMount } from "@vue/test-utils";
-// import Index from "../pages/index.vue"; // テスト対象のコンポーネントをインポート
-// import { ref } from "vue";
-
-// describe("goToFirstPage", () => {
-//   it("goToFirstPage should reset currentPage to 1", () => {
-//     const wrapper = shallowMount(Index);
-//     const currentPage = ref(3); // currentPageの初期値を2に設定
-
-//     // wrapper.vmを使用して直接メソッドを呼び出す
-//     wrapper.vm.$options.setup()[0].goToFirstPage(currentPage);
-
-//     // currentPageが1にリセットされたことを確認
-//     expect(currentPage.value).toBe(1);
-//   });
-// });
-
-
 import { shallowMount } from "@vue/test-utils";
 import Index from "../pages/index.vue";
 
