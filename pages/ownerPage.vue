@@ -286,7 +286,7 @@ const choseAdvent = ref(`${showAdvent.value?.id}`);
 //初期表示は現在のアドベントとして保存されているもの
 const choseEditAdvent = ref(`${showAdvent.value?.id}`);
 
-//アドベントカレンダーの保存
+//アドベントカレンダーの表示
 const registerAdvent = async () => {
   console.log("aaa", choseAdvent.value);
   //選択したアドベントをtrue
@@ -400,15 +400,14 @@ const submitOwner = async () => {
   } else {
     //ラクスメールアドレス形式のバリデーション
     if (re.test(owner.value)) {
-      const { data, error } = await client
-        .from("profiles")
-        .update({ authority: true })
-        .eq("email", owner.value)
-        .select();
-      if (data && data.length > 0) {
-        console.log("完了");
-      } else if (data && data.length === 0) {
+      const { data, error } = await useFetch("/api/user/ownerRegister", {
+        method: "PATCH",
+        body: { email: owner.value },
+      });
+      if (data.value === "Not Found") {
         errormsg.value = "該当のメールアドレスが見つかりません";
+      } else {
+        console.log("登録完了");
       }
     } else {
       errormsg.value = "メールアドレスの形式が不正です";
