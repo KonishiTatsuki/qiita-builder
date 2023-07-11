@@ -10,12 +10,12 @@
           :key="component.name"
           :is="component.name"
           :tagName="tagName"
-          :visibleTagItems="visibleTagItems"
-          :showAllTagItems="showAllTagItems"
+          :visibleTagItems=10
+          :showAllTagItems=false
           :occupationName="occupationName"
           :clubName="clubName"
-          :visibleClubItems="visibleClubItems"
-          :showAllClubItems="showAllClubItems"
+          :visibleClubItems=10
+          :showAllClubItems=false
           @languagecheckbox-change="changeLanguageCheckbox"
           @occupationcheckbox-change="changeOccupationCheckbox"
           @clubcheckbox-change="changeClubCheckbox"
@@ -74,8 +74,7 @@
           <div class="container px-5 pb-24 mx-auto">
             <div
               v-if="
-                (!hasVisibleArticles &&
-                  route.currentRoute.value.query.search) ||
+                (!hasVisibleArticles && search) ||
                 (!hasVisibleArticles && hasCheckedTags) ||
                 (!hasVisibleArticles && hasCheckedOccupations) ||
                 (!hasVisibleArticles && hasCheckedClubs)
@@ -233,455 +232,451 @@
   </div>
 </template>
 
-<script setup lang="ts">
-import { ref, computed, onMounted } from "vue";
-import { useRouter } from "vue-router";
-import { HeartIcon } from "@heroicons/vue/outline";
-import LanguageList from "../components/LanguageList.vue";
-import OccupationList from "../components/OccupationList.vue";
-import ClubList from "../components/ClubList.vue";
 
-useHead({
-  title: "記事一覧",
-});
+<script>
+import { HeartIcon } from '@heroicons/vue/outline'
+import LanguageList from '../components/LanguageList.vue'
+import OccupationList from '../components/OccupationList.vue'
+import ClubList from '../components/ClubList.vue'
+import axios from 'axios'
+import { createClient } from '@supabase/supabase-js'
 
-const route = useRouter();
-const supabase = useSupabaseClient();
-const userss = useSupabaseUser();
-const userId = userss.value?.id;
-let date = new Date(); //現在の日付取得
-//モーダルの表示非表示
-const open = ref(false);
-const deleteItem = ref();
-
-//管理者権限があるか確認
-let { data: auth } = await useFetch("/api/user/getAdminUser", {
-  method: "POST",
-  body: userId,
-});
-const authority = auth.value[0].authority;
-
-let tagName = ref([]);
-let visibleTagItems = ref(10);
-let showAllTagItems = ref(false);
-let articleData = ref([]);
-let likeData = ref([]);
-let occupationName = ref([]);
-let clubName = ref([]);
-let visibleClubItems = ref(10);
-let showAllClubItems = ref(false);
-let bannerData = ref([]);
-let tags = ref([]);
-const currentPage = ref(1); // 現在のページ番号
-const itemsPerPage = 20; // 1ページに表示する項目数
-
-// 先頭ページに移動する
-const goToFirstPage = () => {
-  currentPage.value = 1;
-};
-
-const Fn = async () => {
-  let { data } = await supabase
-    .from("article")
-    .select("body, clubTagId, date, delete, id, occupationTagId, title, userId")
-    .lte("publishDate", date.toISOString())
-    .eq("delete", false)
-    .order("date", { ascending: false });
-
-  // userIdを取得してユーザ名を取得する連想配列を作成
-  const userIds = data
-    // .filter((article) => article.userId !== null) // nullを除外
-    .map((article) => article.userId);
-  const { data: users } = await supabase
-    .from("profiles")
-    .select("id, username,image")
-    .in("id", userIds);
-
-  const userMap = {};
-  for (const user of users) {
-    userMap[user.id] = { username: user.username, image: user.image };
-  }
-
-  // data配列にusernameとimageを追加
-  articleData.value = data.map((article) => ({
-    ...article,
-    username: userMap[article.userId]?.username || "",
-    image: userMap[article.userId]?.image || "",
-  }));
-
-  // likeテーブルを取得し、articleData配列にいいね数が表示されたlikeプロパティを持たせる
-  let { data: db } = await supabase.from("like").select("*");
-  likeData.value = db;
-
-  const likeTable = likeData.value.reduce((acc, like) => {
-    const { articleId, userId } = like;
-    if (!acc.hasOwnProperty(articleId)) {
-      acc[articleId] = new Set();
-    }
-    acc[articleId].add(userId);
-    return acc;
-  }, {});
-
-  articleData.value = await articleData.value.map((article) => ({
-    ...article,
-    like: likeTable[article.id] ? likeTable[article.id].size : 0,
-    hideByOccupation: false,
-    hideByClub: false,
-    hideByTag: false,
-    hide: false,
-  }));
-
-  let { data: tags } = await supabase.from("tagging").select("tagId,articleId");
-
-  // articleData配列の各要素に"tags"プロパティを追加する
-  articleData.value.forEach((article) => {
-    article.tags = [];
-  });
-
-  // tags配列をイテレートし、関連するarticleData要素にtagIdを追加する
-  tags.forEach((tag) => {
-    const articleId = tag.articleId;
-    const article = articleData.value.find(
-      (article) => article.id === articleId
-    );
-    if (article) {
-      article.tags.push(tag.tagId);
-    }
-  });
-};
-Fn();
-
-// Supabaseからtagテーブルデータ（display：trueのみ）を取得
-
-let { data: name } = await supabase
-  .from("tag")
-  .select("*")
-  .eq("display", "true")
-  .order("count", { ascending: false });
-tagName.value = name;
-
-// 全ての要素にcheckedプロパティを追加し、初期値を設定する
-tagName.value.forEach((tag) => {
-  tag.checked = false;
-});
-
-// Supabaseからtagテーブルデータ（全て）を取得
-let { data: t } = await supabase.from("tag").select("id,name");
-tags.value = t;
-
-// Supabaseから職種テーブルデータを取得
-let { data: occupation } = await supabase
-  .from("occupation")
-  .select("*")
-  .order("count", { ascending: false });
-occupationName.value = occupation;
-
-// 全ての要素にcheckedプロパティを追加し、初期値を設定する
-occupationName.value.forEach((occupation) => {
-  occupation.checked = false;
-});
-console.log(occupationName.value)
-
-// Supabaseからサークルテーブルデータを取得
-let { data: club } = await supabase
-  .from("club")
-  .select("*")
-  .eq("display", "true")
-  .order("count", { ascending: false });
-clubName.value = club;
-
-// 全ての要素にcheckedプロパティを追加し、初期値を設定する
-clubName.value.forEach((club) => {
-  club.checked = false;
-});
-
-let components = [
-  {
-    name: LanguageList,
-    order: tagName.value.reduce((sum, tag) => sum + tag.count, 0),
+export default {
+  components: {
+    HeartIcon,
+    LanguageList,
+    OccupationList,
+    ClubList
   },
-  {
-    name: OccupationList,
-    order: occupationName.value.reduce((sum, tag) => sum + tag.count, 0),
+  data() {
+    return {
+      articleData: [],
+      bannerData: [],
+      selectedOccupations: [],
+      selectedClubs: [],
+      selectedTags: [],
+      currentPage: 1,
+      itemsPerPage: 10,
+      open: false,
+      runtimeConfig: null,
+      supabase: null,
+      occupationName: [],
+      clubName: [],
+      tagName: [],
+      tags : [],
+      likeData: [],
+      search :  '',
+      date : new Date(), //現在の日付取得
+      client: createClient(
+        this.$config.public.supabase.url,
+        this.$config.public.supabase.key
+      ),
+      authority: [],
+      userId: null
+    }
   },
-  {
-    name: ClubList,
-    order: clubName.value.reduce((sum, tag) => sum + tag.count, 0),
+  async created() {
+    this.fetchData();
+    this.fetchOccupation();
+    this.fetchClubName();
+    this.fetchTagName();
+    this.fetchTags();
+    this.fetchbannerData();
+    await this.initializeUser();
+    this.fetchAuthority();
+    this.subscribe();
   },
-];
-components.sort((a, b) => b.order - a.order);
-
-// Supabaseからbannerテーブルデータを取得
-let { data: banner } = await supabase
-  .from("banner")
-  .select("*")
-  .eq("display", "true");
-bannerData.value = banner;
-
-// データフィルタリング用のメソッド
-const filterArticles = (searchParam) => {
-  // 全ての記事を表示する場合はフィルタリングをスキップ
-  if (!searchParam) {
-    articleData.value.forEach((article) => (article.hide = false));
-    return;
-  }
-
-  // 検索クエリを小文字に変換して、記事のタイトルや本文と照合する
-  const query = searchParam.toLowerCase();
-
-  articleData.value.forEach((article) => {
-    const titleMatch = article.title.toLowerCase().includes(query);
-    const bodyMatch = article.body.toLowerCase().includes(query);
-    article.hide = !(titleMatch || bodyMatch);
-  });
-  goToFirstPage();
-};
-
-// クエリパラメータが変更される毎にfilterArticles関数が行われる
-watchEffect(() => {
-  const searchParam = route.currentRoute.value.query.search;
-  filterArticles(searchParam);
-});
-
-// 記事データを投稿日順にソートする
-const sortArticlesByDate = () => {
-  articleData.value.sort((a, b) => new Date(a.date) - new Date(b.date));
-  goToFirstPage();
-};
-
-// 記事データを新着順にソートする
-const sortArticlesByDateDescending = () => {
-  articleData.value.sort((a, b) => new Date(b.date) - new Date(a.date));
-  goToFirstPage();
-};
-
-// 記事データをいいね数の降順にソートする
-const sortByLikes = () => {
-  articleData.value.sort((a, b) => b.like - a.like);
-  goToFirstPage();
-};
-
-// 職種をフィルターする関数
-const filterArticlesByOccupation = (occupationData) => {
-  const selectedOccupations = occupationName.value
-    .filter((occupation) => occupation.checked)
-    .map((occupation) => occupation.id);
-
-  articleData.value.forEach((article) => {
-    if (selectedOccupations.length === 0) {
-      // 選択された職種がない場合はすべての記事を表示
-      article.hideByOccupation = false;
-    } else {
-      // 選択された職種と同じidの記事のみ表示
-      article.hideByOccupation = !selectedOccupations.includes(
-        article.occupationTagId
-      );
+  watch: {
+    '$route'(to, from) {
+      this.search = to.query.search;
+      this.filterArticles(this.search);
     }
-  });
-  goToFirstPage();
-
-  if (occupationData.checked) {
-    //Supabaseのcountをcountを+1する
-    let { data } = useFetch("/api/occupation/increaseCount", {
-      method: "POST",
-      body: occupationData,
-    });
-  }
-};
-
-// サークルをフィルターする関数
-const filterArticlesByClub = (clubData) => {
-  const selectedClubs = clubName.value
-    .filter((club) => club.checked)
-    .map((club) => club.id);
-
-  articleData.value.forEach((article) => {
-    if (selectedClubs.length === 0) {
-      // 選択されたサークルがない場合はすべての記事を表示
-      article.hideByClub = false;
-    } else {
-      // 選択されたサークルと同じidの記事のみ表示
-      article.hideByClub = !selectedClubs.includes(article.clubTagId);
-    }
-  });
-  goToFirstPage();
-
-  if (clubData.checked) {
-    //Supabaseのcountをcountを+1する
-    let { data } = useFetch("/api/club/increaseCount", {
-      method: "POST",
-      body: clubData,
-    });
-  }
-};
-
-// プログラミング言語をフィルターする関数
-const filterArticlesByTag = (tag) => {
-  const selectedTags = tagName.value
-    .filter((tag) => tag.checked)
-    .map((tag) => tag.id);
-
-  articleData.value.forEach((article) => {
-    if (selectedTags.length === 0) {
-      // 選択されたプログラミング言語がない場合はすべての記事を表示
-      article.hideByTag = false;
-    } else {
-      // 選択されたサークルと同じidの記事のみ表示
-      article.hideByTag = !article.tags.some((tag) =>
-        selectedTags.includes(tag)
-      );
-    }
-  });
-  goToFirstPage();
-
-  if (tag.checked) {
-    //Supabaseのcountをcountを+1する
-    let { data } = useFetch("/api/tag/increaseCount", {
-      method: "POST",
-      body: tag,
-    });
-  }
-};
-
-//emitで子コンポーネントからデータ取得
-const changeLanguageCheckbox = (tagName, tag) => {
-  tagName.value = tagName;
-  filterArticlesByTag(tag);
-};
-
-//emitで子コンポーネントからデータ取得
-const changeOccupationCheckbox = (occupationName, occupation) => {
-  occupationName.value = occupationName;
-  filterArticlesByOccupation(occupation);
-};
-
-//emitで子コンポーネントからデータ取得
-const changeClubCheckbox = (clubName, club) => {
-  clubName.value = clubName;
-  filterArticlesByClub(club);
-};
-
-// プログラミング言語のフィルターがcheckされたか判定する
-const hasCheckedTags = computed(() => {
-  return tagName.value.some((tag) => {
-    return tag.checked;
-  });
-});
-
-// 職種のフィルターがcheckされたか判定する
-const hasCheckedOccupations = computed(() => {
-  return occupationName.value.some((occupation) => {
-    return occupation.checked;
-  });
-});
-
-// サークルのフィルターがcheckされたか判定する
-const hasCheckedClubs = computed(() => {
-  return clubName.value.some((club) => {
-    return club.checked;
-  });
-});
-
-// 記事があるかどうかを判定する
-const hasVisibleArticles = computed(() => {
-  return articleData.value.some((article) => {
-    return (
-      !article.hideByOccupation &&
-      !article.hideByClub &&
-      !article.hideByTag &&
-      !article.hide
-    );
-  });
-});
-
-const filteredArticles = computed(() => {
-  const filtered = articleData.value.filter((article) => {
-    // フィルタリングの条件を追加する
-    return (
-      !article.hideByOccupation &&
-      !article.hideByClub &&
-      !article.hideByTag &&
-      !article.hide
-    );
-  });
-
-  // フィルタリングされた記事をページング用にスライスする
-  const startIndex = (currentPage.value - 1) * itemsPerPage;
-  const endIndex = startIndex + itemsPerPage;
-  return filtered.slice(startIndex, endIndex);
-});
-
-const visibleArticleCount = computed(() => {
-  const filtered = articleData.value.filter((article) => {
-    // フィルタリングの条件を追加する
-    return (
-      !article.hideByOccupation &&
-      !article.hideByClub &&
-      !article.hideByTag &&
-      !article.hide
-    );
-  });
-  return filtered.length;
-});
-
-// 職種の名称表示
-function getOccupationName(occupationTagId) {
-  const occupation = occupationName.value.find(
-    (item) => item.id === occupationTagId
-  );
-  return occupation ? occupation.occupationName : "";
-}
-
-// タグの名称表示
-function getTagsName(tagId) {
-  const tag = tags.value.find((item) => item.id === tagId);
-  return tag ? tag.name : "";
-}
-
-// サークルの名称表示
-function getClubsName(clubTagId) {
-  const club = clubName.value.find((item) => item.id === clubTagId);
-  return club ? club.clubName : "";
-}
-
-//日時のスタイル変更
-const formatDate = (date) => {
-  const options = { year: "numeric", month: "2-digit", day: "2-digit" };
-  return new Date(date).toLocaleDateString("ja-JP", options);
-};
-
-// 管理者による記事削除
-const router = useRouter();
-const deleteArticle = async (id) => {
-  await supabase.from("article").update({ delete: true }).eq("id", id);
-  open.value = false;
-  // location.reload();
-};
-
-import { createClient } from "@supabase/supabase-js";
-const runtimeConfig = useRuntimeConfig();
-//supabaseのurlとkeyを使ってcreateClientを作成
-const supabase1 = createClient(
-  runtimeConfig.public.supabase.url,
-  runtimeConfig.public.supabase.key
-);
-
-// // "todos"テーブルのリアルタイムな変更を監視する例
-supabase1
-  .channel("table-db-changes") // 任意のチャンネル名
-  .on(
-    "postgres_changes",
-    {
-      event: "*", // "INSERT" | "UPDATE" | "DELETE" のように特定イベントだけの購読も可能
-      schema: "public",
-      table: "article",
+  },
+  computed: {
+    hasCheckedTags() {
+      return this.tagName.some((tag) => {
+        return tag.checked
+      })
     },
-    async (payload) => {
-      Fn();
+    hasCheckedOccupations() {
+      return this.occupationName.some((occupation) => {
+        return occupation.checked
+      })
+    },
+    hasCheckedClubs() {
+      return this.clubName.some((club) => {
+        return club.checked
+      })
+    },
+    hasVisibleArticles() {
+      return this.articleData.some((article) => {
+        return (
+          !article.hideByOccupation &&
+          !article.hideByClub &&
+          !article.hideByTag &&
+          !article.hide
+        )
+      })
+    },
+    filteredArticles() {
+      const filtered = this.articleData.filter((article) => {
+        // フィルタリングの条件を追加する
+        return (
+          !article.hideByOccupation &&
+          !article.hideByClub &&
+          !article.hideByTag &&
+          !article.hide
+        );
+      });
+      // フィルタリングされた記事をページング用にスライスする
+      const startIndex = (this.currentPage - 1) * this.itemsPerPage
+      const endIndex = startIndex + this.itemsPerPage
+      return filtered.slice(startIndex, endIndex)
+    },
+    visibleArticleCount() {
+      const filtered = this.articleData.filter((article) => {
+        // フィルタリングの条件を追加する
+        return (
+          !article.hideByOccupation &&
+          !article.hideByClub &&
+          !article.hideByTag &&
+          !article.hide
+        )
+      })
+      return filtered.length
+    },
+    components() {
+    let components = [
+      {
+        name: LanguageList,
+        order: this.tagName.reduce((sum, tag) => sum + tag.count, 0),
+      },
+      {
+        name: OccupationList,
+        order: this.occupationName.reduce((sum, tag) => sum + tag.count, 0),
+      },
+      {
+        name: ClubList,
+        order: this.clubName.reduce((sum, tag) => sum + tag.count, 0),
+      },
+    ];
+    components.sort((a, b) => b.order - a.order);
+    return components;
     }
-  )
-  .subscribe();
+  },
+  methods: {
+    async fetchData() {
+      let { data } = await this.client
+        .from("article")
+        .select("body, clubTagId, date, delete, id, occupationTagId, title, userId")
+        .lte("publishDate", this.date.toISOString())
+        .eq("delete", false)
+        .order("date", { ascending: false });
+
+      const userIds = data.map((article) => article.userId);
+      const { data: users } = await this.client
+        .from("profiles")
+        .select("id, username,image")
+        .in("id", userIds);
+
+      const userMap = {};
+      for (const user of users) {
+        userMap[user.id] = { username: user.username, image: user.image };
+      }
+
+      this.articleData = data.map((article) => ({
+        ...article,
+        username: userMap[article.userId]?.username || "",
+        image: userMap[article.userId]?.image || "",
+      }));
+
+      let { data: db } = await this.client.from("like").select("*");
+      this.likeData = db;
+
+      const likeTable = this.likeData.reduce((acc, like) => {
+        const { articleId, userId } = like;
+        if (!acc.hasOwnProperty(articleId)) {
+          acc[articleId] = new Set();
+        }
+        acc[articleId].add(userId);
+        return acc;
+      }, {});
+
+      this.articleData = await this.articleData.map((article) => ({
+        ...article,
+        like: likeTable[article.id] ? likeTable[article.id].size : 0,
+        hideByOccupation: false,
+        hideByClub: false,
+        hideByTag: false,
+        hide: false,
+      }));
+
+      let { data: tags } = await this.client.from("tagging").select("tagId,articleId");
+
+      this.articleData.forEach((article) => {
+        article.tags = [];
+      });
+
+      tags.forEach((tag) => {
+        const articleId = tag.articleId;
+        const article = this.articleData.find(
+          (article) => article.id === articleId
+        );
+        if (article) {
+          article.tags.push(tag.tagId);
+        }
+      });
+    },
+    initializeUser() {
+      return new Promise((resolve, reject) => {
+        this.client.auth.onAuthStateChange((event, session) => {
+          if (event === 'SIGNED_IN') {
+            this.userId = session.user.id;
+          } else if (event === 'SIGNED_OUT') {
+            this.userId = null;
+          }
+          resolve();  // Promise を解決する
+        });
+      });
+    },
+    subscribe(){
+      this.client
+        .channel("table-db-changes") // 任意のチャンネル名
+        .on(
+          "postgres_changes",
+          {
+            event: "*", // "INSERT" | "UPDATE" | "DELETE" のように特定イベントだけの購読も可能
+            schema: "public",
+            table: "article",
+          },
+          (payload) => {
+            this.fetchData();
+          }
+        )
+        .subscribe();
+    },
+    async fetchOccupation() {
+      let { data: occupation } = await this.client
+        .from("occupation")
+        .select("*")
+        .order("count", { ascending: false });
+      this.occupationName = occupation;
+      this.occupationName.forEach((occupation) => {
+        occupation.checked = false;
+      });
+    },
+    async fetchClubName() {
+      let { data: club } = await this.client
+        .from("club")
+        .select("*")
+        .eq("display", "true")
+        .order("count", { ascending: false });
+      this.clubName = club;
+      this.clubName.forEach((club) => {
+        club.checked = false;
+      });
+    },
+    async fetchTagName() {
+      let { data: name } = await this.client
+        .from("tag")
+        .select("*")
+        .eq("display", "true")
+        .order("count", { ascending: false });
+      this.tagName = name;
+      this.tagName.forEach((tag) => {
+        tag.checked = false;
+      });
+    },
+    async fetchTags() {
+      let { data: t } = await this.client
+        .from("tag")
+        .select("id,name")
+      this.tags = t;
+    },
+    async fetchbannerData() {
+      let { data: banner } = await this.client
+        .from("banner")
+        .select("*")
+        .eq("display", "true");
+      this.bannerData = banner;
+    },
+    //管理者権限があるか確認
+    async fetchAuthority() {
+      try {
+        let response = await axios.post("/api/user/getAdminUser", this.userId, {
+          headers: {
+            'Content-Type': 'text/plain'
+          }
+        });
+        this.authority = response.data[0].authority;
+      } catch (error) {
+        console.error(error);
+      };
+    },
+    filterArticles(searchParam) {
+      // 全ての記事を表示する場合はフィルタリングをスキップ
+      if (!searchParam) {
+        this.articleData.forEach((article) => (article.hide = false));
+        return;
+      }
+
+      // 検索クエリを小文字に変換して、記事のタイトルや本文と照合する
+      const query = searchParam.toLowerCase();
+
+      this.articleData.forEach((article) => {
+        const titleMatch = article.title.toLowerCase().includes(query);
+        const bodyMatch = article.body.toLowerCase().includes(query);
+        article.hide = !(titleMatch || bodyMatch);
+      });
+      this.goToFirstPage();
+    },
+    async filterArticlesByOccupation(occupationData) {
+      this.selectedOccupations = this.occupationName
+        .filter((occupation) => occupation.checked)
+        .map((occupation) => occupation.id)
+
+      this.articleData.forEach((article) => {
+        if (this.selectedOccupations.length === 0) {
+          article.hideByOccupation = false
+        } else {
+          article.hideByOccupation = !this.selectedOccupations.includes(article.occupationTagId)
+        }
+      })
+      this.goToFirstPage()
+
+      if (occupationData.checked) {
+        try {
+         await axios.post("/api/occupation/increaseCount", occupationData, {
+          headers: {
+            'Content-Type': 'text/plain'
+          }
+        });
+        } catch (error) {
+          console.error(error);
+        };
+      }
+    },
+
+    async filterArticlesByClub(clubData) {
+      this.selectedClubs = this.clubName
+        .filter((club) => club.checked)
+        .map((club) => club.id)
+
+      this.articleData.forEach((article) => {
+        if (this.selectedClubs.length === 0) {
+          article.hideByClub = false
+        } else {
+          article.hideByClub = !this.selectedClubs.includes(article.clubTagId)
+        }
+      })
+      this.goToFirstPage()
+
+      if (clubData.checked) {
+        try {
+         await axios.post("/api/occupation/increaseCount", clubData, {
+          headers: {
+            'Content-Type': 'text/plain'
+          }
+        });
+        } catch (error) {
+          console.error(error);
+        };
+      }
+    },
+
+    async filterArticlesByTag(tag) {
+      this.selectedTags = this.tagName
+        .filter((tag) => tag.checked)
+        .map((tag) => tag.id)
+
+      this.articleData.forEach((article) => {
+        if (this.selectedTags.length === 0) {
+          article.hideByTag = false
+        } else {
+          article.hideByTag = !article.tags.some((tag) => this.selectedTags.includes(tag))
+        }
+      })
+      this.goToFirstPage()
+
+      if (tag.checked) {
+        try {
+         await axios.post("/api/occupation/increaseCount", tag, {
+          headers: {
+            'Content-Type': 'text/plain'
+          }
+        });
+        } catch (error) {
+          console.error(error);
+        };
+      }
+    },
+
+    // 職種の名称表示
+    getOccupationName(occupationTagId) {
+      const occupation = this.occupationName.find(
+        (item) => item.id === occupationTagId
+      )
+      return occupation ? occupation.occupationName : ''
+    },
+    // タグの名称表示
+    getTagsName(tagId) {
+      const tag = this.tags.find((item) => item.id === tagId)
+      return tag ? tag.name : ''
+    },
+    // サークルの名称表示
+    getClubsName(clubTagId) {
+      const club = this.clubName.find((item) => item.id === clubTagId)
+      return club ? club.clubName : ''
+    },
+
+    // 記事データを投稿日順にソートする
+    sortArticlesByDate() {
+      this.articleData.sort((a, b) => new Date(a.date) - new Date(b.date));
+      this.goToFirstPage();
+    },
+    // 記事データを新着順にソートする
+    sortArticlesByDateDescending() {
+      this.articleData.sort((a, b) => new Date(b.date) - new Date(a.date));
+      this.goToFirstPage();
+    },
+    // 記事データをいいね数の降順にソートする
+    sortByLikes() {
+      this.articleData.sort((a, b) => b.like - a.like);
+      this.goToFirstPage();
+    },
+
+    changeLanguageCheckbox(tagName, tag) {
+      this.tagName = tagName
+      this.filterArticlesByTag(tag)
+    },
+
+    changeOccupationCheckbox(occupationName, occupation) {
+      this.occupationName = occupationName
+      this.filterArticlesByOccupation(occupation)
+    },
+
+    changeClubCheckbox(clubName, club) {
+      this.clubName = clubName
+      this.filterArticlesByClub(club)
+    },
+
+    async deleteArticle(id) {
+      await this.client.from('article').update({ delete: true }).eq('id', id)
+      this.open = false
+    },
+    goToFirstPage() {
+      this.currentPage = 1;
+    },
+     //日時のスタイル変更
+    formatDate(date) {
+      const options = { year: 'numeric', month: '2-digit', day: '2-digit' }
+        return new Date(date).toLocaleDateString('ja-JP', options)
+    },
+
+  },
+}
 </script>
+
 
 <style>
 #custom-prose * {
