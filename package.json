@@ -34,7 +34,6 @@
     "easymde": "^2.18.0",
     "esbuild": "^0.18.10",
     "flowbite": "^1.6.5",
-    "flush-promises": "^1.0.2",
     "jest": "^29.5.0",
     "jest-environment-jsdom": "^29.5.0",
     "jsdom": "^22.1.0",
