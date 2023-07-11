@@ -98,7 +98,6 @@
 <script setup lang="ts">
 import type EasyMDE from "easymde";
 import { marked } from "marked";
-import { useHead } from "@vueuse/head";
 import { ref } from "vue";
 import { useRouter } from "vue-router";
 
@@ -127,8 +126,8 @@ const title = ref("");
 const goalLike = ref("");
 const publishDate = ref(date);
 const router = useRouter();
-// const users = useSupabaseUser();
-// const userId = users.value?.id;
+const users = useSupabaseUser();
+const userId = users.value?.id;
 let occupationId = ref(null);
 let clubId = ref(null);
 let errorTitle = ref("");
@@ -161,7 +160,7 @@ async function submitHandler() {
     errorTag.value === ""
   ) {
     const postData = {
-      // userId: userId,
+      userId: userId,
       clubTagId: clubId,
       occupationTagId: occupationId,
       bannerId: null,
@@ -185,7 +184,7 @@ async function submitHandler() {
 // 下書き記事の投稿
 const draftHandler = async () => {
   const postData = {
-    // userId: userId,
+    userId: userId,
     clubTagId: clubId,
     occupationTagId: occupationId,
     bannerId: null,
