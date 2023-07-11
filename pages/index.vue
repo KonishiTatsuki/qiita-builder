@@ -380,6 +380,7 @@ occupationName.value = occupation;
 occupationName.value.forEach((occupation) => {
   occupation.checked = false;
 });
+console.log(occupationName.value)
 
 // Supabaseからサークルテーブルデータを取得
 let { data: club } = await supabase

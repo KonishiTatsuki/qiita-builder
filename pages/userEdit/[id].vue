@@ -6,7 +6,6 @@
           <FormKit
             type="form"
             @submit="submitHandler"
-            #default="{ value }"
             id="edit"
             :actions="false"
           >
@@ -160,7 +159,6 @@
           <FormKit
             type="form"
             @submit="iconsubmit"
-            #default="{ value }"
             id="register"
             :actions="false"
           >
@@ -211,164 +209,128 @@
   </div>
 </template>
 
-<script setup lang="ts">
-import { ref } from "vue";
+<script lang="ts">
+import { createClient } from "@supabase/supabase-js";
 import { submitForm } from "@formkit/core";
 import { Club, Occupation } from "~/types";
 import { Database } from "~/types/database.types";
+import axios from "axios";
 
-const users = useSupabaseUser();
-const userId = users.value?.id;
-
-type useClub = {
-  label: string;
-  value: number;
-};
-
-type useOccupation = {
-  label: string;
-  value: number;
-};
-const client = useSupabaseClient<Database>();
-const route = useRoute();
-let data = ref([]);
-await client
-  .from("profiles")
-  .select("*,clubid(*),occupation(*)")
-  .eq("id", route.params.id)
-  .then((response) => {
-    data.value = response.data;
-    console.log(data.value);
-  })
-  .catch((error) => {
-    console.error(error);
-  });
-const occupation: useOccupation[] = [];
-const defaultClub = ref();
-// const club: useClub[] = [];
-// 追加した内容
-const club: useClub[] = [{ label: "その他", value: 0 }];
-// 追加した内容
-
-const avatarImage = ref(`${data.value[0].image}`);
-// console.log(avatarImage);
-const editbool = ref(false);
-const iconeditbool = ref(false);
-const othersClub = ref(false);
-
-// 追加した内容
-const selectClub = (credentials) => {
-  if (credentials === 0) {
-    othersClub.value = true;
-  } else {
-    othersClub.value = false;
-  }
-};
-// 追加した内容
-
-const { data: clubb } = await useFetch("/api/club/get");
-const { data: occupationn } = await useFetch("/api/occupation/get");
-
-occupationn.value?.map((c: Occupation) => {
-  occupation.push({ label: c.occupationName, value: c.id });
-});
-clubb.value?.map((c: Club) => {
-  club.push({ label: c.clubName, value: c.id });
-});
-
-const iconedit = () => {
-  iconeditbool.value = !iconeditbool.value;
-};
-
-if (data.value[0].clubid) {
-  defaultClub.value = data.value[0].clubid.id;
-}
-
-type Credentials = {
-  userName: string;
-  club: number;
-  detail: string;
-  email: string;
-  occupation: number;
-  image: string;
-  password: string;
-  password_confirm: string;
-  addClub: string;
-  file: any;
-  id: string;
-};
-
-const setImage = (credentials) => {
-  console.log(credentials);
-  const fileImg = credentials[0].file;
-  avatarImage.value = URL.createObjectURL(fileImg);
-};
-
-const iconsubmit = async (credentials: Credentials) => {
-  const file = credentials.file[0].file; // 選択された画像を取得
-  const random = Math.random().toString(32).substring(2);
-  console.log(`${random}`);
-  const filePath = userId + random;
-  console.log(filePath);
-  await client.storage.from("avatars").upload(filePath, file);
-
-  const { data } = client.storage.from("avatars").getPublicUrl(filePath);
-  const imageUrl = data.publicUrl;
-  const { error } = await client.from("profiles").upsert({
-    id: route.params.id,
-    image: imageUrl,
-  });
-  // location.reload();
-  iconeditbool.value = !iconeditbool.value;
-};
-
-const editComp = () => {
-  submitForm("edit");
-};
-
-const submitHandler = async (credentials: Credentials) => {
-  credentials.id = String(route.params.id);
-
-  const { error } = await useFetch("/api/user/edit", {
-    method: "POST",
-    body: credentials,
-  });
-  // console.log(error);
-  // if (!error.value) {
-  //   location.reload();
-  // }
-  editbool.value = !editbool.value;
-};
-
-const edit = () => {
-  editbool.value = !editbool.value;
-};
-
-import { createClient } from "@supabase/supabase-js";
-const runtimeConfig = useRuntimeConfig();
-//supabaseのurlとkeyを使ってcreateClientを作成
-const supabase1 = createClient(
-  runtimeConfig.public.supabase.url,
-  runtimeConfig.public.supabase.key
-);
-
-supabase1
-  .channel("table-db-changes") // 任意のチャンネル名
-  .on(
-    "postgres_changes",
-    {
-      event: "*", // "INSERT" | "UPDATE" | "DELETE" のように特定イベントだけの購読も可能
-      schema: "public",
-      table: "profiles",
-    },
-    async (payload) => {
-      console.log(payload);
-      const { data: d } = await client
+export default {
+  data() {
+    return {
+      // userId: this.$supabase.auth.user()?.id,
+      // users: this.client.auth.user(),
+      // userId: this.users?.id,
+      data: null,
+      occupation: [],
+      // defaultClub: null,
+      club: [{ label: "その他", value: 0 }],
+      avatarImage: null,
+      editbool: false,
+      iconeditbool: false,
+      othersClub: false,
+      runtimeConfig: this.$config,
+      client: createClient(
+        this.$config.public.supabase.url,
+        this.$config.public.supabase.key
+      ),
+      supabase1: null,
+    };
+  },
+  created() {
+    this.initialFetch();
+  },
+  methods: {
+    async initialFetch() {
+      await this.client
         .from("profiles")
         .select("*,clubid(*),occupation(*)")
-        .eq("id", route.params.id);
-      data.value = d;
-    }
-  )
-  .subscribe();
+        .eq("id", this.$route.params.id)
+        .then((response) => {
+          this.data = response.data;
+          this.avatarImage = `${this.data[0].image}`;
+        })
+        .catch((error) => {
+          console.error(error);
+        });
+
+      const { data: clubb } = await axios.get("/api/club/get");
+      const { data: occupationn } = await axios.get("/api/occupation/get");
+      occupationn?.map((c: Occupation) => {
+        this.occupation.push({ label: c.occupationName, value: c.id });
+      });
+      clubb?.map((c: Club) => {
+        this.club.push({ label: c.clubName, value: c.id });
+      });
+      // if (this.data[0] && this.data[0].clubid) {
+      //   this.defaultClub = this.data[0].clubid.id;
+      // }
+      this.client
+        .channel("table-db-changes") // 任意のチャンネル名
+        .on(
+          "postgres_changes",
+          {
+            event: "*", // "INSERT" | "UPDATE" | "DELETE" のように特定イベントだけの購読も可能
+            schema: "public",
+            table: "profiles",
+          },
+          async (payload) => {
+            console.log(payload);
+            const { data: d } = await this.client
+              .from("profiles")
+              .select("*,clubid(*),occupation(*)")
+              .eq("id", this.$route.params.id);
+            this.data = d;
+          }
+        )
+        .subscribe();
+    },
+    editComp() {
+      submitForm("edit");
+    },
+    async submitHandler(credentials) {
+      credentials.id = String(this.$route.params.id);
+      await axios.post("/api/user/edit", credentials);
+      // const { error } = await axios.get("/api/user/edit", {
+      //   method: "POST",
+      //   body: credentials,
+      // });
+      this.editbool = !this.editbool;
+    },
+    selectClub(credentials) {
+      if (credentials === 0) {
+        this.othersClub = true;
+      } else {
+        this.othersClub = false;
+      }
+    },
+    edit() {
+      this.editbool = !this.editbool;
+    },
+    iconedit() {
+      this.iconeditbool = !this.iconeditbool;
+    },
+    setImage(credentials) {
+      const fileImg = credentials[0].file;
+      this.avatarImage = URL.createObjectURL(fileImg);
+    },
+    async iconsubmit(credentials) {
+      const file = credentials.file[0].file; // 選択された画像を取得
+      const random = Math.random().toString(32).substring(2);
+      const filePath = this.$route.params.id + random;
+      await this.client.storage.from("avatars").upload(filePath, file);
+
+      const { data } = await this.client.storage
+        .from("avatars")
+        .getPublicUrl(filePath);
+      const imageUrl = data.publicUrl;
+      await this.client.from("profiles").upsert({
+        id: this.$route.params.id,
+        image: imageUrl,
+      });
+      this.iconeditbool = !this.iconeditbool;
+    },
+  },
+};
 </script>
