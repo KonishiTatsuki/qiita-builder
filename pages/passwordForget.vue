@@ -46,25 +46,33 @@
 </template>
 
 <script setup lang="ts">
+import { ref } from "vue";
+import { createClient } from "@supabase/supabase-js";
+import { useRouter } from "vue-router";
+import { useHead } from "unhead";
+
 useHead({
   title: "パスワード再設定用メール送信",
 });
 
-const router = useRouter();
-const supabase = useSupabaseClient();
+// const router = useRouter();
+// const client = useSupabaseClient();
+const client = ref(
+  createClient(
+    "https://niezwnppucjwhxwfaxyr.supabase.co",
+    "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5pZXp3bnBwdWNqd2h4d2ZheHlyIiwicm9sZSI6ImFub24iLCJpYXQiOjE2ODQ3MjkzNDAsImV4cCI6MjAwMDMwNTM0MH0.04tShAmtbz0zXhsyNQYo2fhcO2Tx0aQdI67Cg2f3BTo"
+  )
+);
 
 const email = ref("");
 const errors = ref("");
 const success = ref("");
+const data = ref(null);
 
 const submit = async (submit: { email: string }) => {
-  const { data, error } = await supabase.auth.resetPasswordForEmail(
-    submit.email,
-    {
-      redirectTo: "http://localhost:3000/passwordReset",
-    }
-  );
-  // console.log(data);
+  data.value = await client.value.auth.resetPasswordForEmail(submit.email, {
+    redirectTo: "http://localhost:3000/passwordReset",
+  });
   // if (data !== null) {
   //   console.log(Object.keys(data).length);
   //   console.log("error", error);
