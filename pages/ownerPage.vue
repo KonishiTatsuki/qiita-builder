@@ -400,7 +400,7 @@ const submitOwner = async () => {
   } else {
     //ラクスメールアドレス形式のバリデーション
     if (re.test(owner.value)) {
-      const { data, error } = await useFetch("/api/user/ownerRegister", {
+      const { data } = await useFetch("/api/user/ownerRegister", {
         method: "PATCH",
         body: { email: owner.value },
       });
@@ -417,7 +417,10 @@ const submitOwner = async () => {
 
 //owner権限の削除
 const deleteOwner = async (id: number) => {
-  await client.from("profiles").upsert({ id: id, authority: false });
+  await useFetch("/api/user/ownerDelete", {
+    method: "PATCH",
+    body: { id: id },
+  });
 };
 </script>
 

@@ -1,7 +1,8 @@
 <script setup>
 import { ref, reactive } from "vue";
-const errormsg = ref("");
+import axios from "axios";
 
+const errormsg = ref("");
 const ownerList = reactive([]);
 const owner = ref();
 //新規管理者の保存
@@ -13,15 +14,13 @@ const submitOwner = async () => {
   } else {
     //ラクスメールアドレス形式のバリデーション
     if (re.test(owner.value)) {
-      const response = await axios.patch(`api/owner/register`, {
-        mailAddress: owner.value,
-        authority: true,
+      const { data, error } = await axios.patch("/api/user/ownerRegister", {
+        body: { email: owner.value },
       });
-
-      if (data && data.length > 0) {
-        console.log("完了");
-      } else if (data && data.length === 0) {
+      if (data.value === "Not Found") {
         errormsg.value = "該当のメールアドレスが見つかりません";
+      } else {
+        console.log("登録完了");
       }
     } else {
       errormsg.value = "メールアドレスの形式が不正です";
@@ -31,7 +30,10 @@ const submitOwner = async () => {
 
 //owner権限の削除
 const deleteOwner = async (id) => {
-  await client.from("profiles").upsert({ id: id, authority: false });
+  await useFetch("/api/user/ownerDelete", {
+    method: "PATCH",
+    body: { id: id },
+  });
 };
 </script>
 
@@ -49,11 +51,12 @@ const deleteOwner = async (id) => {
             class="border border-black w-80"
             maxlength="255"
             v-model="owner"
+            id="inputEmail"
           />
         </div>
         <div><button class="btn ml-4" @click="submitOwner">保存</button></div>
       </div>
-      <p class="text-red-500">{{ errormsg }}</p>
+      <p class="text-red-500" id="errormsg">{{ errormsg }}</p>
       <div class="mt-5">
         <div>
           <table
