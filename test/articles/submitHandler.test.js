@@ -1,9 +1,26 @@
 import submitHandler from "../../pages/articles/test.vue"; // テスト対象のページ
 import { mount } from "@vue/test-utils";
 import axios from "axios";
+import { rest } from "msw";
+import { setupServer } from "msw/node";
 
-afterEach(() => {
+// MSWでサーバーのモック作成
+const server = setupServer(
+  rest.post("/api/article/post", (req, res, ctx) => {
+    return res(ctx.status(201), ctx.json({ message: "Success" }));
+  })
+);
+beforeAll(() => {
+  server.listen();
+});
+beforeEach(() => {
   jest.restoreAllMocks();
+});
+afterEach(() => {
+  server.resetHandlers();
+});
+afterAll(() => {
+  server.close();
 });
 
 // vue-routerのmock
@@ -33,9 +50,9 @@ describe("submitHandler", () => {
     expect(wrapper.text()).toContain("内容を入力してください");
   });
   test("POSTリクエストが正常に行われる", async () => {
-    // モックの作成
-    const mockResponse = { data: { message: "Success" } };
-    jest.spyOn(axios, "post").mockResolvedValue(mockResponse);
+    // jest spyOnでのモックの作成　MSWで書いたためコメントアウト
+    // const mockResponse = { data: { message: "Success" } };
+    // jest.spyOn(axios, "post").mockResolvedValue(mockResponse);
 
     // コンポーネントのマウント
     const wrapper = mount(submitHandler);
@@ -47,11 +64,6 @@ describe("submitHandler", () => {
     await wrapper.vm.submitHandler();
 
     const response = await axios.post("/api/article/post", {
-      article: { title: "dammytitle", body: "dammycontent" },
-    });
-
-    // 期待されるPOSTリクエストのURLやデータを確認
-    expect(axios.post).toHaveBeenCalledWith("/api/article/post", {
       article: { title: "dammytitle", body: "dammycontent" },
     });
     // 成功メッセージが表示されることを確認
