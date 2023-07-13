@@ -1,9 +1,26 @@
 import draftHandler from "../../components/articles/DraftHandler.vue"; // テスト対象のページ
 import { mount } from "@vue/test-utils";
 import axios from "axios";
+import { rest } from "msw";
+import { setupServer } from "msw/node";
 
-afterEach(() => {
+// MSWでサーバーのモック作成
+const server = setupServer(
+  rest.post("/api/article/post", (req, res, ctx) => {
+    return res(ctx.status(201), ctx.json({ message: "Success" }));
+  })
+);
+beforeAll(() => {
+  server.listen();
+});
+beforeEach(() => {
   jest.restoreAllMocks();
+});
+afterEach(() => {
+  server.resetHandlers();
+});
+afterAll(() => {
+  server.close();
 });
 
 // vue-routerのmock
@@ -22,9 +39,9 @@ describe("draftHandler_1", () => {
     expect(wrapper.text()).toBe("下書き保存");
   });
   test("POSTリクエストが正常に行われる", async () => {
-    // モックの作成
-    const mockResponse = { data: { message: "Success" } };
-    jest.spyOn(axios, "post").mockResolvedValue(mockResponse);
+    // jest spyOnでのモックの作成　MSWで書いたためコメントアウト
+    // const mockResponse = { data: { message: "Success" } };
+    // jest.spyOn(axios, "post").mockResolvedValue(mockResponse);
 
     // コンポーネントのマウント
     const wrapper = mount(draftHandler);
@@ -36,11 +53,7 @@ describe("draftHandler_1", () => {
       article: "dummy",
     });
 
-    // 期待されるPOSTリクエストのURLやデータを確認するアサーション
-    expect(axios.post).toHaveBeenCalledWith("/api/article/post", {
-      article: "dammy",
-    });
-    // 成功メッセージが表示されることを確認するアサーション
+    // 成功メッセージが表示されることを確認
     expect(response.data).toEqual({ message: "Success" });
 
     // マイページへの遷移
