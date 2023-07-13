@@ -288,13 +288,13 @@ const choseEditAdvent = ref(`${showAdvent.value?.id}`);
 
 //アドベントカレンダーの表示
 const registerAdvent = async () => {
-  console.log("aaa", choseAdvent.value);
-  //選択したアドベントをtrue
-  await client.from("banner").upsert({ id: choseAdvent.value, display: true });
-  //初期のアドベントをfalse
-  await client
-    .from("banner")
-    .upsert({ id: showAdvent.value?.id, display: false });
+  await useFetch("/api/advent/chooseAdvent", {
+    method: "POST",
+    body: {
+      currentAdventValue: showAdvent.value?.id,
+      newAdventValue: choseAdvent.value,
+    },
+  });
   location.reload();
 };
 
