@@ -24,7 +24,7 @@
                 required: 'メールアドレスを入力してください',
                 matches: '正しいメールアドレスを入力してください',
                 ends_with: '正しい入力形式で入力してください',
-                length:'255文字以内で入力してください'
+                length: '255文字以内で入力してください',
               }"
             />
           </div>
@@ -54,7 +54,11 @@
           <p class="text-red-500 mb-5">{{ errorMessage }}</p>
           <div class="flex justify-center">
             <NuxtLink to="/userRegister"
-              ><button class="mb-2 mr-10 mb-5 bg-[#FFFFFF] border-indigo-700 px-4 py-2 rounded-md text-base border hover:bg-[#1D8EB9] hover:text-white">新規登録</button></NuxtLink
+              ><button
+                class="mb-2 mr-10 mb-5 bg-[#FFFFFF] border-indigo-700 px-4 py-2 rounded-md text-base border hover:bg-[#1D8EB9] hover:text-white"
+              >
+                新規登録
+              </button></NuxtLink
             >
             <div class="flex mb-4 justify-center">
               <button class="btn">ログイン</button>
@@ -70,22 +74,34 @@
 </template>
 
 <script setup lang="ts">
+import { ref } from "vue";
+import { createClient } from "@supabase/supabase-js";
+import { useRouter } from "vue-router";
+import { useHead } from "unhead";
+
 useHead({
   title: "ログイン",
 });
 
-definePageMeta({ layout: "login" });
-const router = useRouter();
-const client = useSupabaseClient();
+//ヘッダーの表示をloginように
+// definePageMeta({ layout: "login" });
 
-const errorMessage = ref("　　　");
+const router = useRouter();
+const client = ref(
+  createClient(
+    "https://niezwnppucjwhxwfaxyr.supabase.co",
+    "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5pZXp3bnBwdWNqd2h4d2ZheHlyIiwicm9sZSI6ImFub24iLCJpYXQiOjE2ODQ3MjkzNDAsImV4cCI6MjAwMDMwNTM0MH0.04tShAmtbz0zXhsyNQYo2fhcO2Tx0aQdI67Cg2f3BTo"
+  )
+);
+const errorMessage = ref("　　　　");
+const signInData = ref(null);
 
 const submit = async (submit: { email: string; password: string }) => {
-  const { data: signInData } = await client.auth.signInWithPassword({
+  signInData.value = await client.value.auth.signInWithPassword({
     email: submit.email,
     password: submit.password,
   });
-  if (signInData && signInData.session) {
+  if (signInData.value && signInData.value.data.session) {
     router.push("/");
   } else {
     errorMessage.value = "メールアドレスまたはパスワードが間違っています";
