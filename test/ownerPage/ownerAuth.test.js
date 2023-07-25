@@ -1,8 +1,8 @@
-import submitOwner from "../components/ownerPage/SubmitOwner.vue"; // テスト対象のページ
+import submitOwner from "../../components/ownerPage/SubmitOwner.vue"; // テスト対象のページ
 import { mount } from "@vue/test-utils";
 import axios from "axios";
 
-describe("ownerPage", () => {
+describe("管理者権限付与/削除のテスト", () => {
   test("ページが初期の状態でマウントされているか確認", async () => {
     const wrapper = mount(submitOwner);
 
