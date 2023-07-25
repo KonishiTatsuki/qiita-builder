@@ -63,7 +63,7 @@
               <li>
                 <input
                   type="radio"
-                  :value="{ id: `${display.value}`, display: false }"
+                  :value="{ id: `${display.value}` }"
                   v-model="addnonDisplayClub"
                 />{{ display.label }}
               </li>
@@ -96,7 +96,7 @@
               <li>
                 <input
                   type="radio"
-                  :value="{ id: `${display.value}`, display: true }"
+                  :value="{ id: `${display.value}` }"
                   v-model="addDisplayClub"
                 />
                 {{ display.label }}
@@ -337,7 +337,10 @@ const addDisplay = async () => {
   if (addDisplayClub.value === undefined) {
     msgForaddDisplayClub.value = "サークルを選択してください";
   } else {
-    await client.from("club").upsert(addDisplayClub.value);
+    await useFetch("/api/club/displayClub", {
+      method: "PATCH",
+      body: { displayClub: addDisplayClub.value },
+    });
   }
 };
 
@@ -346,7 +349,10 @@ const nonDisplay = async () => {
   if (addnonDisplayClub.value === undefined) {
     msgForaddnonDisplayClub.value = "サークルを選択してください";
   } else {
-    await client.from("club").upsert(addnonDisplayClub.value);
+    await useFetch("/api/club/nonDisplayClub", {
+      method: "PATCH",
+      body: { nondisplayClub: addnonDisplayClub.value },
+    });
   }
 };
 
@@ -367,9 +373,13 @@ const addNewClub = async () => {
   } else if (newclub.value.length > 30) {
     msgForaddDisplayClub.value = "30字以内で入力してください";
   } else {
-    await client.from("club").insert({
-      clubName: newclub.value,
+    const { data: response } = await useFetch("/api/club/newClub", {
+      method: "POST",
+      body: { newclub: newclub.value },
     });
+    if (response.value === "登録済み") {
+      msgForaddDisplayClub.value = "このサークルは既に登録されています";
+    }
   }
 };
 
