@@ -2,6 +2,32 @@ import { mount } from "@vue/test-utils";
 import Index from "../../pages/index.vue";
 
 jest.mock("@supabase/supabase-js", () => {
+    const mocktags = jest.fn().mockResolvedValue({
+        data: [
+          {
+            checked:false,
+            clubName:"ゴッドエンジニア養成所",
+            count:17,
+            display:true,
+            id:4
+          },
+          {
+            checked:false,
+            clubName:"バレー",
+            count:12,
+            display:true,
+            id:133
+          },
+          {
+            checked:false,
+            clubName:"RP サウナ＆スパ サークル",
+            count:6,
+            display:true,
+            id:2
+          }
+        ]
+    });  
+
   const mockOrder1 = jest.fn().mockResolvedValue({
     data: [
       {
@@ -60,7 +86,6 @@ jest.mock("@supabase/supabase-js", () => {
     ]
   });
 
-  // ユーザーのモックデータを返す関数を作成します。
   const mockUsers = jest.fn().mockResolvedValue({
     data: [
       {
@@ -117,42 +142,41 @@ jest.mock("@supabase/supabase-js", () => {
       eq: jest.fn().mockReturnThis(),
       lte: jest.fn().mockReturnThis(),
       order: jest.fn().mockImplementation((arg) => {
-        if (arg === 'count') {
-          return mockOrder1();
+        if (tableName === 'club') {
+            return mocktags();
+        } else if (arg === 'count') {
+            return mockOrder1();
         } else if (arg === 'date') {
-          return mockOrder2();
+            return mockOrder2();
         }
       }),
       in: jest.fn().mockImplementation(() => {
           return mockUsers();
       }),
-      // テーブル名に応じて適切なモックデータを返す
       then: jest.fn().mockImplementation((callback) => {
         if (tableName === 'like') {
           return {
             select: jest.fn().mockReturnThis(),
-            order: mockLikes, // `mockLikes` 関数を適用します。
-          };
+            order: mockLikes,
+          }
         }
-        // その他のテーブル名の場合、適切なモックデータを返す処理を追加します
-      })
+    }),
     })),
     })),
-  };
+    };
 });
 
-describe("changeLanguageCheckbox", () => {
-    it("changeLanguageCheckbox should update tagName correctly", () => {
-      const $config = {
+describe("getClubsName", () => {
+    const $config = {
         public: {
           supabase: {
             url: "http://test-url/auth/v1",
             key: "test-key",
           },
         },
-      };
+    };
   
-      const wrapper = mount(Index, {
+    const wrapper = mount(Index, {
         global: {
           plugins: [
             {
@@ -161,49 +185,22 @@ describe("changeLanguageCheckbox", () => {
               },
             },
           ],
-        },
-      });
+        }
+    });
 
-      // 'filterArticlesByTag' メソッドをスパイに変更
-      const spy = jest.spyOn(wrapper.vm, 'filterArticlesByTag');
+    it('returns the correct club name for a given id', async () => {
+        // 実行
+        const clubName = await wrapper.vm.getClubsName(133);
+    
+        // 検証
+        expect(clubName).toEqual('バレー');
+    });
 
-      wrapper.vm.changeLanguageCheckbox([{
-        checked: false,
-        count: 29,
-        display: true,
-        id: 8,
-        name: "Kotolin"
-      },
-      {
-        checked: true,
-        count: 14,
-        display: true,
-        id: 3,
-        name: "JavaScript"
-      }],
-      {
-      checked: false,
-      count: 29,
-      display: true,
-      id: 8,
-      name: "Kotolin"
-      });
-
-      expect(wrapper.vm.tagName).toEqual([{
-        checked: false,
-        count: 29,
-        display: true,
-        id: 8,
-        name: "Kotolin"
-      },
-      {
-        checked: true,
-        count: 14,
-        display: true,
-        id: 3,
-        name: "JavaScript"
-      }]);
-      // 'filterArticlesByTag' が呼び出されたことを確認
-      expect(spy).toHaveBeenCalled();
+    it('returns empty string if id is not found', async () => {
+        // 実行
+        const clubName = await wrapper.vm.getClubsName(0);
+        
+        // 検証
+        expect(clubName).toEqual('');
     });
 });

@@ -8,7 +8,8 @@
     "preview": "nuxt preview",
     "postinstall": "nuxt prepare",
     "mock-api": "json-server --watch data/db.json --port 8000",
-    "test": "jest"
+    "test": "jest",
+    "test-cov": "jest --coverage"
   },
   "dependencies": {
     "@babel/preset-env": "^7.22.5",

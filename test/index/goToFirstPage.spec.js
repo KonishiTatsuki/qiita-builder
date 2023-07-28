@@ -1,7 +1,7 @@
 import { shallowMount } from "@vue/test-utils";
-import Index from "../pages/index.vue";
+import Index from "../../pages/index.vue";
 
-jest.mock("../pages/index.vue", () => ({
+jest.mock("../../pages/index.vue", () => ({
   __esModule: true,
   default: {
     setup() {
