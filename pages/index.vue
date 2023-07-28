@@ -372,13 +372,11 @@ export default {
         .lte("publishDate", this.date.toISOString())
         .eq("delete", false)
         .order("date", { ascending: false });
-
       const userIds = data.map((article) => article.userId);
       const { data: users } = await this.client
         .from("profiles")
         .select("id, username,image")
         .in("id", userIds);
-
       const userMap = {};
       for (const user of users) {
         userMap[user.id] = { username: user.username, image: user.image };
@@ -475,6 +473,7 @@ export default {
       this.clubName.forEach((club) => {
         club.checked = false;
       });
+      console.log(this.clubName)
     },
     async fetchTagName() {
       let { data: name } = await this.client
@@ -486,12 +485,14 @@ export default {
       this.tagName.forEach((tag) => {
         tag.checked = false;
       });
+      console.log(this.tagName)
     },
     async fetchTags() {
       let { data: t } = await this.client
         .from("tag")
         .select("id,name")
       this.tags = t;
+      console.log(this.tags);
     },
     async fetchbannerData() {
       let { data: banner } = await this.client
@@ -509,6 +510,7 @@ export default {
           }
         });
         this.authority = response.data[0].authority;
+        console.log(this.authority)
       } catch (error) {
         console.error(error);
       };
@@ -672,7 +674,6 @@ export default {
       const options = { year: 'numeric', month: '2-digit', day: '2-digit' }
         return new Date(date).toLocaleDateString('ja-JP', options)
     },
-
   },
 }
 </script>
