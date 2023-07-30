@@ -237,7 +237,7 @@ const goalLikeSuccess = ref("");
 const errorText = ref(false);
 
 //ユーザーIdを取得
-let userId = "";
+const userId = ref("");
 if (users.value) {
   userId = users.value.id;
 }
