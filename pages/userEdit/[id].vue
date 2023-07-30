@@ -235,7 +235,6 @@ export default {
         this.$config.public.supabase.url,
         this.$config.public.supabase.key
       ),
-      supabase1: null,
     };
   },
   created() {

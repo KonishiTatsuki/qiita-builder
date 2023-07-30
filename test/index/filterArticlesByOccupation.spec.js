@@ -1,5 +1,5 @@
 import { shallowMount } from "@vue/test-utils";
-import Index from "../pages/index.vue";
+import Index from "../../pages/index.vue";
 import { rest } from "msw";
 import { setupServer } from "msw/node";
 import axios from "axios";
@@ -24,7 +24,7 @@ const server = setupServer(
 beforeAll(() => server.listen());
 afterAll(() => server.close());
 
-jest.mock("../pages/index.vue", () => ({
+jest.mock("../../pages/index.vue", () => ({
   __esModule: true,
   default: {
     setup() {
@@ -161,7 +161,7 @@ jest.mock("../pages/index.vue", () => ({
   },
 }));
 
-describe("../pages/index.vue", () => {
+describe("filterArticlesByOccupation", () => {
   // コンポーネントのマウント
   const wrapper = shallowMount(Index);
   it("選択された職種に基づいて記事の表示をフィルタリングする", () => {

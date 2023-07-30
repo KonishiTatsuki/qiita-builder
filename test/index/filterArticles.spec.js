@@ -1,7 +1,7 @@
 import { shallowMount } from "@vue/test-utils";
-import Index from "../pages/index.vue";
+import Index from "../../pages/index.vue";
 
-jest.mock("../pages/index.vue", () => ({
+jest.mock("../../pages/index.vue", () => ({
   __esModule: true,
   default: {
     setup() {
@@ -94,7 +94,7 @@ jest.mock("../pages/index.vue", () => ({
   },
 }));
 
-describe("../pages/index.vue", () => {
+describe("filterArticles", () => {
   // コンポーネントのマウント
   const wrapper = shallowMount(Index);
   it("検索されない場合は全記事表示", () => {

@@ -1,6 +1,5 @@
 import { mount } from '@vue/test-utils'
 import UserEdit from "../../pages/userEdit/[id].vue";
-import axios from 'axios';
 
 jest.mock("@supabase/supabase-js", () => {
   const mockUpload = jest.fn().mockResolvedValue({});
