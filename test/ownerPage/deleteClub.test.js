@@ -34,24 +34,31 @@ describe("addDisplayClubFunction", () => {
     expect(wrapper.text()).toContain("タグ編集：");
   });
 
-  test("削除リクエストを送信", async () => {
+  test("1のvalueを持った削除リクエストを送信", async () => {
     // コンポーネントのマウント
     const wrapper = mount(deleteClubFunction);
 
-    // 1を投げた場合、成功→できていない修正要
-    // const deleteReqId = wrapper.vm.addDisplayClub;
-    // deleteReqId.value = "1";
+    // 1を投げた場合、成功
+    wrapper.vm.addDisplayClub = 1;
+    const deleteClubId = wrapper.vm.addDisplayClub;
 
-    // const deleteClubId = addDisplayClub.value.id;
-
-    // const response1 = await axios.delete(
-    //   `/api/club/delete?clubid=${deleteClubId}`
-    // );
-    const response1 = await axios.delete("/api/club/delete?clubid=1");
+    const response1 = await axios.delete(
+      `/api/club/delete?clubid=${deleteClubId}`
+    );
     expect(response1.data).toEqual({ message: "Success" });
+  });
+
+  test("10のvalueを持った削除リクエストを送信", async () => {
+    // コンポーネントのマウント
+    const wrapper = mount(deleteClubFunction);
 
     // 10を投げた場合、失敗
-    const response10 = await axios.delete("/api/club/delete?clubid=10");
+    wrapper.vm.addDisplayClub = 10;
+    const deleteClubId = wrapper.vm.addDisplayClub;
+
+    const response10 = await axios.delete(
+      `/api/club/delete?clubid=${deleteClubId}`
+    );
     expect(response10.data).toEqual({ message: "Failed" });
   });
 });
