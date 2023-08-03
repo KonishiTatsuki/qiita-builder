@@ -6,11 +6,11 @@
         <p class="font-bold">認証済みサークルタグ</p>
         <hr />
         <div class="mt-6">
-          <ul class="flex" v-for="display in displayClub">
-            <li>
+          <ul class="flex">
+            <li v-for="display in displayClub">
               <input
                 type="radio"
-                :value="{ id: `${display.value}` }"
+                :value="`${display.value}`"
                 v-model="addnonDisplayClub"
                 :id="`nonDisplayclub${display.value}`"
               />{{ display.label }}
@@ -49,15 +49,11 @@
           </div>
         </div>
         <div class="mt-3">
-          <ul
-            class="flex"
-            v-for="display in nondisplayClub"
-            id="addDisplayClubSelect"
-          >
-            <li>
+          <ul class="flex" id="addDisplayClubSelect">
+            <li v-for="display in nondisplayClub">
               <input
                 type="radio"
-                :value="{ id: `${display.value}` }"
+                :value="`${display.value}`"
                 v-model="addDisplayClub"
                 :id="`displayClub${display.value}`"
               />
@@ -99,20 +95,19 @@
 
 <script setup>
 import { ref, reactive } from "vue";
-import { useFetch } from "@vueuse/core";
 import axios from "axios";
 
 //display:trueのクラブ
 const displayClub = reactive([
-  { value: 3, label: "バドミントン" },
-  { value: 4, label: "テニス" },
-  { value: 5, label: "陸上" },
+  { value: "3", label: "バドミントン" },
+  { value: "4", label: "テニス" },
+  { value: "5", label: "陸上" },
 ]);
 //display:falseのクラブ
 const nondisplayClub = reactive([
-  { value: 0, label: "バレー" },
-  { value: 1, label: "野球" },
-  { value: 2, label: "サッカー" },
+  { value: "0", label: "バレー" },
+  { value: "1", label: "野球" },
+  { value: "2", label: "サッカー" },
 ]);
 
 //新規追加クラブ
