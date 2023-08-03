@@ -125,7 +125,6 @@
         </div>
       </div>
     </div>
-    <div></div>
 
     <!-- 管理者権限  -->
     <div class="mt-5 flex my-16">
@@ -309,6 +308,7 @@ type useClub = {
 };
 //display:trueのクラブ
 const displayClub: useClub[] = reactive([]);
+console.log(displayClub);
 //display:falseのクラブ
 const nondisplayClub: useClub[] = reactive([]);
 
