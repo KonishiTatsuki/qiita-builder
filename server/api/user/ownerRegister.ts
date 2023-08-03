@@ -3,7 +3,6 @@ import { Database } from "~/types/database.types";
 
 export default defineEventHandler(async (event) => {
   const body = await readBody(event);
-  console.log(body);
   const client = serverSupabaseClient<Database>(event);
   const { data: userId } = await client
     .from("profiles")
