@@ -308,7 +308,6 @@ type useClub = {
 };
 //display:trueのクラブ
 const displayClub: useClub[] = reactive([]);
-console.log(displayClub);
 //display:falseのクラブ
 const nondisplayClub: useClub[] = reactive([]);
 

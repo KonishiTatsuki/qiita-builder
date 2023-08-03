@@ -38,12 +38,12 @@ describe("addDisplayClubFunction", () => {
     // コンポーネントのマウント
     const wrapper = mount(deleteClubFunction);
 
-    // 1を投げた場合、成功
+    // 1を投げた場合、成功→できていない修正要
     // const deleteReqId = wrapper.vm.addDisplayClub;
     // deleteReqId.value = "1";
-    // console.log(deleteReqId);
 
     // const deleteClubId = addDisplayClub.value.id;
+
     // const response1 = await axios.delete(
     //   `/api/club/delete?clubid=${deleteClubId}`
     // );

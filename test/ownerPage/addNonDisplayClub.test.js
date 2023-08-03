@@ -35,7 +35,6 @@ describe("addDisplayClubFunction", () => {
     // // POSTリクエストの実行
     await wrapper.find("#addnonDisplayClubBtn").trigger("click");
     const errorMsg = wrapper.vm.msgForaddnonDisplayClub;
-    console.log(wrapper.vm.msgForaddnonDisplayClub);
     expect(errorMsg).toBe("サークルを選択してください");
   });
 

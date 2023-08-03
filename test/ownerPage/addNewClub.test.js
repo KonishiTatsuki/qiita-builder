@@ -43,7 +43,6 @@ describe("addDisplayClubFunction", () => {
     // // POSTリクエストの実行
     await wrapper.vm.addNewClub();
     const errorMsg = wrapper.vm.msgForaddDisplayClub;
-    console.log(wrapper.vm.msgForaddDisplayClub);
     expect(errorMsg).toBe("追加するサークル名を入力してください");
   });
   test("サークル名を31字で記入し、ボタンを押下した場合", async () => {
@@ -56,7 +55,7 @@ describe("addDisplayClubFunction", () => {
     );
     await wrapper.vm.addNewClub();
     const errorMsg = wrapper.vm.msgForaddDisplayClub;
-    console.log(wrapper.vm.msgForaddDisplayClub);
+
     expect(errorMsg).toBe("30字以内で入力してください");
   });
 
