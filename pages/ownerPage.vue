@@ -59,8 +59,8 @@
           <p class="font-bold">認証済みサークルタグ</p>
           <hr />
           <div class="mt-6">
-            <ul class="flex" v-for="display in displayClub">
-              <li>
+            <ul>
+              <li v-for="display in displayClub" class="flex">
                 <input
                   type="radio"
                   :value="{ id: `${display.value}` }"
@@ -92,8 +92,8 @@
             </div>
           </div>
           <div class="mt-3">
-            <ul class="flex" v-for="display in nondisplayClub">
-              <li>
+            <ul>
+              <li v-for="display in nondisplayClub" class="flex">
                 <input
                   type="radio"
                   :value="{ id: `${display.value}` }"
