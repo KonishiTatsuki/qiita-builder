@@ -16,15 +16,18 @@
 </template>
 
 <script setup lang="ts">
-type Supabase = {
-  userId: String;
-  articleId: Number;
-  showLikeButton: Boolean;
-  nowRecommend: Number;
-};
+import { createClient } from "@supabase/supabase-js";
+import { ref } from "vue";
+import axios from "axios";
 
-const supabase = useSupabaseClient<Supabase>();
-const router = useRouter();
+// type Supabase = {
+//   userId: String;
+//   articleId: Number;
+//   showLikeButton: Boolean;
+//   nowRecommend: Number;
+// };
+
+// const supabase = useSupabaseClient<Supabase>();
 const props = defineProps({
   userId: String,
   articleId: Number,
@@ -41,34 +44,75 @@ const emit = defineEmits(["eventEmit"]);
 const countRecommend = async () => {
   try {
     //すでにおすすめを押しているのか確認
-    const confirmation = await supabase
-      .from("recommend")
-      .select("*")
-      .eq("userId", userId)
-      .eq("articleId", articleId);
-    if (!(confirmation.data === null)) {
-      if (!confirmation.data[0]) {
-        // recommendテーブルにデータを挿入
-        console.log(userId, articleId);
-        await supabase.from("recommend").insert({ userId, articleId });
-        emit("eventEmit", { nowRecommend: props.nowRecommend + 1 });
-        showRecommendButton.value = true;
-      } else {
-        // //おすすめ数を削除する
-        await supabase
-          .from("recommend")
-          .delete()
-          .eq("userId", userId)
-          .eq("articleId", articleId);
-        emit("eventEmit", { nowRecommend: props.nowRecommend - 1 });
-        showRecommendButton.value = false;
+    // const confirmation = await supabase
+    //   .from("recommend")
+    //   .select("*")
+    //   .eq("userId", userId)
+    //   .eq("articleId", articleId);
+    const confirmationAxios = await axios.post(
+      "http://localhost:3000/api/recommend/recommendConfirmation",
+      // "/api/like/likeConfirmation",
+      { userId: userId, articleId: articleId },
+      {
+        headers: {
+          "Content-Type": "application/json",
+        },
       }
+    );
+    console.log("confirmationAxios", confirmationAxios.data);
+    console.log("confirmationAxios", confirmationAxios.data === null);
+
+    // if (!confirmation.data[0]) {
+    if (!confirmationAxios.data[0]) {
+      // recommendテーブルにデータを挿入
+      // await supabase.from("recommend").insert({ userId, articleId });
+      await axios.post(
+        "http://localhost:3000/api/recommend/insert",
+        // "/api/like/insert",
+        { userId: userId, articleId: articleId },
+        {
+          headers: {
+            "Content-Type": "application/json",
+          },
+        }
+      );
+      emit("eventEmit", { nowRecommend: props.nowRecommend + 1 });
+      showRecommendButton.value = true;
+    } else {
+      // //おすすめ数を削除する
+      // await supabase
+      //   .from("recommend")
+      //   .delete()
+      //   .eq("userId", userId)
+      //   .eq("articleId", articleId);
+      await axios.post(
+        "http://localhost:3000//api/recommend/delete",
+        // "/api/like/delete",
+        { userId: userId, articleId: articleId },
+        {
+          headers: {
+            "Content-Type": "application/json",
+          },
+        }
+      );
+      emit("eventEmit", { nowRecommend: props.nowRecommend - 1 });
+      showRecommendButton.value = false;
     }
     //recommendテーブルから該当する記事のおすすめ数を取得
-    const { data, error } = await supabase
-      .from("recommend")
-      .select("*")
-      .eq("articleId", articleId);
+    // const { data, error } = await supabase
+    //   .from("recommend")
+    //   .select("*")
+    //   .eq("articleId", articleId);
+    const { data } = await axios.post(
+      "http://localhost:3000//api/recommend/articleIdGet",
+      // "/api/like/delete",
+      { articleId: articleId },
+      {
+        headers: {
+          "Content-Type": "application/json",
+        },
+      }
+    );
     return data;
   } catch (error) {
     console.error(error);

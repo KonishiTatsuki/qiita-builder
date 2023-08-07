@@ -1,9 +1,11 @@
 import { serverSupabaseClient } from "#supabase/server";
-import { Database } from "~/types/database.types";
 
 export default defineEventHandler(async (event) => {
   const body = await readBody(event);
   const spabase = serverSupabaseClient(event);
-  const { data } = await spabase.from("profiles").select("*").eq("id", body);
+  const { data } = await await spabase
+    .from("recommend")
+    .select("*")
+    .eq("articleId", body.articleId);
   return data;
 });

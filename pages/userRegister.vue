@@ -203,7 +203,6 @@
 import { submitForm } from "@formkit/core";
 import { Occupation, Club } from "~/types";
 import { Database } from "~/types/database.types";
-import axios from "axios";
 
 definePageMeta({ layout: "login" });
 useHead({
@@ -220,158 +219,145 @@ type useOccupation = {
 };
 const errormesssage = ref("");
 const addClubError = ref("");
-const club = ref<useClub[]>([{ label: "その他", value: 0 }]);
-const occupation = ref<useOccupation[]>([]);
+const club: useClub[] = [{ label: "その他", value: 0 }];
+const occupation: useOccupation[] = [];
 const othersClub = ref(false);
+const { data: clubb } = await useFetch("/api/club/get");
+const { data: occupationn } = await useFetch("/api/occupation/get");
+const router = useRouter();
+const succes = ref(false);
+occupationn.value?.map((c: Occupation) => {
+  occupation.push({ label: c.occupationName, value: c.id });
+});
+clubb.value?.map((c: Club) => {
+  club.push({ label: c.clubName, value: c.id });
+});
+const client = useSupabaseClient<Database>();
 
-// const { data: clubb } = await useFetch("/api/club/get");
-// const { data: occupationn } = await useFetch("/api/occupation/get");
-const fetchData = async () => {
-  try {
-    const clubResponse: any = await axios.get("/api/club/get");
-    const occupationResponse: any = await axios.get("/api/occupation/get");
-
-    clubResponse.data?.map((c: Club) => {
-      club.value.push({ label: c.clubName, value: c.id });
-    });
-    occupationResponse.data?.map((c: Occupation) => {
-      occupation.value.push({ label: c.occupationName, value: c.id });
-    });
-  } catch (error) {
-    // エラーハンドリング
-    console.error("データの取得に失敗しました。", error);
+const selectClub = (credentials) => {
+  if (credentials === 0) {
+    othersClub.value = true;
+  } else {
+    othersClub.value = false;
   }
 };
-// await new Promise((r) => setTimeout(r, 1000));
-await fetchData(); // fetchClubDataを呼び出す
-
-// const router = useRouter();
-// const succes = ref(false);
-// const client = useSupabaseClient<Database>();
-// const selectClub = (credentials) => {
-//   if (credentials === 0) {
-//     othersClub.value = true;
-//   } else {
-//     othersClub.value = false;
-//   }
-// };
 
 //登録する押下
-// const submitRegister = async () => {
-//   submitForm("register");
-//   await new Promise((r) => setTimeout(r, 2000));
-//   if (succes.value) {
-//     router.push("/");
-//   }
-// };
+const submitRegister = async () => {
+  submitForm("register");
+  await new Promise((r) => setTimeout(r, 2000));
+  if (succes.value) {
+    router.push("/");
+  }
+};
 
 //qiitta連携
-// const connectQitta = async () => {
-//   submitForm("register");
-//   await new Promise((r) => setTimeout(r, 2000));
-//   if (succes.value) {
-//     router.push("/qiitaCoordination");
-//   }
-// };
+const connectQitta = async () => {
+  submitForm("register");
+  await new Promise((r) => setTimeout(r, 2000));
+  if (succes.value) {
+    router.push("/qiitaCoordination");
+  }
+};
 
-// type Credentials = {
-//   userName: string;
-//   club: number;
-//   detail: string;
-//   email: string;
-//   occupation: number;
-//   image: string;
-//   password: string;
-//   password_confirm: string;
-//   addClub: string;
-//   file: any;
-// };
+type Credentials = {
+  userName: string;
+  club: number;
+  detail: string;
+  email: string;
+  occupation: number;
+  image: string;
+  password: string;
+  password_confirm: string;
+  addClub: string;
+  file: any;
+};
 
 //supabaseへのデータ保存
-// const submitHandler = async (credentials: Credentials) => {
-//   let clubId = credentials.club;
-//   errormesssage.value = "";
-//   addClubError.value = "";
+const submitHandler = async (credentials: Credentials) => {
+  let clubId = credentials.club;
+  errormesssage.value = "";
+  addClubError.value = "";
 
-//   const { data: correctMaill } = await client
-//     .from("profiles")
-//     .select("*")
-//     .eq("email", credentials.email);
+  const { data: correctMaill } = await client
+    .from("profiles")
+    .select("*")
+    .eq("email", credentials.email);
 
-//   if (!(correctMaill?.length === 0)) {
-//     errormesssage.value = "既に登録されているメールアドレスです。";
-//   }
+  if (!(correctMaill?.length === 0)) {
+    errormesssage.value = "既に登録されているメールアドレスです。";
+  }
 
-//   if (credentials.club === 0 && !credentials.addClub) {
-//     addClubError.value = "追加クラブ名を入力してください。";
-//   }
+  if (credentials.club === 0 && !credentials.addClub) {
+    addClubError.value = "追加クラブ名を入力してください。";
+  }
 
-//   //サインイン
-//   if (errormesssage.value === "" && addClubError.value === "") {
-//     await client.auth.signUp({
-//       email: credentials.email,
-//       password: credentials.password,
-//       options: {
-//         data: {
-//           username: credentials.userName,
-//           detail: credentials.detail,
-//           email: credentials.email,
-//           occupation: credentials.occupation,
-//         },
-//       },
-//     });
-//     //保存したuidを取得
-//     const { data: uid } = await client
-//       .from("profiles")
-//       .select("id")
-//       .eq("email", credentials.email);
+  //サインイン
+  if (errormesssage.value === "" && addClubError.value === "") {
+    await client.auth.signUp({
+      email: credentials.email,
+      password: credentials.password,
+      options: {
+        data: {
+          username: credentials.userName,
+          detail: credentials.detail,
+          email: credentials.email,
+          occupation: credentials.occupation,
+        },
+      },
+    });
+    //保存したuidを取得
+    const { data: uid } = await client
+      .from("profiles")
+      .select("id")
+      .eq("email", credentials.email);
 
-//     if (credentials.addClub) {
-//       //追加クラブをdisplay:falseで登録
-//       await client.from("club").insert({
-//         clubName: credentials.addClub,
-//       });
-//       const { data } = await client
-//         .from("club")
-//         .select("id")
-//         .eq("clubName", credentials.addClub);
+    if (credentials.addClub) {
+      //追加クラブをdisplay:falseで登録
+      await client.from("club").insert({
+        clubName: credentials.addClub,
+      });
+      const { data } = await client
+        .from("club")
+        .select("id")
+        .eq("clubName", credentials.addClub);
 
-//       if (data !== null) {
-//         clubId = data[0].id;
-//       }
-//     }
-//     if (!(credentials.file.length === 0)) {
-//       //アイコン画像を保存
-//       const file = credentials.file[0].file; // 選択された画像を取得
-//       const filePath = `${uid[0].id}`; // 画像の保存先のpathを指定
-//       //画像をstorageに保存
-//       const { error: avatarerror } = await client.storage
-//         .from("avatars")
-//         .upload(filePath, file);
-//       //画像のpathを取得
-//       const { data } = client.storage.from("avatars").getPublicUrl(filePath);
-//       const imageUrl = data.publicUrl;
+      if (data !== null) {
+        clubId = data[0].id;
+      }
+    }
+    if (!(credentials.file.length === 0)) {
+      //アイコン画像を保存
+      const file = credentials.file[0].file; // 選択された画像を取得
+      const filePath = `${uid[0].id}`; // 画像の保存先のpathを指定
+      //画像をstorageに保存
+      const { error: avatarerror } = await client.storage
+        .from("avatars")
+        .upload(filePath, file);
+      //画像のpathを取得
+      const { data } = client.storage.from("avatars").getPublicUrl(filePath);
+      const imageUrl = data.publicUrl;
 
-//       const { error } = await client.from("profiles").upsert({
-//         id: uid[0].id,
-//         image: imageUrl,
-//         clubid: clubId,
-//       });
+      const { error } = await client.from("profiles").upsert({
+        id: uid[0].id,
+        image: imageUrl,
+        clubid: clubId,
+      });
 
-//       if (!error) {
-//         succes.value = true;
-//       }
-//     } else {
-//       const { error } = await client.from("profiles").upsert({
-//         id: uid[0].id,
+      if (!error) {
+        succes.value = true;
+      }
+    } else {
+      const { error } = await client.from("profiles").upsert({
+        id: uid[0].id,
 
-//         clubid: clubId,
-//       });
+        clubid: clubId,
+      });
 
-//       if (!error) {
-//         succes.value = true;
-//       }
-//     }
-//   }
-// };
+      if (!error) {
+        succes.value = true;
+      }
+    }
+  }
+};
 </script>

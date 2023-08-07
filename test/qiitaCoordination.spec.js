@@ -12,7 +12,6 @@ describe("Login", () => {
       then: jest.fn().mockResolvedValue(),
       then: jest.fn().mockResolvedValue({ data: { id: "javlkd" } }),
     });
-
     // モックの作成
     const mockResponse = { data: { message: "Success" } };
     // jest.spyOn(axios, "post").mockResolvedValue(mrm -rf node_modulesockResponse);

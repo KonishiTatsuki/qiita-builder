@@ -16,16 +16,19 @@
 </template>
 
 <script setup lang="ts">
-type Supabase = {
-  userId: String;
-  articleId: Number;
-  showLikeButton: Boolean;
-  nowLike: Number;
-  goalLike: Number;
-};
+import { createClient } from "@supabase/supabase-js";
+import { ref } from "vue";
+import axios from "axios";
 
-const supabase = useSupabaseClient<Supabase>();
-const router = useRouter();
+// type Supabase = {
+//   userId: String;
+//   articleId: Number;
+//   showLikeButton: Boolean;
+//   nowLike: Number;
+//   goalLike: Number;
+// };
+
+// const supabase = useSupabaseClient<Supabase>();
 const props = defineProps({
   userId: String,
   articleId: Number,
@@ -38,19 +41,44 @@ const userId = props.userId;
 const articleId = props.articleId;
 
 const emit = defineEmits(["eventEmit"]);
+
 //いいね数をカウントする関数
-const countLike = async (e) => {
+const countLike = async () => {
   try {
     //すでにいいねを押しているのか確認
-    const confirmation = await supabase
-      .from("like")
-      .select("*")
-      .eq("userId", userId)
-      .eq("articleId", articleId);
-    if (!(confirmation.data === null)) {
-      if (!confirmation.data[0]) {
+    // const confirmation = await supabase
+    //   .from("like")
+    //   .select("*")
+    //   .eq("userId", userId)
+    //   .eq("articleId", articleId);
+    const confirmationAxios = await axios.post(
+      "http://localhost:3000/api/like/likeConfirmation",
+      // "/api/like/likeConfirmation",
+      { userId: userId, articleId: articleId },
+      {
+        headers: {
+          "Content-Type": "application/json",
+        },
+      }
+    );
+
+    // if (!(confirmation.data === null)) {
+    if (!(confirmationAxios.data === null)) {
+      // if (!confirmation.data[0]) {
+      if (!confirmationAxios.data[0]) {
+        console.log(" Likeテーブルにデータを挿入");
         // Likeテーブルにデータを挿入
-        await supabase.from("like").insert({ userId, articleId });
+        // await supabase.from("like").insert({ userId, articleId });
+        await axios.post(
+          "http://localhost:3000/api/like/insert",
+          // "/api/like/insert",
+          { userId: userId, articleId: articleId },
+          {
+            headers: {
+              "Content-Type": "application/json",
+            },
+          }
+        );
         emit("eventEmit", {
           nowLike: props.nowLike + 1,
           goalLike: props.goalLike - 1,
@@ -58,11 +86,21 @@ const countLike = async (e) => {
         showLikeButton.value = true;
       } else {
         //いいね数を削除する
-        await supabase
-          .from("like")
-          .delete()
-          .eq("userId", userId)
-          .eq("articleId", articleId);
+        // await supabase
+        //   .from("like")
+        //   .delete()
+        //   .eq("userId", userId)
+        //   .eq("articleId", articleId);
+        await axios.post(
+          "http://localhost:3000//api/like/delete",
+          // "/api/like/delete",
+          { userId: userId, articleId: articleId },
+          {
+            headers: {
+              "Content-Type": "application/json",
+            },
+          }
+        );
         emit("eventEmit", {
           nowLike: props.nowLike - 1,
           goalLike: props.goalLike + 1,
