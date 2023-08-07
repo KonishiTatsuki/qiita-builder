@@ -103,7 +103,6 @@ if (users.value) {
 }
 
 const submit = async (submit: { password: string }) => {
-  console.log("あああ");
   if (userId.value !== "") {
     data.value = await client.value.auth.updateUser({
       password: submit.password,
