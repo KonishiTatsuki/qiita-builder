@@ -59,26 +59,26 @@ describe("tagFn", () => {
 
   test("mount tagFn", async () => {
     const wrapper = mount(ChangeNowLike);
-    await wrapper.vm.tagFn();
-    await wrapper.vm.$nextTick();
 
-    const tagIdsAxios = await axios.post(
+    wrapper.vm.tagIdsAxios = await axios.post(
       "http://localhost:3000/api/tagging/get",
       articleId
     );
-    const tagsAxios = await axios.post(
+    wrapper.vm.tagsAxios = await axios.post(
       "http://localhost:3000/api/tag/get",
-      tagIdsAxios.data
+      wrapper.vm.tagIdsAxios.data
     );
-    const articleDatasAxios = await axios.post(
+    wrapper.vm.articleDatasAxios = await axios.post(
       "http://localhost:3000/api/article/articleDateGet",
       articleId
     );
+    await wrapper.vm.tagFn();
+    await wrapper.vm.$nextTick();
     // 成功メッセージが表示されることを確認
-    expect(tagIdsAxios.data).toEqual([]);
-    expect(tagsAxios.data).toEqual([]);
+    expect(wrapper.vm.tagIdsAxios.data).toEqual([]);
+    expect(wrapper.vm.tagsAxios.data).toEqual([]);
     expect(wrapper.vm.tagNames).toEqual([]);
-    expect(articleDatasAxios.data).toEqual([
+    expect(wrapper.vm.articleDatasAxios.data).toEqual([
       {
         bannerId: null,
         body: "Vite\ndev環境としてはとにかく速い。\n",
@@ -95,7 +95,9 @@ describe("tagFn", () => {
         userId: "034ed2b9-13a0-48f5-bb1e-9ee4b888df77",
       },
     ]);
-    expect(wrapper.vm.articleData).toEqual(articleDatasAxios.data[0]);
+    expect(wrapper.vm.articleData).toEqual(
+      wrapper.vm.articleDatasAxios.data[0]
+    );
     expect(wrapper.vm.articleBody).toEqual(wrapper.vm.articleData.body);
     expect(wrapper.vm.articleTitle).toEqual(wrapper.vm.articleData.title);
     // expect(wrapper.vm.articleTag).toEqual(articleDatasAxios.data[0]);
@@ -112,6 +114,12 @@ describe("tagFn", () => {
 describe("ChangeNowLike true", () => {
   // MSWでサーバーのモック作成
   const tagIdsAxiosServer = setupServer(
+    rest.post("http://localhost:3000/api/tagging/get", (req, res, ctx) => {
+      return res(ctx.status(201), ctx.json([]));
+    }),
+    rest.post("http://localhost:3000/api/tag/get", (req, res, ctx) => {
+      return res(ctx.status(201), ctx.json([]));
+    }),
     rest.post(
       "http://localhost:3000/api/article/articleDateGet",
       (req, res, ctx) => {
@@ -161,13 +169,11 @@ describe("ChangeNowLike true", () => {
   test("mount ChangeNowLike true", async () => {
     const wrapper = mount(ChangeNowLike);
     const val = { nowLike: -1, goalLike: NaN };
-    const qiitaPostItemAxios = await axios.post(
+    wrapper.vm.qiitaPostItemAxios = await axios.post(
       "http://localhost:3000/api/article/articleDateGet",
       // "/api/article/articleDateGet",
       articleId
     );
-    wrapper.vm.qiitaPostItemAxios = qiitaPostItemAxios;
-
     await wrapper.vm.ChangeNowLike(val);
     await wrapper.vm.$nextTick();
 
@@ -246,6 +252,12 @@ describe("ChangeNowLike true", () => {
 describe("ChangeNowLike false false true", () => {
   // MSWでサーバーのモック作成
   const tagIdsAxiosServer = setupServer(
+    rest.post("http://localhost:3000/api/tagging/get", (req, res, ctx) => {
+      return res(ctx.status(201), ctx.json([]));
+    }),
+    rest.post("http://localhost:3000/api/tag/get", (req, res, ctx) => {
+      return res(ctx.status(201), ctx.json([]));
+    }),
     rest.post(
       "http://localhost:3000/api/article/articleDateGet",
       (req, res, ctx) => {
@@ -313,6 +325,12 @@ describe("ChangeNowLike false false true", () => {
 describe("ChangeNowLike false false false", () => {
   // MSWでサーバーのモック作成
   const tagIdsAxiosServer = setupServer(
+    rest.post("http://localhost:3000/api/tagging/get", (req, res, ctx) => {
+      return res(ctx.status(201), ctx.json([]));
+    }),
+    rest.post("http://localhost:3000/api/tag/get", (req, res, ctx) => {
+      return res(ctx.status(201), ctx.json([]));
+    }),
     rest.post(
       "http://localhost:3000/api/article/articleDateGet",
       (req, res, ctx) => {

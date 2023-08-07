@@ -44,12 +44,17 @@ const articleDataGoalLike = ref();
 //Qiita投稿済みかどうか確認
 const qiitaPostCheck = ref();
 
+const tagIdsAxios = ref();
+const tagsAxios = ref();
+const articleDatasAxios = ref();
+
+
 const tagFn = async () => {
   // const { data: tagIds } = await useFetch("/api/tagging/get", {
   //   method: "POST",
   //   body: articleId,
   // });
-  const tagIdsAxios = await axios.post(
+  tagIdsAxios.value = await axios.post(
     "http://localhost:3000/api/tagging/get",
     // "/api/tagging/get",
     articleId,
@@ -63,10 +68,10 @@ const tagFn = async () => {
   //   method: "POST",
   //   body: tagIds.value,
   // });
-  const tagsAxios = await axios.post(
+  tagsAxios.value = await axios.post(
     "http://localhost:3000/api/tag/get",
     // "/api/tag/get",
-    tagIdsAxios.data,
+    tagIdsAxios.value.data,
     {
       headers: {
         "Content-Type": "application/json",
@@ -74,13 +79,13 @@ const tagFn = async () => {
     }
   );
   // // tagNames.value = tags.value;
-  tagNames.value = tagsAxios.data;
+  tagNames.value = tagsAxios.value.data;
 
   // const { data: articleDatas } = await useFetch("/api/article/articleDateGet", {
   //   method: "POST",
   //   body: articleId,
   // });
-  const articleDatasAxios = await axios.post(
+  articleDatasAxios.value = await axios.post(
     "http://localhost:3000/api/article/articleDateGet",
     // "/api/article/articleDateGet",
     articleId,
@@ -92,7 +97,7 @@ const tagFn = async () => {
   );
 
   // // // articleData.value = articleDatas.value[0];
-  articleData.value = articleDatasAxios.data[0];
+  articleData.value = articleDatasAxios.value.data[0];
 
   articleBody.value = articleData.value.body;
   articleTitle.value = articleData.value.title;

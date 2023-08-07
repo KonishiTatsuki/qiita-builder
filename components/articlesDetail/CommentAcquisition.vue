@@ -63,13 +63,15 @@ if (users.value) {
   userId = users.value.id;
 }
 const open = ref(false);
+const commentDatesAxios = ref();
+const commentItemAxios = ref();
 
 const commentAcquisition = async function () {
   //   const { data: commentDates } = await useFetch("/api/comment/get", {
   //     method: "POST",
   //     body: articleId,
   //   });
-  const commentDatesAxios = await axios.post(
+  commentDatesAxios.value = await axios.post(
     "http://localhost:3000/api/comment/get",
     articleId,
     {
@@ -79,14 +81,14 @@ const commentAcquisition = async function () {
     }
   );
   //   if (commentDates.value) {
-  if (commentDatesAxios.data) {
+  if (commentDatesAxios.value.data) {
     // const { data: commentItem } = await useFetch("/api/user/commentUserGet", {
     //   method: "POST",
     //   body: commentDates.value,
     // });
-    const commentItemAxios = await axios.post(
+    commentItemAxios.value = await axios.post(
       "http://localhost:3000/api/user/commentUserGet",
-      commentDatesAxios.data,
+      commentDatesAxios.value.data,
       {
         headers: {
           "Content-Type": "application/json", // Content-Typeを適切なJSON形式に変更
@@ -94,18 +96,18 @@ const commentAcquisition = async function () {
       }
     );
     // commentDateOrigin.value = commentItem.value;
-    commentDateOrigin.value = commentItemAxios.data;
+    commentDateOrigin.value = commentItemAxios.value.data;
 
     //表示するコメント数を制限
     // if (commentItem.value.length > 5) {
-    if (commentItemAxios.data.length > 5) {
+    if (commentItemAxios.value.data.length > 5) {
       //   commentDate.value = commentItem.value.slice(0, 5);
-      commentDate.value = commentItemAxios.data.slice(0, 5);
+      commentDate.value = commentItemAxios.value.data.slice(0, 5);
       showMoreComment.value = true;
       showCloseComment.value = false;
     } else {
       //   commentDate.value = commentItem.value;
-      commentDate.value = commentItemAxios.data;
+      commentDate.value = commentItemAxios.value.data;
       showMoreComment.value = false;
       showCloseComment.value = false;
     }

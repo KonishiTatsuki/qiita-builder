@@ -39,6 +39,7 @@ const props = defineProps({
 const showLikeButton = ref(props.showLikeButton);
 const userId = props.userId;
 const articleId = props.articleId;
+const confirmationAxios = ref();
 
 const emit = defineEmits(["eventEmit"]);
 
@@ -51,7 +52,7 @@ const countLike = async () => {
     //   .select("*")
     //   .eq("userId", userId)
     //   .eq("articleId", articleId);
-    const confirmationAxios = await axios.post(
+    confirmationAxios.value = await axios.post(
       "http://localhost:3000/api/like/likeConfirmation",
       // "/api/like/likeConfirmation",
       { userId: userId, articleId: articleId },
@@ -62,51 +63,48 @@ const countLike = async () => {
       }
     );
 
-    // if (!(confirmation.data === null)) {
-    if (!(confirmationAxios.data === null)) {
-      // if (!confirmation.data[0]) {
-      if (!confirmationAxios.data[0]) {
-        console.log(" Likeテーブルにデータを挿入");
-        // Likeテーブルにデータを挿入
-        // await supabase.from("like").insert({ userId, articleId });
-        await axios.post(
-          "http://localhost:3000/api/like/insert",
-          // "/api/like/insert",
-          { userId: userId, articleId: articleId },
-          {
-            headers: {
-              "Content-Type": "application/json",
-            },
-          }
-        );
-        emit("eventEmit", {
-          nowLike: props.nowLike + 1,
-          goalLike: props.goalLike - 1,
-        });
-        showLikeButton.value = true;
-      } else {
-        //いいね数を削除する
-        // await supabase
-        //   .from("like")
-        //   .delete()
-        //   .eq("userId", userId)
-        //   .eq("articleId", articleId);
-        await axios.post(
-          "http://localhost:3000//api/like/delete",
-          // "/api/like/delete",
-          { userId: userId, articleId: articleId },
-          {
-            headers: {
-              "Content-Type": "application/json",
-            },
-          }
-        );
-        emit("eventEmit", {
-          nowLike: props.nowLike - 1,
-          goalLike: props.goalLike + 1,
-        });
-        showLikeButton.value = false;
-      }
+    // if (!confirmation.data[0]) {
+    if (!confirmationAxios.value.data[0]) {
+      console.log(" Likeテーブルにデータを挿入");
+      // Likeテーブルにデータを挿入
+      // await supabase.from("like").insert({ userId, articleId });
+      await axios.post(
+        "http://localhost:3000/api/like/insert",
+        // "/api/like/insert",
+        { userId: userId, articleId: articleId },
+        {
+          headers: {
+            "Content-Type": "application/json",
+          },
+        }
+      );
+      emit("eventEmit", {
+        nowLike: props.nowLike + 1,
+        goalLike: props.goalLike - 1,
+      });
+      showLikeButton.value = true;
+    } else {
+      //いいね数を削除する
+      // await supabase
+      //   .from("like")
+      //   .delete()
+      //   .eq("userId", userId)
+      //   .eq("articleId", articleId);
+      await axios.post(
+        "http://localhost:3000//api/like/delete",
+        // "/api/like/delete",
+        { userId: userId, articleId: articleId },
+        {
+          headers: {
+            "Content-Type": "application/json",
+          },
+        }
+      );
+      emit("eventEmit", {
+        nowLike: props.nowLike - 1,
+        goalLike: props.goalLike + 1,
+      });
+      showLikeButton.value = false;
     }
   } catch (error) {
     console.error(error);

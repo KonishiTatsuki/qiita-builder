@@ -37,6 +37,7 @@ const props = defineProps({
 const showRecommendButton = ref(props.showRecommendButton);
 const userId = props.userId;
 const articleId = props.articleId;
+const confirmationAxios = ref()
 
 const emit = defineEmits(["eventEmit"]);
 
@@ -49,7 +50,7 @@ const countRecommend = async () => {
     //   .select("*")
     //   .eq("userId", userId)
     //   .eq("articleId", articleId);
-    const confirmationAxios = await axios.post(
+    confirmationAxios.value = await axios.post(
       "http://localhost:3000/api/recommend/recommendConfirmation",
       // "/api/like/likeConfirmation",
       { userId: userId, articleId: articleId },
@@ -59,11 +60,9 @@ const countRecommend = async () => {
         },
       }
     );
-    console.log("confirmationAxios", confirmationAxios.data);
-    console.log("confirmationAxios", confirmationAxios.data === null);
 
     // if (!confirmation.data[0]) {
-    if (!confirmationAxios.data[0]) {
+    if (!confirmationAxios.value.data[0]) {
       // recommendテーブルにデータを挿入
       // await supabase.from("recommend").insert({ userId, articleId });
       await axios.post(

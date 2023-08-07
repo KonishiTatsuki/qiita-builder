@@ -12,6 +12,15 @@ describe("countRecommend true", () => {
       (req, res, ctx) => {
         return res(ctx.status(201), ctx.json([]));
       }
+    ),
+    rest.post("http://localhost:3000/api/recommend/insert", (req, res, ctx) => {
+      return res(ctx.status(201), ctx.json({ message: "Success" }));
+    }),
+    rest.post(
+      "http://localhost:3000//api/recommend/articleIdGet",
+      (req, res, ctx) => {
+        return res(ctx.status(201), ctx.json({ message: "Success" }));
+      }
     )
   );
 
@@ -29,7 +38,18 @@ describe("countRecommend true", () => {
   });
 
   test("mount countLike true", async () => {
+    const userId = "445a6d2e-5cc3-47c6-b5fe-2c6179b229da";
+    const articleId = 189;
+
     const wrapper = mount(RecommendButton);
+
+    const confirmationAxios = await axios.post(
+      "http://localhost:3000/api/recommend/recommendConfirmation",
+      // "/api/like/likeConfirmation",
+      { userId: userId, articleId: articleId }
+    );
+    wrapper.vm.confirmationAxios = confirmationAxios;
+
     await wrapper.vm.countRecommend();
     await wrapper.vm.$nextTick();
     expect(wrapper.vm.showRecommendButton).toEqual(true);
@@ -52,6 +72,18 @@ describe("countLike false", () => {
             },
           ])
         );
+      }
+    ),
+    rest.post(
+      "http://localhost:3000//api/recommend/delete",
+      (req, res, ctx) => {
+        return res(ctx.status(201), ctx.json({ message: "Success" }));
+      }
+    ),
+    rest.post(
+      "http://localhost:3000//api/recommend/articleIdGet",
+      (req, res, ctx) => {
+        return res(ctx.status(201), ctx.json({ message: "Success" }));
       }
     )
   );
