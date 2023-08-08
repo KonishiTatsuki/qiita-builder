@@ -1,5 +1,5 @@
 import { mount } from "@vue/test-utils";
-import qiitaCoordination from "../pages/qiitaCoordination.vue";
+import qiitaCoordination from "../pages/test/qiitaCoordination.vue";
 import axios from "axios";
 
 jest.mock("axios"); // axiosモジュールをモック化
@@ -48,7 +48,6 @@ describe("Login", () => {
     // // 必要に応じて次の行を追加
     await wrapper.vm.$nextTick();
 
-    console.log("errorMessage", wrapper.vm.successMessage);
     // expect(wrapper.vm.successMessage).toStrictEqual(
     //   "アクセストークンを登録しました"
     // );

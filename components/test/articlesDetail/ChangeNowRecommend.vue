@@ -11,7 +11,7 @@
 
 <script setup>
 // import RecommendButton from "~/components/RecommendButton.vue";
-import RecommendButton from "../RecommendButton.vue";
+import RecommendButton from "./RecommendButton.vue";
 import axios from "axios";
 import { ref } from "vue";
 
@@ -39,7 +39,6 @@ const recommendsFn = async () => {
       },
     }
   );
-  console.log("recommendsAxios", recommendsAxios.data.length);
   // //おすすめ数取得
   nowRecommend.value = recommendsAxios.data.length;
 };

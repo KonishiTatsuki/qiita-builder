@@ -243,9 +243,6 @@ const fetchData = async () => {
     const clubResponse: any = await axios.get("/api/club/get");
     const occupationResponse: any = await axios.get("/api/occupation/get");
 
-    console.log("clubResponse", clubResponse);
-    console.log("occupationResponse", occupationResponse);
-
     clubResponse.data?.map((c: Club) => {
       club.value.push({ label: c.clubName, value: c.id });
     });
@@ -269,7 +266,6 @@ const client = ref(
     "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5pZXp3bnBwdWNqd2h4d2ZheHlyIiwicm9sZSI6ImFub24iLCJpYXQiOjE2ODQ3MjkzNDAsImV4cCI6MjAwMDMwNTM0MH0.04tShAmtbz0zXhsyNQYo2fhcO2Tx0aQdI67Cg2f3BTo"
   )
 );
-// console.log("credentials", credentials);
 const selectClub = (credentials) => {
   if (credentials === 0) {
     othersClub.value = true;

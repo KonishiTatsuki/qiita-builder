@@ -1,5 +1,5 @@
 import { mount } from "@vue/test-utils";
-import passwordForget from "../pages/passwordForget.vue";
+import passwordForget from "../pages/test/passwordForget.vue";
 
 jest.mock("@supabase/supabase-js", () => ({
   createClient: jest.fn(() => ({

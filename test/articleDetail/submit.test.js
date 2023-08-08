@@ -1,4 +1,4 @@
-import Submit from "../../components/articlesDetail/Submit.vue";
+import Submit from "../../components/test/articlesDetail/Submit.vue";
 import { mount } from "@vue/test-utils";
 import axios from "axios";
 import { rest } from "msw";

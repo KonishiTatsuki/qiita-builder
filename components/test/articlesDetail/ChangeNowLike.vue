@@ -12,7 +12,7 @@
 
 <script setup>
 // import LikeButton from "~/components/LikeButton.vue";
-import LikeButton from "../LikeButton.vue";
+import LikeButton from "./LikeButton.vue";
 import axios from "axios";
 import { ref } from "vue";
 
@@ -108,7 +108,6 @@ const tagFn = async () => {
 
   // //記事の目標いいね取得
   articleDataGoalLike.value = Number(articleData.value.goalLike);
-  console.log("articleDataGoalLike.value", articleDataGoalLike.value);
   // //Qiita投稿済みかどうか確認
   qiitaPostCheck.value = articleData.value.qiitaPost;
 };

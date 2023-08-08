@@ -1,4 +1,4 @@
-import RecommendButton from "../../components/RecommendButton.vue";
+import RecommendButton from "../../components/test/articlesDetail/RecommendButton.vue";
 import { mount } from "@vue/test-utils";
 import axios from "axios";
 import { rest } from "msw";

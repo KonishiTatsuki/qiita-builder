@@ -1,5 +1,5 @@
 import { mount } from "@vue/test-utils";
-import userRegister from "../pages/userRegisterCopy.vue";
+import userRegister from "../pages/test/userRegisterCopy.vue";
 import axios from "axios";
 
 const credentials = {
@@ -120,8 +120,6 @@ describe("selectClub", () => {
     await wrapper.vm.$nextTick();
 
     await wrapper.vm.selectClub(credentials);
-    console.log("othersClub", wrapper.vm.othersClub);
-    console.log("othersClub", wrapper.vm.othersClub);
   });
 });
 
@@ -161,6 +159,5 @@ describe("userRegister", () => {
 
     // fetchData メソッドを実行
     await wrapper.vm.aaa();
-    console.log(wrapper.vm.item);
   });
 });
