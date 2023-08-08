@@ -1,4 +1,4 @@
-import LikeButton from "../../components/LikeButton.vue";
+import LikeButton from "../../components/test/articlesDetail/LikeButton.vue";
 import { mount } from "@vue/test-utils";
 import axios from "axios";
 import { rest } from "msw";

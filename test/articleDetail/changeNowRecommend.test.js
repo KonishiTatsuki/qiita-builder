@@ -1,4 +1,4 @@
-import ChangeNowRecommend from "../../components/articlesDetail/ChangeNowRecommend.vue";
+import ChangeNowRecommend from "../../components/test/articlesDetail/ChangeNowRecommend.vue";
 import { mount } from "@vue/test-utils";
 import axios from "axios";
 import { rest } from "msw";

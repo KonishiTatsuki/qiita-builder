@@ -1,4 +1,4 @@
-import CommentAcquisition from "../../components/articlesDetail/CommentAcquisition.vue";
+import CommentAcquisition from "../../components/test/articlesDetail/CommentAcquisition.vue";
 import { mount } from "@vue/test-utils";
 import axios from "axios";
 import { rest } from "msw";

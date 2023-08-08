@@ -62,10 +62,6 @@ describe('UserEdit', () => {
 
     // 必要に応じて次の行を追加
     await wrapper.vm.$nextTick();
-
-    // ここではfalse
-    console.log(wrapper.vm.editbool)
-
     wrapper.vm.edit();
     expect(wrapper.vm.editbool).toBe(true)
   })

@@ -3,7 +3,6 @@ import { serverSupabaseClient } from "#supabase/server";
 export default defineEventHandler(async (event) => {
   const body = await readBody(event);
   const supabase = serverSupabaseClient(event);
-  console.log("body", body);
   try {
     const { data, error } = await supabase
       .from("recommend")

@@ -1,5 +1,5 @@
 import { mount } from "@vue/test-utils";
-import Login from "../pages/login.vue";
+import Login from "../pages/test/login.vue";
 
 jest.mock("@supabase/supabase-js", () => ({
   createClient: jest.fn(() => ({
