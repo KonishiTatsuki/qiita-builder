@@ -23,7 +23,7 @@ jest.mock("vue-router", () => ({
 describe("Login", () => {
   it("updates item value when submit is called", async () => {
     const submit = {
-      email: "tatsuki.konishi@rakus-partners.co.jp",
+      email: "himuro@rakus-partners.co.jp",
       password: "Qwer1234",
     };
     const wrapper = mount(Login);
