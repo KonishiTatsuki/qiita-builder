@@ -52,23 +52,24 @@
 </template>
 
 <script setup lang="ts">
+import { ref } from "vue";
+import { useHead } from "unhead";
+import axios from "axios";
 useHead({
   title: "Qiita連携",
 });
 
-const router = useRouter();
-const supabase = useSupabaseClient();
-const user = useSupabaseUser();
+//useSupabaseUserのテスト方法がわからない為、仮の値を取得
+// const user = useSupabaseUser();
+const user = ref({ id: "sdafdsvoias" });
 const text = ref("");
 const successMessage = ref("");
 const errorMessage = ref("");
-let confirmation = "";
+const confirmation = ref("");
 const userId = user.value?.id;
 
 const submit = async (submit: { text: string }) => {
-  errorMessage.value = "";
   const accessToken = submit.text;
-
   fetch("https://qiita.com/api/v2/authenticated_user", {
     headers: {
       Authorization: `Bearer ${accessToken}`,
@@ -76,14 +77,17 @@ const submit = async (submit: { text: string }) => {
   })
     .then((response) => response.json())
     .then(async (data) => {
-      confirmation = data.id;
-      if (confirmation) {
+      confirmation.value = data.id;
+      if (confirmation.value) {
         const postData = {
           userId: userId,
           qiitaToken: accessToken,
         };
-        await useFetch("/api/user/qiitaTokenUpdate", {
-          method: "POST",
+        // await useFetch("/api/user/qiitaTokenUpdate", {
+        //   method: "POST",
+        //   body: postData,
+        // });
+        await axios.post("/api/user/qiitaTokenUpdate", {
           body: postData,
         });
         errorMessage.value = "";
