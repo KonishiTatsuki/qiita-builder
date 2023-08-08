@@ -210,9 +210,6 @@ import { ref } from "vue";
 import { marked } from "marked";
 import { createClient } from "@supabase/supabase-js";
 import { toUnicode } from "punycode";
-import axios from "axios";
-import { useRouter } from "vue-router";
-import { useHead } from "unhead";
 
 //.envからsupabaseのurlとkeyを取得
 const runtimeConfig = useRuntimeConfig();
@@ -250,18 +247,7 @@ const { data: userData } = await useFetch("/api/user/userGet", {
   method: "POST",
   body: userId,
 });
-
-// const userDataAxios = await axios.post(
-//   "/api/user/userGet",
-//   { userId: userId },
-//   {
-//     headers: {
-//       "Content-Type": "text/plain",
-//     },
-//   }
-// );
 userInfo.value = userData.value;
-// console.log(userDataAxios.data);
 //現在の日付取得
 let date = new Date();
 const year = date.getFullYear();
@@ -285,33 +271,12 @@ const { data: articleDatas } = await useFetch("/api/article/articleDateGet", {
   method: "POST",
   body: articleId,
 });
-
-// const articleDatasAxios = await axios.post(
-//   "/api/article/articleDateGet",
-//   articleId,
-//   {
-//     headers: {
-//       "Content-Type": "text/plain",
-//     },
-//   }
-// );
 const { data: articleUser } = await useFetch("/api/user/userGet", {
   method: "POST",
   body: articleDatas.value[0].userId,
 });
-// const articleUserAxios = await axios.post(
-//   "/api/user/userGet",
-//   articleDatasAxios.data[0].userId,
-//   {
-//     headers: {
-//       "Content-Type": "text/plain",
-//     },
-//   }
-// );
 articleUsers.value = articleUser.value[0];
-// articleUsers.value = articleUserAxios.data[0];
 articleData.value = articleDatas.value[0];
-// articleData.value = articleDatasAxios.data[0];
 
 //記事の公開日判定
 //公開日のミリ秒取得
@@ -352,22 +317,10 @@ const { data: tagIds } = await useFetch("/api/tagging/get", {
   method: "POST",
   body: articleId,
 });
-console.log("tagIds", tagIds.value);
-// const tagIdsAxios = await axios.post("/api/tagging/get", articleId, {
-//   headers: {
-//     "Content-Type": "text/plain",
-//   },
-// });
 const { data: tags } = await useFetch("/api/tag/get", {
   method: "POST",
   body: tagIds.value,
 });
-console.log("tags", tags.value);
-// const tagsAxios = await axios.post("/api/tag/get", tagIdsAxios.data, {
-//   headers: {
-//     "Content-Type": "text/plain",
-//   },
-// });
 tagNames.value = tags.value;
 
 //　　　　　　　おすすめ数表示機能　　　　　　　　　　//
@@ -378,15 +331,6 @@ const { data: recommends } = await useFetch("/api/recommend/articleGet", {
   method: "POST",
   body: articleId,
 });
-// const recommendsAxios = await axios.post(
-//   "/api/recommend/articleGet",
-//   articleId,
-//   {
-//     headers: {
-//       "Content-Type": "text/plain",
-//     },
-//   }
-// );
 //おすすめ数取得
 nowRecommend.value = recommends.value.length;
 
@@ -395,21 +339,11 @@ const { data: recommendUsers } = await useFetch("/api/recommend/get", {
   method: "POST",
   body: { articleId, userId },
 });
-// const recommendUsersAxios = await axios.post(
-//   "/api/recommend/get",
-//   { articleId, userId },
-//   {
-//     headers: {
-//       "Content-Type": "text/plain",
-//     },
-//   }
-// );
 if (recommendUsers.value[0]) {
   showRecommendButton.value = true;
 }
 
 const ChangeNowRecommend = (val) => {
-  console.log("val.nowRecommend", val.nowRecommend);
   nowRecommend.value = val.nowRecommend;
 };
 
@@ -428,11 +362,6 @@ const { data: likes } = await useFetch("/api/like/likeNumberGet", {
   method: "POST",
   body: articleId,
 });
-// const likesAxios = await axios.post("/api/like/likeNumberGet", articleId, {
-//   headers: {
-//     "Content-Type": "text/plain",
-//   },
-// });
 //いいね数の表示
 nowLike.value = likes.value.length;
 
@@ -441,15 +370,6 @@ const { data: likeschecks } = await useFetch("/api/like/likeCheckGet", {
   method: "POST",
   body: { userId, articleId },
 });
-// const likeschecksAxios = await axios.post(
-//   "/api/like/likeCheckGet",
-//   { userId, articleId },
-//   {
-//     headers: {
-//       "Content-Type": "text/plain",
-//     },
-//   }
-// );
 if (likeschecks.value[0]) {
   showLikeButton.value = true;
 }
@@ -472,7 +392,7 @@ if (articleData.value.goalLike === null || articleData.value.goalLike === "") {
 }
 
 //Qiita投稿済みかどうか確認
-const qiitaPostCheck = articleData.value.qiitaPost;
+const qiitaPostCheck = ref(articleData.value.qiitaPost);
 
 //いいねボタンをクリックした時の処理
 const ChangeNowLike = async (val) => {
@@ -487,15 +407,6 @@ const ChangeNowLike = async (val) => {
       body: articleId,
     }
   );
-  //   const qiitaPostItemAxios = await axios.post(
-  //     "/api/article/articleDateGet",
-  //     articleId,
-  //     {
-  //       headers: {
-  //         "Content-Type": "text/plain",
-  //       },
-  //     }
-  //   );
   await new Promise((r) => setTimeout(r, 100));
 
   //目標いいねをせているか確認
@@ -546,11 +457,6 @@ const ChangeNowLike = async (val) => {
         method: "POST",
         body: articleId,
       });
-      //       await axios.post("/api/article/qiitaPostUpdate", articleId, {
-      //         headers: {
-      //           "Content-Type": "text/plain",
-      //         },
-      //       });
     } else {
       if (qiitaPostItem.value[0].qiitaPost) {
         goalLikeSuccess.value = "達成済み";
@@ -576,25 +482,11 @@ const commentAcquisition = async function () {
     method: "POST",
     body: articleId,
   });
-  //   const commentDatesAxios = await axios.post("/api/comment/get", articleId, {
-  //     headers: {
-  //       "Content-Type": "text/plain",
-  //     },
-  //   });
   if (commentDates.value) {
     const { data: commentItem } = await useFetch("/api/user/commentUserGet", {
       method: "POST",
       body: commentDates.value,
     });
-    //     const commentItemAxios = await axios.post(
-    //       "/api/user/commentUserGet",
-    //       commentDatesAxios.data,
-    //       {
-    //         headers: {
-    //           "Content-Type": "text/plain",
-    //         },
-    //       }
-    //     );
     commentDateOrigin.value = commentItem.value;
     //表示するコメント数を制限
     if (commentItem.value.length > 5) {
@@ -654,20 +546,6 @@ const submit = async () => {
           articleId: articleId,
         },
       });
-      //  const articleUserAxios = await axios.post(
-      //         "/api/comment/insert",
-      //         {
-      //           date: dateString,
-      //           userId: userId,
-      //           comment: comment.value,
-      //           articleId: articleId,
-      //         },
-      //         {
-      //           headers: {
-      //             "Content-Type": "text/plain",
-      //           },
-      //         }
-      //       );
       errorText.value = false;
       comment.value = "";
       // location.reload();
@@ -687,11 +565,6 @@ const deleteComment = async (commentId) => {
       method: "POST",
       body: commentId,
     });
-    //     await axios.post("/api/comment/delete", commentId, {
-    //       headers: {
-    //         "Content-Type": "text/plain",
-    //       },
-    //     });
     open.value = false;
   } catch (error) {
     console.error("コメントを削除でエラー");
