@@ -59,8 +59,8 @@
           <p class="font-bold">認証済みサークルタグ</p>
           <hr />
           <div class="mt-6">
-            <ul class="flex" v-for="display in displayClub">
-              <li>
+            <ul>
+              <li v-for="display in displayClub" class="flex">
                 <input
                   type="radio"
                   :value="{ id: `${display.value}` }"
@@ -92,8 +92,8 @@
             </div>
           </div>
           <div class="mt-3">
-            <ul class="flex" v-for="display in nondisplayClub">
-              <li>
+            <ul>
+              <li v-for="display in nondisplayClub" class="flex">
                 <input
                   type="radio"
                   :value="{ id: `${display.value}` }"
@@ -125,7 +125,6 @@
         </div>
       </div>
     </div>
-    <div></div>
 
     <!-- 管理者権限  -->
     <div class="mt-5 flex my-16">
@@ -286,15 +285,15 @@ const choseAdvent = ref(`${showAdvent.value?.id}`);
 //初期表示は現在のアドベントとして保存されているもの
 const choseEditAdvent = ref(`${showAdvent.value?.id}`);
 
-//アドベントカレンダーの保存
+//アドベントカレンダーの表示
 const registerAdvent = async () => {
-  console.log("aaa", choseAdvent.value);
-  //選択したアドベントをtrue
-  await client.from("banner").upsert({ id: choseAdvent.value, display: true });
-  //初期のアドベントをfalse
-  await client
-    .from("banner")
-    .upsert({ id: showAdvent.value?.id, display: false });
+  await useFetch("/api/advent/chooseAdvent", {
+    method: "POST",
+    body: {
+      currentAdventValue: showAdvent.value?.id,
+      newAdventValue: choseAdvent.value,
+    },
+  });
   location.reload();
 };
 
@@ -410,15 +409,14 @@ const submitOwner = async () => {
   } else {
     //ラクスメールアドレス形式のバリデーション
     if (re.test(owner.value)) {
-      const { data, error } = await client
-        .from("profiles")
-        .update({ authority: true })
-        .eq("email", owner.value)
-        .select();
-      if (data && data.length > 0) {
-        console.log("完了");
-      } else if (data && data.length === 0) {
+      const { data } = await useFetch("/api/user/ownerRegister", {
+        method: "PATCH",
+        body: { email: owner.value },
+      });
+      if (data.value === "Not Found") {
         errormsg.value = "該当のメールアドレスが見つかりません";
+      } else {
+        console.log("登録完了");
       }
     } else {
       errormsg.value = "メールアドレスの形式が不正です";
@@ -428,7 +426,10 @@ const submitOwner = async () => {
 
 //owner権限の削除
 const deleteOwner = async (id: number) => {
-  await client.from("profiles").upsert({ id: id, authority: false });
+  await useFetch("/api/user/ownerDelete", {
+    method: "PATCH",
+    body: { id: id },
+  });
 };
 </script>
 

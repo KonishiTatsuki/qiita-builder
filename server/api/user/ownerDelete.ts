@@ -3,7 +3,8 @@ import { Database } from "~/types/database.types";
 
 export default defineEventHandler(async (event) => {
   const body = await readBody(event);
-  const spabase = serverSupabaseClient(event);
-  const { data } = await spabase.from("profiles").select("*").eq("id", body);
-  return data;
+  const client = serverSupabaseClient<Database>(event);
+  await client.from("profiles").update({ authority: false }).eq("id", body.id);
+
+  return "OK";
 });

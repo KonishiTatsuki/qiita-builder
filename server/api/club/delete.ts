@@ -1,6 +1,4 @@
 import { serverSupabaseClient } from "#supabase/server";
-import { PostgrestSingleResponse } from "@supabase/supabase-js";
-import { Article } from "~/types";
 
 export default defineEventHandler(async (event) => {
   const supabase = serverSupabaseClient(event);
