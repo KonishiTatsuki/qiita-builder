@@ -163,7 +163,7 @@ jest.mock("@supabase/supabase-js", () => {
   };
 });
 
-describe('hasCheckedTags関数のテスト', () => {
+describe('hasCheckedClubs関数のテスト', () => {
     const $config = {
         public: {
           supabase: {
@@ -185,19 +185,19 @@ describe('hasCheckedTags関数のテスト', () => {
         },
     });
 
-    it('computes hasCheckedTags correctly when no tagName are checked', () => {
-        expect(wrapper.vm.hasCheckedTags).toBe(false);
+    it('computes hasCheckedClubs correctly when no clubName are checked', () => {
+        expect(wrapper.vm.hasCheckedClubs).toBe(false);
     });
 
-    it('computes hasCheckedTags correctly when some tagName are checked', () => {
-        wrapper.vm.tagName.forEach((tag)=>{
-            tag.checked = true
+    it('computes hasCheckedClubs correctly when some clubName are checked', () => {
+        wrapper.vm.clubName.forEach((club)=>{
+            club.checked = true
         })
-        expect(wrapper.vm.hasCheckedTags).toBe(true);
+        expect(wrapper.vm.hasCheckedClubs).toBe(true);
     });
 
-    it('computes hasCheckedTags correctly when all tagName are checked', () => {
-        wrapper.vm.tagName[0].checked = false;
-        expect(wrapper.vm.hasCheckedTags).toBe(true);
+    it('computes hasCheckedClubs correctly when all clubName are checked', () => {
+        wrapper.vm.clubName[0].checked = false;
+        expect(wrapper.vm.hasCheckedClubs).toBe(true);
     });
 });
