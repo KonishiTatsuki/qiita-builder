@@ -163,7 +163,7 @@ jest.mock("@supabase/supabase-js", () => {
   };
 });
 
-describe('hasCheckedTags関数のテスト', () => {
+describe('hasCheckedOccupations関数のテスト', () => {
     const $config = {
         public: {
           supabase: {
@@ -185,19 +185,19 @@ describe('hasCheckedTags関数のテスト', () => {
         },
     });
 
-    it('computes hasCheckedTags correctly when no tagName are checked', () => {
-        expect(wrapper.vm.hasCheckedTags).toBe(false);
+    it('computes hasCheckedOccupations correctly when no occupationName are checked', () => {
+        expect(wrapper.vm.hasCheckedOccupations).toBe(false);
     });
 
-    it('computes hasCheckedTags correctly when some tagName are checked', () => {
-        wrapper.vm.tagName.forEach((tag)=>{
-            tag.checked = true
+    it('computes hasCheckedOccupations correctly when some occupationName are checked', () => {
+        wrapper.vm.occupationName.forEach((occupation)=>{
+            occupation.checked = true
         })
-        expect(wrapper.vm.hasCheckedTags).toBe(true);
+        expect(wrapper.vm.hasCheckedOccupations).toBe(true);
     });
 
-    it('computes hasCheckedTags correctly when all tagName are checked', () => {
-        wrapper.vm.tagName[0].checked = false;
-        expect(wrapper.vm.hasCheckedTags).toBe(true);
+    it('computes hasCheckedOccupations correctly when all occupationName are checked', () => {
+        wrapper.vm.occupationName[0].checked = false;
+        expect(wrapper.vm.hasCheckedOccupations).toBe(true);
     });
 });

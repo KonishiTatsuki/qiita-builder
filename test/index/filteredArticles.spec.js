@@ -58,7 +58,11 @@ jest.mock("@supabase/supabase-js", () => {
         delete: false,
         occupationTagId: 1,
         title: "FRエンジニア",
-        userId: "44544c87-e8d9-4157-955d-a589a160501d"
+        userId: "44544c87-e8d9-4157-955d-a589a160501d",
+        hide: false,
+        hideByClub: false,
+        hideByOccupation: false,
+        hideByTag: false 
       },
       {
         body: "hgfhdg",
@@ -68,7 +72,11 @@ jest.mock("@supabase/supabase-js", () => {
         delete: false,
         occupationTagId: 2,
         title: "hgfhdg",
-        userId: "d72cd59b-69cc-4deb-ae19-3e56561c45b6"
+        userId: "d72cd59b-69cc-4deb-ae19-3e56561c45b6",
+        hide: false,
+        hideByClub: false,
+        hideByOccupation: false,
+        hideByTag: false
       },
       {
         body: "reactより分かりやすい\nreactより分かりやすい\n\treactより分かりやすい",
@@ -78,7 +86,11 @@ jest.mock("@supabase/supabase-js", () => {
         delete: true,
         occupationTagId: 3,
         title: "vueの好きなところ",
-        userId: "8fed9ead-52ce-4299-b1aa-159c1ad99395"
+        userId: "8fed9ead-52ce-4299-b1aa-159c1ad99395",
+        hide: false,
+        hideByClub: false,
+        hideByOccupation: false,
+        hideByTag: false
       }
     ]
   });
@@ -163,7 +175,7 @@ jest.mock("@supabase/supabase-js", () => {
   };
 });
 
-describe('hasCheckedTags関数のテスト', () => {
+describe('filteredArticles関数のテスト', () => {
     const $config = {
         public: {
           supabase: {
@@ -185,19 +197,45 @@ describe('hasCheckedTags関数のテスト', () => {
         },
     });
 
-    it('computes hasCheckedTags correctly when no tagName are checked', () => {
-        expect(wrapper.vm.hasCheckedTags).toBe(false);
-    });
+    it('チェックボックス&検索で絞り込みされた時の記事データの確認', async () => {
+        wrapper.vm.articleData[0].hide = true;
+        expect(wrapper.vm.filteredArticles[0]).toEqual({
+            body: "hgfhdg",
+            clubTagId: 9,
+            date: "2023-06-22T09:37:13+00:00",
+            id: 179,
+            delete: false,
+            occupationTagId: 2,
+            title: "hgfhdg",
+            userId: "d72cd59b-69cc-4deb-ae19-3e56561c45b6",
+            hide: false,
+            hideByClub: false,
+            hideByOccupation: false,
+            hideByTag: false,
+            image: "user2.jpg",
+            username: "user2"
+          },
+        );
 
-    it('computes hasCheckedTags correctly when some tagName are checked', () => {
-        wrapper.vm.tagName.forEach((tag)=>{
-            tag.checked = true
-        })
-        expect(wrapper.vm.hasCheckedTags).toBe(true);
-    });
-
-    it('computes hasCheckedTags correctly when all tagName are checked', () => {
-        wrapper.vm.tagName[0].checked = false;
-        expect(wrapper.vm.hasCheckedTags).toBe(true);
+        await wrapper.setData({ currentPage: 3 });
+        await wrapper.setData({ itemsPerPage: 1 });
+        wrapper.vm.articleData[0].hide = false;
+        expect(wrapper.vm.filteredArticles[0]).toEqual({
+            body: "reactより分かりやすい\nreactより分かりやすい\n\treactより分かりやすい",
+            clubTagId: 12,
+            date: "2023-06-22T09:35:48+00:00",
+            id: 178,
+            delete: true,
+            occupationTagId: 3,
+            title: "vueの好きなところ",
+            userId: "8fed9ead-52ce-4299-b1aa-159c1ad99395",
+            hide: false,
+            hideByClub: false,
+            hideByOccupation: false,
+            hideByTag: false,
+            image: "user3.jpg",
+            username: "user3"
+          },
+        );
     });
 });

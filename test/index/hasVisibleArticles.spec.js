@@ -58,7 +58,11 @@ jest.mock("@supabase/supabase-js", () => {
         delete: false,
         occupationTagId: 1,
         title: "FRエンジニア",
-        userId: "44544c87-e8d9-4157-955d-a589a160501d"
+        userId: "44544c87-e8d9-4157-955d-a589a160501d",
+        hide: false,
+        hideByClub: false,
+        hideByOccupation: false,
+        hideByTag: false 
       },
       {
         body: "hgfhdg",
@@ -68,7 +72,11 @@ jest.mock("@supabase/supabase-js", () => {
         delete: false,
         occupationTagId: 2,
         title: "hgfhdg",
-        userId: "d72cd59b-69cc-4deb-ae19-3e56561c45b6"
+        userId: "d72cd59b-69cc-4deb-ae19-3e56561c45b6",
+        hide: false,
+        hideByClub: false,
+        hideByOccupation: false,
+        hideByTag: false
       },
       {
         body: "reactより分かりやすい\nreactより分かりやすい\n\treactより分かりやすい",
@@ -78,7 +86,11 @@ jest.mock("@supabase/supabase-js", () => {
         delete: true,
         occupationTagId: 3,
         title: "vueの好きなところ",
-        userId: "8fed9ead-52ce-4299-b1aa-159c1ad99395"
+        userId: "8fed9ead-52ce-4299-b1aa-159c1ad99395",
+        hide: false,
+        hideByClub: false,
+        hideByOccupation: false,
+        hideByTag: false
       }
     ]
   });
@@ -163,7 +175,7 @@ jest.mock("@supabase/supabase-js", () => {
   };
 });
 
-describe('hasCheckedTags関数のテスト', () => {
+describe('hasVisibleArticles関数のテスト', () => {
     const $config = {
         public: {
           supabase: {
@@ -185,19 +197,19 @@ describe('hasCheckedTags関数のテスト', () => {
         },
     });
 
-    it('computes hasCheckedTags correctly when no tagName are checked', () => {
-        expect(wrapper.vm.hasCheckedTags).toBe(false);
+    it('チェックボックス&検索で絞り込みされていない時', () => {
+        expect(wrapper.vm.hasVisibleArticles).toBe(true);
     });
 
-    it('computes hasCheckedTags correctly when some tagName are checked', () => {
-        wrapper.vm.tagName.forEach((tag)=>{
-            tag.checked = true
+    it('検索で全記事絞り込まれている時', () => {
+        wrapper.vm.articleData.forEach((article)=>{
+            article.hide = true
         })
-        expect(wrapper.vm.hasCheckedTags).toBe(true);
+        expect(wrapper.vm.hasVisibleArticles).toBe(false);
     });
 
-    it('computes hasCheckedTags correctly when all tagName are checked', () => {
-        wrapper.vm.tagName[0].checked = false;
-        expect(wrapper.vm.hasCheckedTags).toBe(true);
+    it('検索で1記事だけ絞り込まれてない時', () => {
+        wrapper.vm.articleData[0].hide = false;
+        expect(wrapper.vm.hasVisibleArticles).toBe(true);
     });
 });

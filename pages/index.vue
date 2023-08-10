@@ -424,6 +424,7 @@ export default {
           article.tags.push(tag.tagId);
         }
       });
+      console.log(this.articleData);
     },
     initializeUser() {
       return new Promise((resolve, reject) => {
