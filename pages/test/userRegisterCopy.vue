@@ -1,5 +1,4 @@
 <template>
-  <div>{{ item }}</div>
   <div class="flex justify-center main">
     <div>
       <!-- <FormKit
@@ -212,11 +211,6 @@ import { useHead } from "unhead";
 
 const item = ref("あああ");
 
-const aaa = () => {
-  item.value = "いいいい";
-};
-aaa();
-
 // definePageMeta({ layout: "login" });
 useHead({
   title: "新規登録",
@@ -322,6 +316,27 @@ const submitHandler = async (credentials: Credentials) => {
 
   if (credentials.club === 0 && !credentials.addClub) {
     addClubError.value = "追加クラブ名を入力してください。";
+  }
+
+  //サインイン
+  if (errormesssage.value === "" && addClubError.value === "") {
+    await client.auth.signUp({
+      email: credentials.email,
+      password: credentials.password,
+      options: {
+        data: {
+          username: credentials.userName,
+          detail: credentials.detail,
+          email: credentials.email,
+          occupation: credentials.occupation,
+        },
+      },
+    });
+    //保存したuidを取得
+    const { data: uid } = await client
+      .from("profiles")
+      .select("id")
+      .eq("email", credentials.email);
   }
 
   //サインイン

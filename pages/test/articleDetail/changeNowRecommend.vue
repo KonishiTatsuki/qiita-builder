@@ -3,6 +3,6 @@
 </template>
 
 <script setup>
-import ChangeNowRecommend from "~/components/articlesDetail/ChangeNowRecommend.vue";
+import ChangeNowRecommend from "~/components/test/articlesDetail/ChangeNowRecommend.vue";
 </script>
   

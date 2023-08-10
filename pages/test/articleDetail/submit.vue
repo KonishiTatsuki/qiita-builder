@@ -3,5 +3,5 @@
 </template>
 
 <script setup>
-import Submit from "~/components/articlesDetail/Submit.vue";
+import Submit from "~/components/test/articlesDetail/Submit.vue";
 </script>
