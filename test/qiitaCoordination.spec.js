@@ -14,20 +14,18 @@ describe("Login", () => {
     });
     // モックの作成
     const mockResponse = { data: { message: "Success" } };
-    // jest.spyOn(axios, "post").mockResolvedValue(mrm -rf node_modulesockResponse);
     axios.post.mockResolvedValue(mockResponse); // axios.postメソッドのモックを設定
 
     const submit = {
       text: "Qwer1234",
     };
-
     const postData = {
       userId: "userId",
       qiitaToken: "accessToken",
     };
 
     const wrapper = mount(qiitaCoordination);
-    // // 必要に応じて次の行を追加
+    wrapper.vm.submit(submit);
     await wrapper.vm.$nextTick();
 
     const response = await axios.post("/api/user/qiitaTokenUpdate", {
@@ -37,16 +35,10 @@ describe("Login", () => {
     expect(axios.post).toHaveBeenCalledWith("/api/user/qiitaTokenUpdate", {
       body: postData,
     });
-
     // 成功メッセージが表示されることを確認するアサーション
     expect(response.data).toEqual({ message: "Success" });
-
     //userIdの確認
     expect(wrapper.vm.userId).toBe("sdafdsvoias");
-
-    wrapper.vm.submit(submit);
-    // // 必要に応じて次の行を追加
-    await wrapper.vm.$nextTick();
 
     // expect(wrapper.vm.successMessage).toStrictEqual(
     //   "アクセストークンを登録しました"

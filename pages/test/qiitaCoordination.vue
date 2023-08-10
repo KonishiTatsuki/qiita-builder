@@ -99,5 +99,6 @@ const submit = async (submit: { text: string }) => {
     .catch((error) => {
       console.error(error);
     });
+  console.log("confirmation", confirmation.value);
 };
 </script>

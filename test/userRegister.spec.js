@@ -117,29 +117,35 @@ describe("fetchData", () => {
 describe("selectClub", () => {
   it("selectClub", async () => {
     const wrapper = mount(userRegister);
-    await wrapper.vm.$nextTick();
+    const credential = 0;
 
-    await wrapper.vm.selectClub(credentials);
+    await wrapper.vm.$nextTick();
+    await wrapper.vm.selectClub(credential);
+    expect(wrapper.vm.othersClub).toEqual(true);
   });
 });
 
 describe("submitRegister", () => {
   it("submitRegister", async () => {
     const wrapper = mount(userRegister);
-    await wrapper.vm.$nextTick();
+    wrapper.vm.succes = true;
 
-    await wrapper.vm.selectClub();
-    expect(mockPush).toBeCalledTimes(0);
+    await wrapper.vm.$nextTick();
+    await wrapper.vm.submitRegister();
+    expect(mockPush).toBeCalledTimes(1);
+    expect(mockPush).toHaveBeenCalledWith("/");
   });
 });
 
 describe("connectQitta", () => {
   it("connectQitta", async () => {
     const wrapper = mount(userRegister);
-    await wrapper.vm.$nextTick();
+    wrapper.vm.succes = true;
 
+    await wrapper.vm.$nextTick();
     await wrapper.vm.connectQitta();
-    expect(mockPush).toBeCalledTimes(0);
+    expect(mockPush).toBeCalledTimes(2);
+    expect(mockPush).toHaveBeenCalledWith("/qiitaCoordination");
   });
 });
 
@@ -152,12 +158,3 @@ describe("connectQitta", () => {
 //     console.log(wrapper.vm.errormesssage);
 //   });
 // });
-
-describe("userRegister", () => {
-  it("fetchData method should fetch club and occupation data", async () => {
-    const wrapper = mount(userRegister);
-
-    // fetchData メソッドを実行
-    await wrapper.vm.aaa();
-  });
-});

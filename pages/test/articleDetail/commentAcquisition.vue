@@ -3,5 +3,5 @@
 </template>
 
 <script setup>
-import CommentAcquisition from "~/components/articlesDetail/CommentAcquisition.vue";
+import CommentAcquisition from "~/components/test/articlesDetail/CommentAcquisition.vue";
 </script>

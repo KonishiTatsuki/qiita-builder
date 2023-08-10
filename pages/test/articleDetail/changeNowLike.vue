@@ -3,5 +3,5 @@
 </template>
 
 <script setup>
-import ChangeNowLike from "~/components/articlesDetail/ChangeNowLike.vue";
+import ChangeNowLike from "~/components/test/articlesDetail/ChangeNowLike.vue";
 </script>
