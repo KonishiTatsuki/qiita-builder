@@ -8,9 +8,12 @@
         style="width: 100%; height: 50px"
         maxlength="255"
       />
-      <p class="text-red-500 mt-2">
-        {{ errorTitle }}
-      </p>
+      <div>
+        <span class="text-red-500 mt-2">
+          {{ errorTitle }}
+        </span>
+        <span class="block text-right">{{ title.length }}/255</span>
+      </div>
     </div>
     <div>
       <div class="mt-5">
@@ -20,10 +23,13 @@
           rows="5"
           placeholder="markdown形式で説明を記述できます。"
           maxlength="255"
-        />
-        <p class="text-red-500">
-          {{ errorContent }}
-        </p>
+        ></textarea>
+        <div>
+          <span class="text-red-500">
+            {{ errorContent }}
+          </span>
+          <span class="block text-right">{{ content.length }}/255</span>
+        </div>
       </div>
     </div>
     <div class="flex justify-around mt-8">
@@ -47,18 +53,19 @@
       <div>
         <div class="flex">
           <p>公開日</p>
-          <span class="text-xs w-40 ml-2"
-            >※設定しない場合、自動的に本日の日付が入ります。</span
+          <span class="text-xs w-32 ml-2"
+            >※選択しない場合、本日の日付が設定されます</span
           >
         </div>
         <input
           type="date"
           class="border border-black py-1 px-2 rounded-md"
-          style="width: 200px"
+          style="width: 175px"
           v-model="publishDate"
+          :min="new Date().toISOString().split('T')[0]"
         />
       </div>
-      <div class="mr-36">
+      <div class="mr-3">
         <div>
           <v-col>
             <v-combobox
@@ -144,9 +151,13 @@ async function submitHandler() {
   //バリデーションチェック
   if (title.value.length === 0) {
     errorTitle.value = "タイトルを入力してください";
+  } else if (title.value.length > 255) {
+    errorTitle.value = "タイトルを255字以内で入力してください";
   }
   if (content.value.length === 0) {
     errorContent.value = "内容を入力してください";
+  } else if (content.value.length > 255) {
+    errorContent.value = "内容を255字以内で入力してください";
   }
   select.value.map((tag: string) => {
     if (tag.length > 30) {
@@ -210,6 +221,7 @@ onMounted(async () => {
     mde = new EasyMDE({
       element: contentArea.value!.$el,
       spellChecker: false,
+      status: false,
       previewRender: (markdownPlaintext) => {
         const htmlContent = marked(markdownPlaintext);
         return `<div class="markdown-preview">${htmlContent}</div>`;
