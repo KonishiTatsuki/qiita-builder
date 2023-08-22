@@ -56,6 +56,7 @@
           class="border border-black py-1 px-2 rounded-md"
           style="width: 200px"
           v-model="publishDate"
+          :min="new Date().toISOString().split('T')[0]"
         />
       </div>
       <div class="mr-36">
@@ -210,6 +211,7 @@ onMounted(async () => {
     mde = new EasyMDE({
       element: contentArea.value!.$el,
       spellChecker: false,
+      status: false,
       previewRender: (markdownPlaintext) => {
         const htmlContent = marked(markdownPlaintext);
         return `<div class="markdown-preview">${htmlContent}</div>`;
