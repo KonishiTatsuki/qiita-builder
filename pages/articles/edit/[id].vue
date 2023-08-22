@@ -31,10 +31,14 @@
         placeholder="タイトル"
         v-model="title"
         style="width: 100%; height: 50px"
+        maxlength="255"
       />
-      <p class="text-red-500 mt-2">
-        {{ errorTitle }}
-      </p>
+      <div>
+        <span class="text-red-500 mt-2">
+          {{ errorTitle }}
+        </span>
+        <span class="block text-right">{{ title.length }}/255</span>
+      </div>
     </div>
     <div>
       <div class="mt-5">
@@ -43,11 +47,14 @@
           v-model="content"
           rows="5"
           placeholder="markdown形式で説明を記述できます。"
-          maxlength="300"
+          maxlength="255"
         />
-        <p class="text-red-500">
-          {{ errorContent }}
-        </p>
+        <div>
+          <span class="text-red-500">
+            {{ errorContent }}
+          </span>
+          <span class="block text-right">{{ content.length }}/255</span>
+        </div>
       </div>
     </div>
     <div class="flex justify-around mt-5">
@@ -71,11 +78,12 @@
         <input
           type="date"
           class="border border-black py-1 px-2 rounded-md"
-          style="width: 200px"
+          style="width: 175px"
           v-model="publishDate"
+          :min="initialPubDate"
         />
       </div>
-      <div class="mr-36">
+      <div class="mr-3">
         <div>
           <v-col>
             <v-combobox
@@ -131,6 +139,7 @@ const title = ref(data.value?.article[0].title);
 const select = ref(data.value?.tag);
 const goalLike = ref(data.value?.article[0].goalLike);
 const publishDate = ref(data.value?.article[0].publishDate);
+const initialPubDate = ref(data.value?.article[0].publishDate);
 const dialog = ref(false);
 const router = useRouter();
 let errorTitle = ref("");
@@ -170,9 +179,13 @@ const submitHandler = async () => {
   //バリデーションチェック
   if (title.value?.length === 0) {
     errorTitle.value = "タイトルを入力してください";
+  } else if (title.value.length > 255) {
+    errorTitle.value = "タイトルを255字以内で入力してください";
   }
   if (content.value?.length === 0) {
     errorContent.value = "内容を入力してください";
+  } else if (content.value.length > 255) {
+    errorContent.value = "内容を255字以内で入力してください";
   }
   select.value?.map((tag: string) => {
     if (tag.length > 30) {
@@ -230,6 +243,7 @@ onMounted(async () => {
   mde = new EasyMDE({
     element: contentArea.value!.$el,
     spellChecker: false,
+    status: false,
     previewRender: (markdownPlaintext) => {
       const htmlContent = marked(markdownPlaintext);
       return `<div class="markdown-preview">${htmlContent}</div>`;
