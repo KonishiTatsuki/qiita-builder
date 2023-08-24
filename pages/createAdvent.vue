@@ -15,6 +15,9 @@
           class="border border-blue-500 w-96"
         />
         <div id="charCount" class="mt-4 mr-2">{{ adventName.length }}/255</div>
+        <p class="text-red-500">
+          {{ errorTitle }}
+        </p>
       </div>
     </div>
     <div class="mb-10">
@@ -33,6 +36,9 @@
         ></textarea>
         <div id="charCount" class="mt-4 mr-2">{{ description.length }}/255</div>
       </div>
+      <p class="text-red-500">
+        {{ errorContent }}
+      </p>
     </div>
 
     <div class="mb-10">
@@ -40,7 +46,13 @@
         <h2 class="text-2xl">期間</h2>
         <span class="text-xs text-red-500">(必須)</span>
       </div>
-      <VueDatePicker v-model="date" locale="ja" :format="format" range />
+      <VueDatePicker
+        v-model="date"
+        locale="ja"
+        :format="format"
+        :minDate="minDate"
+        range
+      />
       <p class="text-red-500">{{ errorDate }}</p>
     </div>
 
@@ -76,6 +88,12 @@ const description = ref("");
 const date = ref([]);
 const fileInput = ref();
 const format = "yyyy/MM/dd";
+const minDate = ref("");
+
+onMounted(() => {
+  const today = new Date();
+  minDate.value = today.toISOString().split("T")[0];
+});
 
 // supabaseにデータを送信する
 

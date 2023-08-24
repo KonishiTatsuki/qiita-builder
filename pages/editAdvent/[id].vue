@@ -25,7 +25,13 @@
       {{ errorContent }}
     </p>
     <h2 class="subtitle">期間</h2>
-    <VueDatePicker v-model="date" locale="ja" :format="format" range />
+    <VueDatePicker
+      v-model="date"
+      locale="ja"
+      :format="format"
+      :min-date="calculateMinStartDate()"
+      range
+    />
     <p class="text-red-500">
       {{ errorDate }}
     </p>
@@ -63,6 +69,14 @@ let errorContent = ref("");
 let errorDate = ref("");
 const errorMsg = ref("");
 const format = "yyyy/MM/dd";
+
+const calculateMinStartDate = () => {
+  if (date.value[0]) {
+    const minStartDate = dayjs(date.value[0]).toDate();
+    return minStartDate;
+  }
+  return null;
+};
 
 const { data: advent } = await client
   .from("banner")
