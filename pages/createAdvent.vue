@@ -16,9 +16,6 @@
         />
         <div id="charCount" class="mt-4 mr-2">{{ adventName.length }}/255</div>
       </div>
-      <p class="text-red-500">
-        {{ errorTitle }}
-      </p>
     </div>
     <div class="mb-10">
       <div class="flex">
@@ -36,9 +33,6 @@
         ></textarea>
         <div id="charCount" class="mt-4 mr-2">{{ description.length }}/255</div>
       </div>
-      <p class="text-red-500">
-        {{ errorContent }}
-      </p>
     </div>
 
     <div class="mb-10">
@@ -77,12 +71,10 @@ const errorContent = ref("");
 const errorDate = ref("");
 const errorImage = ref("");
 const errorMsg = ref("");
-const user = useSupabaseUser();
 const adventName = ref("");
 const description = ref("");
 const date = ref([]);
 const fileInput = ref();
-
 const format = "yyyy/MM/dd";
 
 // supabaseにデータを送信する
