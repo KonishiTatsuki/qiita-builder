@@ -41,7 +41,7 @@ useHead({
   title: "アドベントカレンダー記事投稿",
 });
 // 取得したuserIdを使って、articleテーブルからuserIdが一致するものを取得してタイ
-import { ref, onMounted, computed } from "vue";
+import { ref, onMounted } from "vue";
 import { useRoute, useRouter } from "vue-router";
 
 import dayjs from "dayjs";
@@ -64,9 +64,6 @@ onMounted(async () => {
   bannerId.value = route.params.bannerId;
   date.value = route.params.date;
 
-  console.log("bannerIdの結果", bannerId.value);
-  console.log("selectDateの結果", date.value);
-
   const { data: userArticles } = await supabase
     .from("article")
     .select("*")
@@ -74,7 +71,6 @@ onMounted(async () => {
     .eq("publish", true)
     .eq("delete", false);
   articles.value = userArticles;
-  console.log("articles", userArticles);
 
   const { data: matchingArticles, error } = await supabase
     .from("article")
@@ -88,7 +84,6 @@ onMounted(async () => {
     console.log("マッチした記事のフェッチにエラーが出ました：", error);
   } else {
     othersArticle.value = matchingArticles;
-    console.log("matchingArticles", matchingArticles);
   }
 });
 
@@ -127,20 +122,4 @@ const submitHandler = async () => {
   // ページをリロードする
   router.back();
 };
-const deleteHandler = async () => {
-  const { data: articleId } = await supabase
-    .from("article")
-    .select("id")
-    .eq("userId", userId)
-    .eq("id", selectedArticleId.value);
-
-  const { data, error } = await supabase
-    .from("article")
-    .update({ bannerId: null })
-    .eq("id", articleId[0].id);
-  console.log("data", data);
-  console.log("error", error);
-};
-
-console.log("selectedArticle", selectedArticleId.value);
 </script>
