@@ -27,12 +27,6 @@
               }"
             />
           </div>
-          <p v-if="!errorMessage && !successMessage" class="text-red-500">
-            　　　
-          </p>
-          <p v-else-if="errorMessage" class="text-red-500">
-            {{ errorMessage }}
-          </p>
           <NuxtLink to="/" class="mr-5">
             <button
               type=""
@@ -42,9 +36,7 @@
             </button></NuxtLink
           >
           <button type="submit" class="btn mb-5">登録</button>
-          <p v-if="successMessage">
-            {{ successMessage }}
-          </p>
+          <p class="text-red-500">{{ message }}</p>
         </FormKit>
       </div>
     </div>
@@ -60,13 +52,14 @@ const router = useRouter();
 const supabase = useSupabaseClient();
 const user = useSupabaseUser();
 const text = ref("");
-const successMessage = ref("");
-const errorMessage = ref("");
+// const successMessage = ref("");
+// const errorMessage = ref("");
+const message = ref("　");
 let confirmation = "";
 const userId = user.value?.id;
 
 const submit = async (submit: { text: string }) => {
-  errorMessage.value = "";
+  message.value = "　";
   const accessToken = submit.text;
 
   fetch("https://qiita.com/api/v2/authenticated_user", {
@@ -86,10 +79,10 @@ const submit = async (submit: { text: string }) => {
           method: "POST",
           body: postData,
         });
-        errorMessage.value = "";
-        successMessage.value = "アクセストークンを登録しました";
+        message.value = "　";
+        message.value = "アクセストークンを登録しました";
       } else {
-        errorMessage.value = "アクセストークンが存在しません";
+        message.value = "アクセストークンが存在しません";
       }
     })
     .catch((error) => {
