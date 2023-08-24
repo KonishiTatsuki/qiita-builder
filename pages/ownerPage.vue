@@ -91,6 +91,7 @@
               <button class="ml-2 p-1 btn" @click="addNewClub">追加</button>
             </div>
           </div>
+          <div class="text-red-500 m-2">{{ msgForaddClub }}</div>
           <div class="mt-3">
             <ul>
               <li v-for="display in nondisplayClub" class="flex">
@@ -104,9 +105,12 @@
             </ul>
           </div>
           <div class="text-red-500">{{ msgForaddDisplayClub }}</div>
+          <div class="text-red-500">{{ msgForDeleteClub }}</div>
           <div class="flex justify-end">
             <div class="mr-2">
-              <button class="btn p-1" @click="clubModal = true">削除</button>
+              <button class="btn p-1" @click="displayModalDeleteClub">
+                削除
+              </button>
             </div>
             <Teleport to="body">
               <div v-if="clubModal" class="modal">
@@ -116,7 +120,6 @@
                     No
                   </button>
                   <button @click="deleteClub" class="btn">Yes</button>
-                  <div class="text-red-500">{{ msgForDeleteClub }}</div>
                 </div>
               </div>
             </Teleport>
@@ -198,6 +201,7 @@
 import { Club, Profile } from "~/types";
 import { Database } from "~/types/database.types";
 import { createClient } from "@supabase/supabase-js";
+import newClub from "~/server/api/club/newClub";
 
 const runtimeConfig = useRuntimeConfig();
 const supabase = createClient(
@@ -318,6 +322,7 @@ const addDisplayClub = ref();
 const msgForaddDisplayClub = ref();
 const msgForaddnonDisplayClub = ref();
 const msgForDeleteClub = ref();
+const msgForaddClub = ref();
 const addnonDisplayClub = ref();
 
 //　サークル一覧
@@ -355,29 +360,36 @@ const nonDisplay = async () => {
   }
 };
 
-//表示するサークルの削除
-const deleteClub = async () => {
+// サークルの削除可否のモーダルを表示
+const displayModalDeleteClub = async () => {
   if (addDisplayClub.value === undefined) {
     msgForDeleteClub.value = "サークルを選択してください";
   } else {
-    const deleteClubId = addDisplayClub.value.id;
-    await useFetch(`/api/club/delete?clubid=${deleteClubId}`);
+    msgForDeleteClub.value = "";
+    clubModal.value = true;
   }
+};
+
+//サークルの削除
+const deleteClub = async () => {
+  const deleteClubId = addDisplayClub.value.id;
+  await useFetch(`/api/club/delete?clubid=${deleteClubId}`);
 };
 
 //新規クラブの追加
 const addNewClub = async () => {
+  newclub.value = newclub.value.trim();
   if (!newclub.value) {
-    msgForaddDisplayClub.value = "追加するサークル名を入力してください";
+    msgForaddClub.value = "追加するサークル名を入力してください";
   } else if (newclub.value.length > 30) {
-    msgForaddDisplayClub.value = "30字以内で入力してください";
+    msgForaddClub.value = "30字以内で入力してください";
   } else {
     const { data: response } = await useFetch("/api/club/newClub", {
       method: "POST",
       body: { newclub: newclub.value },
     });
     if (response.value === "登録済み") {
-      msgForaddDisplayClub.value = "このサークルは既に登録されています";
+      msgForaddClub.value = "このサークルは既に登録されています";
     }
   }
 };

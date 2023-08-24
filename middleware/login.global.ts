@@ -32,7 +32,7 @@ export default defineNuxtRouteMiddleware(async (to, from) => {
         .eq("id", userId);
       //authorityがfalseの時はindexへ
       if (!authority[0].authority) {
-        return navigateTo("/");
+        return navigateTo("/managerAuthorityError");
       }
     } else if (to.path === passwordForget) {
       return navigateTo("/");
