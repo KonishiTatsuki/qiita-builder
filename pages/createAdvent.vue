@@ -15,6 +15,9 @@
           class="border border-blue-500 w-96"
         />
         <div id="charCount" class="mt-4 mr-2">{{ adventName.length }}/255</div>
+        <p class="text-red-500">
+          {{ errorTitle }}
+        </p>
       </div>
     </div>
     <div class="mb-10">
@@ -33,6 +36,9 @@
         ></textarea>
         <div id="charCount" class="mt-4 mr-2">{{ description.length }}/255</div>
       </div>
+      <p class="text-red-500">
+        {{ errorContent }}
+      </p>
     </div>
 
     <div class="mb-10">
