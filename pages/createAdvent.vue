@@ -6,33 +6,33 @@
         <h2 class="text-2xl">題名</h2>
         <span class="text-xs text-red-500">(必須)</span>
       </div>
-      <input
-        v-model="adventName"
-        maxlength="255"
-        type="text"
-        name="title"
-        class="border border-blue-500 w-96"
-      />
-      <p class="text-red-500">
-        {{ errorTitle }}
-      </p>
+      <div>
+        <input
+          v-model="adventName"
+          maxlength="255"
+          type="text"
+          name="title"
+          class="border border-blue-500 w-96"
+        />
+        <div id="charCount" class="mt-4 mr-2">{{ adventName.length }}/255</div>
+      </div>
     </div>
     <div class="mb-10">
       <div class="flex">
         <h2 class="text-2xl">説明</h2>
         <span class="text-xs text-red-500">(必須)</span>
       </div>
-      <textarea
-        v-model="description"
-        name="body"
-        cols="100"
-        rows="7"
-        maxlength="255"
-        class="border border-blue-500"
-      ></textarea>
-      <p class="text-red-500">
-        {{ errorContent }}
-      </p>
+      <div>
+        <textarea
+          v-model="description"
+          name="body"
+          cols="100"
+          rows="7"
+          maxlength="255"
+          class="border border-blue-500"
+        ></textarea>
+        <div id="charCount" class="mt-4 mr-2">{{ description.length }}/255</div>
+      </div>
     </div>
 
     <div class="mb-10">
@@ -66,17 +66,15 @@ import "@vuepic/vue-datepicker/dist/main.css";
 
 const router = useRouter();
 const supabase = useSupabaseClient();
-let errorTitle = ref("");
-let errorContent = ref("");
-let errorDate = ref("");
-let errorImage = ref("");
+const errorTitle = ref("");
+const errorContent = ref("");
+const errorDate = ref("");
+const errorImage = ref("");
 const errorMsg = ref("");
-const user = useSupabaseUser();
 const adventName = ref("");
 const description = ref("");
 const date = ref([]);
 const fileInput = ref();
-
 const format = "yyyy/MM/dd";
 
 // supabaseにデータを送信する
