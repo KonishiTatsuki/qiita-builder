@@ -203,6 +203,7 @@
 import { submitForm } from "@formkit/core";
 import { Occupation, Club } from "~/types";
 import { Database } from "~/types/database.types";
+import axios from "axios";
 
 definePageMeta({ layout: "login" });
 useHead({
@@ -217,9 +218,13 @@ type useOccupation = {
   label: string;
   value: number;
 };
+
 const errormesssage = ref("");
 const addClubError = ref("");
-const club: useClub[] = [{ label: "その他", value: 0 }];
+const club: useClub[] = [
+  { label: "その他", value: 0 },
+  { label: "所属なし", value: null },
+];
 const occupation: useOccupation[] = [];
 const othersClub = ref(false);
 const { data: clubb } = await useFetch("/api/club/get");
@@ -278,7 +283,7 @@ const submitHandler = async (credentials: Credentials) => {
   let clubId = credentials.club;
   errormesssage.value = "";
   addClubError.value = "";
-
+  const trimmedAddClub = ref("");
   const { data: correctMaill } = await client
     .from("profiles")
     .select("*")
@@ -287,75 +292,83 @@ const submitHandler = async (credentials: Credentials) => {
   if (!(correctMaill?.length === 0)) {
     errormesssage.value = "既に登録されているメールアドレスです。";
   }
-
-  if (credentials.club === 0 && !credentials.addClub) {
-    addClubError.value = "追加クラブ名を入力してください。";
+  // スペースを取り除く
+  if (credentials.addClub) {
+    trimmedAddClub.value = credentials.addClub.replace(/\s+/g, "");
   }
-
   //サインイン
-  if (errormesssage.value === "" && addClubError.value === "") {
-    await client.auth.signUp({
-      email: credentials.email,
-      password: credentials.password,
-      options: {
-        data: {
-          username: credentials.userName,
-          detail: credentials.detail,
-          email: credentials.email,
-          occupation: credentials.occupation,
-        },
-      },
+  if (errormesssage.value === "") {
+    //サークル登録
+    const { data: response } = await axios.post("/api/club/newClub", {
+      newclub: trimmedAddClub.value,
     });
-    //保存したuidを取得
-    const { data: uid } = await client
-      .from("profiles")
-      .select("id")
-      .eq("email", credentials.email);
-
-    if (credentials.addClub) {
-      //追加クラブをdisplay:falseで登録
-      await client.from("club").insert({
-        clubName: credentials.addClub,
+    if (
+      response === "登録完了" ||
+      (response === "登録済み" && !credentials.addClub)
+    ) {
+      //ユーザー情報登録(Authentication)
+      await client.auth.signUp({
+        email: credentials.email,
+        password: credentials.password,
+        options: {
+          data: {
+            username: credentials.userName,
+            detail: credentials.detail,
+            email: credentials.email,
+            occupation: credentials.occupation,
+          },
+        },
       });
-      const { data } = await client
-        .from("club")
+      //保存したuidを取得
+      const { data: uid } = await client
+        .from("profiles")
         .select("id")
-        .eq("clubName", credentials.addClub);
+        .eq("email", credentials.email);
 
-      if (data !== null) {
-        clubId = data[0].id;
+      if (credentials.addClub) {
+        const { data } = await client
+          .from("club")
+          .select("id")
+          .eq("clubName", trimmedAddClub.value);
+
+        if (data !== null) {
+          clubId = data[0].id;
+        }
       }
-    }
-    if (!(credentials.file.length === 0)) {
-      //アイコン画像を保存
-      const file = credentials.file[0].file; // 選択された画像を取得
-      const filePath = `${uid[0].id}`; // 画像の保存先のpathを指定
-      //画像をstorageに保存
-      const { error: avatarerror } = await client.storage
-        .from("avatars")
-        .upload(filePath, file);
-      //画像のpathを取得
-      const { data } = client.storage.from("avatars").getPublicUrl(filePath);
-      const imageUrl = data.publicUrl;
+      if (!(credentials.file.length === 0)) {
+        //アイコン画像を保存
+        const file = credentials.file[0].file; // 選択された画像を取得
+        const filePath = `${uid[0].id}`; // 画像の保存先のpathを指定
+        //画像をstorageに保存
+        const { error: avatarerror } = await client.storage
+          .from("avatars")
+          .upload(filePath, file);
+        //画像のpathを取得
+        const { data } = client.storage.from("avatars").getPublicUrl(filePath);
+        const imageUrl = data.publicUrl;
+        const { error } = await client.from("profiles").upsert({
+          id: uid[0].id,
+          image: imageUrl,
+          clubid: clubId,
+        });
 
-      const { error } = await client.from("profiles").upsert({
-        id: uid[0].id,
-        image: imageUrl,
-        clubid: clubId,
-      });
-
-      if (!error) {
-        succes.value = true;
+        if (!error) {
+          succes.value = true;
+        }
+      } else {
+        const { error } = await client.from("profiles").upsert({
+          id: uid[0].id,
+          clubid: clubId,
+        });
+        if (!error) {
+          succes.value = true;
+        }
       }
     } else {
-      const { error } = await client.from("profiles").upsert({
-        id: uid[0].id,
-
-        clubid: clubId,
-      });
-
-      if (!error) {
-        succes.value = true;
+      if (credentials.club === 0 && trimmedAddClub.value.length <= 0) {
+        addClubError.value = "追加クラブ名を入力してください。";
+      } else {
+        addClubError.value = "すでに登録されているサークルです";
       }
     }
   }

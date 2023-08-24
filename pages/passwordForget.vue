@@ -34,9 +34,7 @@
                 <button class="btn">送信</button>
               </div>
               <p>上記メールアドレスに再設定用のURLを送付します。</p>
-              <!-- <p v-if="success" class="text-red-500">{{ success }}</p>
-              <p v-else-if="errors" class="text-red-500">{{ errors }}</p>
-              <p v-else>上記メールアドレスに再設定用のURLを送付します。</p> -->
+              <p class="text-red-500">{{ message }}</p>
             </FormKit>
           </div>
         </div>
@@ -46,34 +44,39 @@
 </template>
 
 <script setup lang="ts">
+import { Database } from "~/types/database.types";
 useHead({
   title: "パスワード再設定用メール送信",
 });
 
 const router = useRouter();
-const supabase = useSupabaseClient();
-
+const client = useSupabaseClient<Database>();
 const email = ref("");
-const errors = ref("");
-const success = ref("");
+const message = ref("　　");
+const user = useSupabaseUser();
+
+definePageMeta({ layout: "login" });
 
 const submit = async (submit: { email: string }) => {
-  const { data, error } = await supabase.auth.resetPasswordForEmail(
-    submit.email,
-    {
-      redirectTo: "http://localhost:3000/passwordReset",
+  try {
+    const { data: correctMail, error } = await client
+      .from("profiles")
+      .select("*")
+      .eq("email", submit.email);
+
+    if (error) {
+      // エラーが発生した場合の処理
+      console.error("データ取得中にエラーが発生しました:", error);
+    } else {
+      // エラーが発生しなかった場合の処理
+      if (correctMail.length > 0) {
+        message.value = "メールを送信しました。";
+      } else {
+        message.value = "そのメールアドレスは登録されていません";
+      }
     }
-  );
-  // console.log(data);
-  // if (data !== null) {
-  //   console.log(Object.keys(data).length);
-  //   console.log("error", error);
-  // }
-  // // if (error === null) {
-  // //   console.log("error", error);
-  // //   errors.value = "メールアドレスが登録されていません。";
-  // // } else{
-  // //   success.value = "メールを送信しました。";
-  // // }
+  } catch (e) {
+    console.error("予期しないエラーが発生しました:", e);
+  }
 };
 </script>
