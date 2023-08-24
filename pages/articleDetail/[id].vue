@@ -364,9 +364,9 @@ if (recommendUsers.value[0]) {
 const countRecommend = async (e) => {
   showRecommendButton.value = !showRecommendButton.value;
   if (showRecommendButton.value === true) {
-    //いいね数を追加
+    //おすすめ数を追加
     await supabase.from("recommend").insert({ userId, articleId });
-    nowRecommend.value = nowRecommend.value + 1;
+    // nowRecommend.value = nowRecommend.value + 1;
   } else {
     //おすすめ数を削除する
     await supabase
@@ -374,11 +374,11 @@ const countRecommend = async (e) => {
       .delete()
       .eq("userId", userId)
       .eq("articleId", articleId);
-    nowRecommend.value = nowRecommend.value - 1;
+    // nowRecommend.value = nowRecommend.value - 1;
   }
 };
 
-//リアルタイムでいいね数を取得
+//リアルタイムでおすすめ数を取得
 const nowRecommendcount = async function () {
   // おすすめ数取得;
   const { data: recommends } = await useFetch("/api/recommend/articleGet", {
@@ -467,7 +467,7 @@ const countLike = async (e) => {
   if (showLikeButton.value === true) {
     //いいね数を追加
     await supabase.from("like").insert({ userId, articleId });
-    nowLike.value = nowLike.value + 1;
+    // nowLike.value = nowLike.value + 1;
   } else {
     //いいね数を削除する
     await supabase
@@ -475,7 +475,7 @@ const countLike = async (e) => {
       .delete()
       .eq("userId", userId)
       .eq("articleId", articleId);
-    nowLike.value = nowLike.value - 1;
+    // nowLike.value = nowLike.value - 1;
   }
 };
 
@@ -563,7 +563,13 @@ const nowLikecount = async function () {
     }
   } else {
     showLikeButton.value = false;
-    goalLike.value = articleDataGoalLike - nowLike.value;
+    if (
+      !(
+        articleData.value.goalLike === null || articleData.value.goalLike === ""
+      )
+    ) {
+      goalLike.value = articleDataGoalLike - nowLike.value;
+    }
   }
 };
 const supabaseLike = supabase
