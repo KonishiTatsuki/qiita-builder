@@ -1,6 +1,11 @@
 <template>
   <div class="flex main">
-    <div class="flex-auto my-auto">
+    <!-- ローディング画面 -->
+    <div v-if="isLoading" class="loading-screen">
+      <div class="loader"></div>
+      <p>Loading...</p>
+    </div>
+    <div v-else class="flex-auto my-auto">
       <div class="flex justify-center">
         <div class="text-center">
           <h1 class="title">パスワード再設定</h1>
@@ -67,11 +72,11 @@ useHead({
   title: "パスワード再設定",
 });
 
+const isLoading = ref(true);
 const router = useRouter();
 const route = useRoute();
 const supabase = useSupabaseClient();
 const users = useSupabaseUser();
-
 const email = ref("");
 const password = ref("");
 const success = ref("");
@@ -80,10 +85,11 @@ const userId = ref("");
 if (users.value) {
   console.log("ログイン");
   userId.value = users.value.id;
-  definePageMeta({ layout: "login" });
-} else {
+  isLoading.value = false;
+} else if (users.value === null) {
   console.log("ログアウト");
-  definePageMeta({ layout: "default" });
+  router.push({ path: "/passwordForget" });
+  definePageMeta({ layout: "login" });
 }
 
 const submit = async (submit: { password: string }) => {
@@ -94,8 +100,40 @@ const submit = async (submit: { password: string }) => {
     success.value = "パスワードを再設定しました。";
     await new Promise((r) => setTimeout(r, 1500));
     router.push({ path: "/login" });
-  } else {
-    router.push({ path: "/passwordForget" });
   }
 };
 </script>
+
+<style>
+/* ローディング画面のスタイル（CSSを適切にカスタマイズしてください） */
+.loading-screen {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(255, 255, 255, 0.8); /* 半透明の背景 */
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+.loader {
+  border: 4px solid #f3f3f3; /* ローディングアイコンのスタイル */
+  border-top: 4px solid #3498db;
+  border-radius: 50%;
+  width: 50px;
+  height: 50px;
+  animation: spin 2s linear infinite;
+}
+
+@keyframes spin {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
+</style>

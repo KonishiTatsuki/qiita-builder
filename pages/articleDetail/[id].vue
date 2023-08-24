@@ -63,21 +63,34 @@
         </div>
 
         <div class="flex justify-end space-x-4">
-          <LikeButton
-            :userId="userId"
-            :articleId="Number(articleId)"
-            :showLikeButton="showLikeButton"
-            :nowLike="nowLike"
-            :goalLike="goalLike"
-            @eventEmit="ChangeNowLike"
-          />
-          <RecommendButton
-            :userId="userId"
-            :articleId="Number(articleId)"
-            :showRecommendButton="showRecommendButton"
-            :nowRecommend="nowRecommend"
-            @eventEmit="ChangeNowRecommend"
-          />
+          <button
+            @click="countLike(e)"
+            v-if="!showLikeButton"
+            class="bg-white border-indigo-700 px-4 py-2 rounded-md text-base border hover:text-gray-900"
+          >
+            いいね！
+          </button>
+          <button
+            @click="countLike(e)"
+            v-else
+            class="bg-red-500 px-4 py-2 rounded-md text-base text-white border hover:text-gray-900"
+          >
+            いいね！
+          </button>
+          <button
+            @click="countRecommend(e)"
+            v-if="!showRecommendButton"
+            class="bg-white border-indigo-700 px-4 py-2 rounded-md text-base border hover:text-gray-900"
+          >
+            おすすめ
+          </button>
+          <button
+            @click="countRecommend(e)"
+            v-else
+            class="bg-[#1D8EB9] px-4 py-2 rounded-md text-base text-white border hover:text-gray-900"
+          >
+            おすすめ
+          </button>
         </div>
       </div>
 
@@ -141,7 +154,8 @@
           maxlength="255"
           oninput="document.getElementById('charCount').textContent = this.value.length + '/255'"
         ></textarea>
-        <p v-if="errorText" class="text-red-500">コメントを入力してください</p>
+        <!-- <p v-if="errorText" class="text-red-500">コメントを入力してください</p> -->
+        <p class="text-red-500">{{ commentErrorText }}</p>
         <div class="flex mt-3">
           <div id="charCount" class="mt-4 mr-2">0/255</div>
           <button type="submit" class="btn">送信</button>
@@ -235,6 +249,7 @@ const goalLikeSuccess = ref("");
 
 //コメント文字数制限
 const errorText = ref(false);
+const commentErrorText = ref("　　　");
 
 //ユーザーIdを取得
 let userId = "";
@@ -333,22 +348,91 @@ const { data: recommends } = await useFetch("/api/recommend/articleGet", {
 });
 //おすすめ数取得
 nowRecommend.value = recommends.value.length;
-
-//おすすめボタンクリック済みか確認
+// ユーザーがおすすめしているかどうかの確認
 const { data: recommendUsers } = await useFetch("/api/recommend/get", {
   method: "POST",
   body: { articleId, userId },
 });
+//おすすめボタン色の切り替え
 if (recommendUsers.value[0]) {
   showRecommendButton.value = true;
+} else {
+  showRecommendButton.value = false;
 }
 
-const ChangeNowRecommend = (val) => {
-  nowRecommend.value = val.nowRecommend;
+/////////////おすすめボタンをクリックした時//////////////
+const countRecommend = async (e) => {
+  showRecommendButton.value = !showRecommendButton.value;
+  if (showRecommendButton.value === true) {
+    //いいね数を追加
+    await supabase.from("recommend").insert({ userId, articleId });
+    nowRecommend.value = nowRecommend.value + 1;
+  } else {
+    //おすすめ数を削除する
+    await supabase
+      .from("recommend")
+      .delete()
+      .eq("userId", userId)
+      .eq("articleId", articleId);
+    nowRecommend.value = nowRecommend.value - 1;
+  }
 };
 
-//　　　　　　　いいね数表示機能　　　　　　　　　　//
+//リアルタイムでいいね数を取得
+const nowRecommendcount = async function () {
+  // おすすめ数取得;
+  const { data: recommends } = await useFetch("/api/recommend/articleGet", {
+    method: "POST",
+    body: articleId,
+  });
+  //おすすめ数取得
+  nowRecommend.value = recommends.value.length;
+  // ユーザーがおすすめしているかどうかの確認
+  const { data: recommendUsers } = await useFetch("/api/recommend/get", {
+    method: "POST",
+    body: { articleId, userId },
+  });
+  //おすすめボタン色の切り替え
+  if (recommendUsers.value[0]) {
+    showRecommendButton.value = true;
+  } else {
+    showRecommendButton.value = false;
+  }
+};
+
+const supabaseRecommend = supabase
+  .channel("recommend")
+  .on(
+    "postgres_changes",
+    {
+      event: "*",
+      schema: "public",
+      table: "recommend",
+    },
+    async (payload) => {
+      nowRecommendcount();
+    }
+  )
+  .subscribe();
+
+// //　　　　　　　いいね数表示機能　　　　　　　　　　//
 const showLikeButton = ref(false);
+//////////////ページ表示時の処理//////////////
+// 表示いいね数の取得
+const { data: likes } = await useFetch("/api/like/likeNumberGet", {
+  method: "POST",
+  body: articleId,
+});
+nowLike.value = likes.value.length;
+// ユーザーがいいねしているかどうかの確認
+const { data: likeschecks } = await useFetch("/api/like/likeCheckGet", {
+  method: "POST",
+  body: { userId, articleId },
+});
+//いいねボタン色の切り替え
+if (likeschecks.value[0]) {
+  showLikeButton.value = true;
+}
 //Qiita投稿に必要な情報取得
 const articleQiitaToken = articleUsers.value.qiitaToken;
 const articleBody = articleData.value.body;
@@ -357,25 +441,11 @@ const articleQiitaPost = articleData.value.qiitaPost;
 const articleTag = Object.keys(tagNames.value).map((key) => {
   return { name: tagNames.value[key] };
 });
-// いいね数の取得
-const { data: likes } = await useFetch("/api/like/likeNumberGet", {
-  method: "POST",
-  body: articleId,
-});
-//いいね数の表示
-nowLike.value = likes.value.length;
-
-// ユーザーがいいねしているかどうかの確認
-const { data: likeschecks } = await useFetch("/api/like/likeCheckGet", {
-  method: "POST",
-  body: { userId, articleId },
-});
-if (likeschecks.value[0]) {
-  showLikeButton.value = true;
-}
+//Qiita投稿済みかどうか確認
+const qiitaPostCheck = ref(articleData.value.qiitaPost);
 //記事の目標いいね取得
 const articleDataGoalLike = Number(articleData.value.goalLike);
-//記事がQiitaに投稿するか確認
+//目標いいねの表示切り替え
 if (articleData.value.goalLike === null || articleData.value.goalLike === "") {
   goalLike.value = null;
 } else {
@@ -391,15 +461,37 @@ if (articleData.value.goalLike === null || articleData.value.goalLike === "") {
   }
 }
 
-//Qiita投稿済みかどうか確認
-const qiitaPostCheck = ref(articleData.value.qiitaPost);
+//////////////いいねボタンをクリックした時//////////////
+const countLike = async (e) => {
+  showLikeButton.value = !showLikeButton.value;
+  if (showLikeButton.value === true) {
+    //いいね数を追加
+    await supabase.from("like").insert({ userId, articleId });
+    nowLike.value = nowLike.value + 1;
+  } else {
+    //いいね数を削除する
+    await supabase
+      .from("like")
+      .delete()
+      .eq("userId", userId)
+      .eq("articleId", articleId);
+    nowLike.value = nowLike.value - 1;
+  }
+};
 
-//いいねボタンをクリックした時の処理
-const ChangeNowLike = async (val) => {
-  //クリックによるいいね数の変更
-  nowLike.value = val.nowLike;
-
-  //記事がQiita投稿済みかどうか確認
+//リアルタイムでいいね数を取得
+const nowLikecount = async function () {
+  // ユーザーがいいねしているかどうかの確認
+  const { data: realTimeLike } = await useFetch("/api/like/likeCheckGet", {
+    method: "POST",
+    body: { userId, articleId },
+  });
+  // いいね数の取得
+  const { data: realTimeLikes } = await useFetch("/api/like/likeNumberGet", {
+    method: "POST",
+    body: articleId,
+  });
+  //記事情報取得(Qiita投稿済みかどうか確認)
   const { data: qiitaPostItem } = await useFetch(
     "/api/article/articleDateGet",
     {
@@ -408,65 +500,86 @@ const ChangeNowLike = async (val) => {
     }
   );
   await new Promise((r) => setTimeout(r, 100));
-
-  //目標いいねをせているか確認
-  if (
-    qiitaPostItem.value[0].goalLike === null ||
-    qiitaPostItem.value[0].goalLike === ""
-  ) {
-    goalLike.value = null;
-  } else {
+  //いいね数の表示
+  nowLike.value = realTimeLikes.value.length;
+  if (realTimeLike.value[0]) {
+    showLikeButton.value = true;
+    //記事の目標いいね取得
+    const articleDataGoalLike = Number(articleData.value.goalLike);
+    //記事の目標いいね達成しているか確認
     if (
-      articleDataGoalLike - nowLike.value <= 0 &&
-      !qiitaPostItem.value[0].qiitaPost
+      articleData.value.goalLike === null ||
+      articleData.value.goalLike === ""
     ) {
-      ///自動投稿
-      goalLikeSuccess.value = "達成済み";
-      qiitaPostCheck.value = true;
-      const autoPost = () => {
-        const item = {
-          body: articleBody, // マークダウン形式で記載が必要
-          private: false, // 限定共有状態かどうかを表すフラグ (Qiita Teamでは無効)
-          tags: articleTag,
-          title: articleTitle,
-          tweet: false, // Twitterに投稿するかどうか (Twitter連携を有効化している場合のみ有効)
-        };
-        fetch("https://qiita.com/api/v2/items", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${articleQiitaToken}`,
-          },
-          body: JSON.stringify(item),
-        })
-          .then((response) => {
-            if (!response.ok) {
-              throw new Error("Request failed with status: " + response.status);
-            }
-            // 成功処理
-
-            console.log("成功");
-          })
-          .catch(() => {
-            // 失敗処理
-            console.log("失敗");
-          });
-      };
-      autoPost();
-      await useFetch("/api/article/qiitaPostUpdate", {
-        method: "POST",
-        body: articleId,
-      });
+      goalLike.value = null;
     } else {
-      if (qiitaPostItem.value[0].qiitaPost) {
-        goalLikeSuccess.value = "達成済み";
+      if (articleDataGoalLike - nowLike.value > 0) {
+        //目標までの数表示
+        if (qiitaPostItem.value[0].qiitaPost) {
+          goalLikeSuccess.value = "達成済み";
+        } else {
+          goalLike.value = articleDataGoalLike - nowLike.value;
+        }
       } else {
-        goalLike.value = articleDataGoalLike - nowLike.value;
+        goalLikeSuccess.value = "達成済み";
+        ///自動投稿
+        qiitaPostCheck.value = true;
+        const autoPost = () => {
+          const item = {
+            body: articleBody, // マークダウン形式で記載が必要
+            private: false, // 限定共有状態かどうかを表すフラグ (Qiita Teamでは無効)
+            tags: articleTag,
+            title: articleTitle,
+            tweet: false, // Twitterに投稿するかどうか (Twitter連携を有効化している場合のみ有効)
+          };
+          fetch("https://qiita.com/api/v2/items", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: `Bearer ${articleQiitaToken}`,
+            },
+            body: JSON.stringify(item),
+          })
+            .then((response) => {
+              if (!response.ok) {
+                throw new Error(
+                  "Request failed with status: " + response.status
+                );
+              }
+              // 成功処理
+              // console.log("成功");
+            })
+            .catch(() => {
+              // 失敗処理
+              // console.log("失敗");
+            });
+        };
+        autoPost();
+        await useFetch("/api/article/qiitaPostUpdate", {
+          method: "POST",
+          body: articleId,
+        });
       }
-      console.log("まだ達成してないよ/もしくはQiitaに投稿済み");
     }
+  } else {
+    showLikeButton.value = false;
+    goalLike.value = articleDataGoalLike - nowLike.value;
   }
 };
+const supabaseLike = supabase
+  .channel("like")
+  .on(
+    "postgres_changes",
+    {
+      event: "*",
+      schema: "public",
+      table: "like",
+    },
+    async (payload) => {
+      nowLikecount();
+    }
+  )
+  .subscribe();
 
 //　　　　　　　　コメント機能　　　　　　　　　//
 let comment = ref("");
@@ -499,7 +612,7 @@ const commentAcquisition = async function () {
       showCloseComment.value = false;
     }
   } else {
-    console.log("投稿済みコメントなし");
+    // console.log("投稿済みコメントなし");
   }
 };
 commentAcquisition();
@@ -536,7 +649,8 @@ const showCommentClick = () => {
 //コメント送信
 const submit = async () => {
   try {
-    if (comment.value.length > 0) {
+    const trimmedEmail = comment.value.trim();
+    if (comment.value.length > 0 && trimmedEmail.length > 0) {
       const { data: articleUser } = await useFetch("/api/comment/insert", {
         method: "POST",
         body: {
@@ -546,14 +660,13 @@ const submit = async () => {
           articleId: articleId,
         },
       });
-      errorText.value = false;
+      commentErrorText.value = "　　";
       comment.value = "";
-      // location.reload();
     } else {
-      errorText.value = true;
+      commentErrorText.value = "コメントを入力してください";
     }
   } catch (error) {
-    console.log("コメント送信でエラー");
+    // console.log("コメント送信でエラー");
   }
 };
 
