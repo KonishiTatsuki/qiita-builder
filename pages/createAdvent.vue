@@ -40,7 +40,13 @@
         <h2 class="text-2xl">期間</h2>
         <span class="text-xs text-red-500">(必須)</span>
       </div>
-      <VueDatePicker v-model="date" locale="ja" :format="format" range />
+      <VueDatePicker
+        v-model="date"
+        locale="ja"
+        :format="format"
+        :minDate="minDate"
+        range
+      />
       <p class="text-red-500">{{ errorDate }}</p>
     </div>
 
@@ -76,6 +82,12 @@ const description = ref("");
 const date = ref([]);
 const fileInput = ref();
 const format = "yyyy/MM/dd";
+const minDate = ref("");
+
+onMounted(() => {
+  const today = new Date();
+  minDate.value = today.toISOString().split("T")[0];
+});
 
 // supabaseにデータを送信する
 
