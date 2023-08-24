@@ -149,8 +149,8 @@ async function submitHandler() {
   errorTag.value = "";
 
   // 前後の空白を消去
-  title.value = title.value.replace(/^\s+|\s+$/g, "");
-  content.value = content.value.replace(/^\s+|\s+$/g, "");
+  title.value = title.value.trim();
+  content.value = content.value.trim();
 
   //バリデーションチェック
   if (title.value.length === 0) {
@@ -199,8 +199,8 @@ async function submitHandler() {
 // 下書き記事の投稿
 const draftHandler = async () => {
   // 前後の空白を消去
-  title.value = title.value.replace(/^\s+|\s+$/g, "");
-  content.value = content.value.replace(/^\s+|\s+$/g, "");
+  title.value = title.value.trim();
+  content.value = content.value.trim();
 
   const postData = {
     userId: userId,
