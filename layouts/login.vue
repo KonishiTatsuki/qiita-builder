@@ -16,7 +16,7 @@
     <slot />
   </div>
 
-  <footer class="bg-[#1D8EB9] py-4">
+  <footer class="bg-[#1D8EB9] py-4 mt-[44px]">
     <div class="container mx-auto px-4">
       <p class="text-center text-white">&copy; 2023 Qiita builder.</p>
     </div>
