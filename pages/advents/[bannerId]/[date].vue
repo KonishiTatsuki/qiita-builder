@@ -8,7 +8,7 @@
     <h2 class="subtitle">投稿する記事の選択</h2>
 
     <select
-      id="countries"
+      id="articles"
       class="bg-gray-50 border border-gray-300 text-gray-900 text-lg rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
       v-model="selectedArticleId"
     >
@@ -55,30 +55,46 @@ const supabase = useSupabaseClient();
 const user = useSupabaseUser();
 const userId = user.value?.id;
 const title = ref("");
+const articles = ref([]);
 const route = useRoute();
 const isArticleSelected = ref(false);
+const othersArticle = ref([]);
 
-onMounted(() => {
+onMounted(async () => {
   bannerId.value = route.params.bannerId;
   date.value = route.params.date;
 
-  console.log("bannerIdの結果", bannerId.value);
-  console.log("selectDateの結果", date.value);
-});
+  const { data: userArticles } = await supabase
+    .from("article")
+    .select("*")
+    .eq("userId", userId)
+    .eq("publish", true)
+    .eq("delete", false);
+  articles.value = userArticles;
 
-// user.idをもとにarticleテーブルから記事を全部取得する
-const { data: articles } = await supabase
-  .from("article")
-  .select("*")
-  .eq("userId", userId)
-  .eq("publish", true)
-  .eq("delete", false);
-console.log("articles", articles);
+  const { data: matchingArticles, error } = await supabase
+    .from("article")
+    .select("*")
+    .eq("publish", true)
+    .eq("delete", false)
+    .eq("publishDate", date.value)
+    .eq("bannerId", bannerId.value);
+
+  if (error) {
+    console.log("マッチした記事のフェッチにエラーが出ました：", error);
+  } else {
+    othersArticle.value = matchingArticles;
+  }
+});
 
 // 投稿ボタンを押した時の処理
 const submitHandler = async () => {
   if (!selectedArticleId.value) {
     isArticleSelected.value = false;
+    return;
+  }
+  if (othersArticle.value.length > 0) {
+    alert("この日付に投稿している人がいます。別日に投稿してください。");
     return;
   }
   // articleIdを取得する
@@ -87,7 +103,6 @@ const submitHandler = async () => {
     .select("id")
     .eq("userId", userId)
     .eq("id", selectedArticleId.value);
-  console.log("articleId", articleId);
 
   // bannerIdとpublishDateをarticleテーブルにデータを更新する
   const { data, error } = await supabase
@@ -98,25 +113,13 @@ const submitHandler = async () => {
       publish: true,
     })
     .eq("id", articleId[0].id);
-  console.log("data", data);
-  console.log("error", error);
+
+  if (error) {
+    console.error("データ更新エラー:", error);
+    return;
+  }
+  console.log("データ更新成功:", data);
   // ページをリロードする
   router.back();
 };
-const deleteHandler = async () => {
-  const { data: articleId } = await supabase
-    .from("article")
-    .select("id")
-    .eq("userId", userId)
-    .eq("id", selectedArticleId.value);
-
-  const { data, error } = await supabase
-    .from("article")
-    .update({ bannerId: null })
-    .eq("id", articleId[0].id);
-  console.log("data", data);
-  console.log("error", error);
-};
-
-console.log("selectedArticle", selectedArticleId.value);
 </script>
