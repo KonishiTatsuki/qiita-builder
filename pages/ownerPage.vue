@@ -275,7 +275,7 @@ const authChannel = supabase
 
 const client = useSupabaseClient<Database>();
 const open = ref(false);
-let clubModal = ref(false);
+const clubModal = ref(false);
 const deleteItem = ref();
 
 //アドベントカレンダーのデータ取得
