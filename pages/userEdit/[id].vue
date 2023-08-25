@@ -23,11 +23,13 @@
                         }"
                         type="text"
                         name="userName"
-                        validation="required|length:0,30|matches:/"
+                        validation="alpha_spaces|required|length:0,30|matches:/^[\u30a0-\u30ff\u3040-\u309f\u3005-\u3006\u30e0-\u9fcf\uFF10-\uFF19]+$/"
                         autocomplete="off"
                         :validation-messages="{
                           required: 'ユーザ名を入力してください',
                           length: '30文字以内で入力してください',
+                          matches: '全角で記入してください',
+                          alpha_spaces:'スペースを含めないでください'
                         }"
                         :value="data[0].username"
                       />
@@ -88,16 +90,24 @@
                         :value="data[0].clubid.id"
                       />
                       <!-- 追加した内容 -->
-                      <div v-show="othersClub">
+                      <div v-if="othersClub">
                         <FormKit
                           :classes="{
                             input: 'border border-black  py-1 px-2 rounded-md',
+                            message: 'text-red-500',
                           }"
                           type="text"
                           label="追加サークル"
                           placeholder="その他"
                           name="addClub"
+                          validation="alpha_spaces|required|length:0,30|matches:/^[\u30a0-\u30ff\u3040-\u309f\u3005-\u3006\u30e0-\u9fcf\uFF10-\uFF19]+$/"
                           autocomplete="off"
+                          :validation-messages="{
+                          required: 'サークル名を入力してください',
+                          length: '30文字以内で入力してください',
+                          matches: '全角で記入してください',
+                          alpha_spaces:'スペースを含めないでください'
+                        }"
                         />
                       </div>
                       <!-- 追加した内容 -->
