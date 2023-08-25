@@ -5,7 +5,7 @@
     :style="inputStyle"
     placeholder="記事タイトルまたは記事内容で検索"
     v-model="searchText"
-    @input="onInput"
+    @keydown.enter="handleEnterKey"
   />
 </template>
 
@@ -17,7 +17,8 @@ const searchText = ref("");
 const inputStyle = ref("width: 600px");
 const router = useRouter();
 
-const onInput = () => {
+const handleEnterKey = () => {
+  searchText.value = searchText.value.trim();
   // searchTextの値をクエリパラメータとしてURLに追加
   router.push({ query: { search: searchText.value } });
 };
