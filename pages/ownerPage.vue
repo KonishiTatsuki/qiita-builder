@@ -194,6 +194,51 @@
         </div>
       </div>
     </div>
+
+    <!-- ユーザーの削除 -->
+    <div class="mt-5 flex my-16">
+      <div class="w-1/5">登録ユーザーの削除：</div>
+      <div class="w-4/5">
+        <p class="mb-3">
+          ユーザー情報を削除したい社員のメールアドレスを入力してください
+        </p>
+        <div class="flex items-center">
+          <div>
+            <input
+              type="text"
+              class="border border-black w-80"
+              maxlength="255"
+              v-model="deleteUser"
+            />
+          </div>
+          <div>
+            <button class="btn ml-4" @click="userDeletingValidation()">
+              削除
+            </button>
+          </div>
+        </div>
+        <p class="text-red-500">{{ userDeleteErrormsg }}</p>
+        <Teleport to="body">
+          <div v-if="deleteUserModal" class="modal">
+            <div class="modal-content">
+              <p class="mb-5">本当に削除しますか？</p>
+              <button @click="deleteUserModal = false" class="btn mr-5">
+                No
+              </button>
+              <button @click="deleteUserRegistration()" class="btn">Yes</button>
+            </div>
+          </div>
+        </Teleport>
+        <Teleport to="body">
+          <div v-if="deleteCompleteModal" class="modal">
+            <div class="modal-content">
+              <p class="mb-5">削除が完了しました</p>
+              <p class="mb-5 text-xs">画面を再読み込みします</p>
+            </div>
+          </div>
+        </Teleport>
+      </div>
+    </div>
   </div>
 </template>
 
@@ -276,6 +321,8 @@ const authChannel = supabase
 const client = useSupabaseClient<Database>();
 const open = ref(false);
 const clubModal = ref(false);
+const deleteUserModal = ref(false);
+const deleteCompleteModal = ref(false);
 const deleteItem = ref();
 
 //アドベントカレンダーのデータ取得
@@ -396,6 +443,7 @@ const addNewClub = async () => {
 
 //エラーメッセージ
 const errormsg = ref("");
+const userDeleteErrormsg = ref("");
 
 const ownerList: Profile[] = reactive([]);
 
@@ -442,6 +490,48 @@ const deleteOwner = async (id: number) => {
     method: "PATCH",
     body: { id: id },
   });
+};
+
+// 登録ユーザーの削除
+const deleteUser = ref("");
+
+const userDeletingValidation = async () => {
+  userDeleteErrormsg.value = "";
+  const re = /^[a-zA-Z0-9_+-]+(.[a-zA-Z0-9_+-]+)*@rakus-partners.co.jp/;
+  if (!deleteUser.value) {
+    userDeleteErrormsg.value = "メールアドレスを入力してください";
+  } else {
+    //ラクスメールアドレス形式のバリデーション
+    if (re.test(deleteUser.value)) {
+      const { data: userExists } = await useFetch("/api/user/confirmExisting", {
+        method: "POST",
+        body: { email: deleteUser },
+      });
+      if (userExists.value === "Not Found") {
+        userDeleteErrormsg.value = "該当するユーザーが見つかりません";
+      } else {
+        userDeleteErrormsg.value = "";
+        deleteUserModal.value = true;
+      }
+    } else {
+      userDeleteErrormsg.value = "メールアドレスの形式が不正です";
+    }
+  }
+};
+
+const deleteUserRegistration = async () => {
+  const { data } = await useFetch("/api/user/deleteRegistration", {
+    method: "POST",
+    body: { email: deleteUser },
+  });
+  if (data.value === "OK") {
+    deleteUserModal.value = false;
+    deleteCompleteModal.value = true;
+
+    setTimeout(function () {
+      location.reload();
+    }, 1000);
+  }
 };
 </script>
 
