@@ -251,31 +251,34 @@ const deleteHandler = async () => {
 };
 
 onMounted(async () => {
-  const EasyMDE = (await import("easymde")).default;
-  mde = new EasyMDE({
-    element: contentArea.value!.$el,
-    spellChecker: false,
-    status: false,
-    previewRender: (markdownPlaintext) => {
-      const htmlContent = marked(markdownPlaintext);
-      return `<div class="markdown-preview">${htmlContent}</div>`;
-    },
-  });
-  mde.codemirror.on("change", () => {
-    if (mde) {
-      content.value = mde.value();
-    }
-  });
+  try {
+    const EasyMDE = (await import("easymde")).default;
+    mde = new EasyMDE({
+      element: contentArea.value!.$el,
+      spellChecker: false,
+      status: false,
+      previewRender: (markdownPlaintext) => {
+        const htmlContent = marked(markdownPlaintext);
+        return `<div class="markdown-preview">${htmlContent}</div>`;
+      },
+    });
+    mde.codemirror.on("change", () => {
+      if (mde) {
+        content.value = mde.value();
+      }
+    });
 
-  const users = useSupabaseUser();
-  const userId = users.value?.id;
-  qiitaToken.value = (
-    await useFetch("/api/user/getQiitaToken", {
-      method: "POST",
-      body: userId,
-    })
-  ).data.value;
-  console.log(qiitaToken);
+    const users = useSupabaseUser();
+    const userId = users.value?.id;
+    qiitaToken.value = (
+      await useFetch("/api/user/getQiitaToken", {
+        method: "POST",
+        body: userId,
+      })
+    ).data.value;
+  } catch (error) {
+    console.log(error);
+  }
 });
 </script>
 
