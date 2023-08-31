@@ -433,16 +433,6 @@ const { data: likeschecks } = await useFetch("/api/like/likeCheckGet", {
 if (likeschecks.value[0]) {
   showLikeButton.value = true;
 }
-//Qiita投稿に必要な情報取得
-const articleQiitaToken = articleUsers.value.qiitaToken;
-const articleBody = articleData.value.body;
-const articleTitle = articleData.value.title;
-const articleQiitaPost = articleData.value.qiitaPost;
-const articleTag = Object.keys(tagNames.value).map((key) => {
-  return { name: tagNames.value[key] };
-});
-//Qiita投稿済みかどうか確認
-const qiitaPostCheck = ref(articleData.value.qiitaPost);
 //記事の目標いいね取得
 const articleDataGoalLike = Number(articleData.value.goalLike);
 //目標いいねの表示切り替え
@@ -479,6 +469,17 @@ const countLike = async (e) => {
   }
 };
 
+// //Qiita投稿に必要な情報取得
+const articleQiitaToken = articleUsers.value.qiitaToken;
+const articleBody = articleData.value.body;
+const articleTitle = articleData.value.title;
+// const articleQiitaPost = articleData.value.qiitaPost;
+const articleTag = Object.keys(tagNames.value).map((key) => {
+  return { name: tagNames.value[key] };
+});
+// //Qiita投稿済みかどうか確認
+const qiitaPostCheck = ref(articleData.value.qiitaPost);
+
 //リアルタイムでいいね数を取得
 const nowLikecount = async function () {
   // ユーザーがいいねしているかどうかの確認
@@ -504,8 +505,6 @@ const nowLikecount = async function () {
   nowLike.value = realTimeLikes.value.length;
   if (realTimeLike.value[0]) {
     showLikeButton.value = true;
-    //記事の目標いいね取得
-    const articleDataGoalLike = Number(articleData.value.goalLike);
     //記事の目標いいね達成しているか確認
     if (
       articleData.value.goalLike === null ||
@@ -520,14 +519,14 @@ const nowLikecount = async function () {
         } else {
           goalLike.value = articleDataGoalLike - nowLike.value;
         }
-      } else {
+      } else if (!qiitaPostItem.value[0].qiitaPost) {
         goalLikeSuccess.value = "達成済み";
         ///自動投稿
         qiitaPostCheck.value = true;
         const autoPost = () => {
           const item = {
             body: articleBody, // マークダウン形式で記載が必要
-            private: false, // 限定共有状態かどうかを表すフラグ (Qiita Teamでは無効)
+            private: true, // 限定共有状態かどうかを表すフラグ (Qiita Teamでは無効)
             tags: articleTag,
             title: articleTitle,
             tweet: false, // Twitterに投稿するかどうか (Twitter連携を有効化している場合のみ有効)
@@ -547,11 +546,11 @@ const nowLikecount = async function () {
                 );
               }
               // 成功処理
-              // console.log("成功");
+              console.log("成功");
             })
             .catch(() => {
               // 失敗処理
-              // console.log("失敗");
+              console.log("失敗");
             });
         };
         autoPost();
@@ -559,6 +558,8 @@ const nowLikecount = async function () {
           method: "POST",
           body: articleId,
         });
+      } else {
+        goalLikeSuccess.value = "達成済み";
       }
     }
   } else {
@@ -618,7 +619,7 @@ const commentAcquisition = async function () {
       showCloseComment.value = false;
     }
   } else {
-    // console.log("投稿済みコメントなし");
+    console.log("投稿済みコメントなし");
   }
 };
 commentAcquisition();
@@ -672,7 +673,7 @@ const submit = async () => {
       commentErrorText.value = "コメントを入力してください";
     }
   } catch (error) {
-    // console.log("コメント送信でエラー");
+    console.log("コメント送信でエラー");
   }
 };
 
