@@ -191,6 +191,9 @@ const submitHandler = async () => {
   } else if (content.value.length > 255) {
     errorContent.value = "内容を255字以内で入力してください";
   }
+  if (select.value.length === 0) {
+    errorTag.value = "タグを一つ以上入力してください";
+  }
   select.value?.map((tag: string) => {
     if (tag.length > 30) {
       errorTag.value = "タグは各30字以内で入力してください";
