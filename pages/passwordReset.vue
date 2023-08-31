@@ -1,66 +1,59 @@
 <template>
   <div class="flex main">
-    <!-- ローディング画面 -->
-    <div v-if="isLoading" class="loading-screen">
-      <div class="loader"></div>
-      <p>Loading...</p>
-    </div>
-    <div v-else class="flex-auto my-auto">
-      <div class="flex justify-center">
-        <div class="text-center">
-          <h1 class="title">パスワード再設定</h1>
-          <div class="flex justify-center">
-            <FormKit
-              type="form"
-              @submit="submit"
-              :actions="false"
-              incomplete-message=" "
-            >
-              <div class="mb-5 text-center">
-                <FormKit
-                  :classes="{
-                    input: 'border border-black py-1 px-2 rounded-md',
-                    message: 'text-red-500',
-                  }"
-                  type="password"
-                  label="新パスワード"
-                  name="password"
-                  validation="required|length:8,30|contains_numeric|contains_lowercase|contains_uppercase"
-                  autocomplete="off"
-                  :validation-messages="{
-                    required: 'パスワードを入力してください',
-                    length: '8文字以上30文字以内で入力してください',
-                    contains_numeric:
-                      '半角英小文字・大文字・数字をそれぞれ1種類以上含んでください',
-                    contains_lowercase:
-                      '半角英小文字・大文字・数字をそれぞれ1種類以上含んでください',
-                    contains_uppercase:
-                      '半角英小文字・大文字・数字をそれぞれ1種類以上含んでください',
-                  }"
-                />
-              </div>
-              <div class="mb-5 text-center">
-                <FormKit
-                  :classes="{
-                    input: 'border border-black py-1 px-2 rounded-md',
-                    message: 'text-red-500',
-                  }"
-                  type="password"
-                  label=" パスワード確認用"
-                  name="password_confirm"
-                  validation="required|confirm"
-                  autocomplete="off"
-                  :validation-messages="{
-                    required: '確認用パスワードを入力してください',
-                    confirm: 'パスワードが一致しません',
-                  }"
-                />
-              </div>
-              <div class="flex mb-4 justify-center">
-                <button class="btn">登録</button>
-              </div>
-            </FormKit>
-          </div>
+    <div class="flex-auto my-auto">
+      <div class="text-center">
+        <h1 class="title">パスワード再設定</h1>
+        <div class="flex justify-center">
+          <FormKit
+            type="form"
+            @submit="submit"
+            :actions="false"
+            incomplete-message=" "
+          >
+            <div class="mb-5 text-center">
+              <FormKit
+                :classes="{
+                  input: 'border border-black py-1 px-2 rounded-md',
+                  message: 'text-red-500',
+                }"
+                type="password"
+                label="新パスワード"
+                name="password"
+                validation="required|length:8,30|contains_numeric|contains_lowercase|contains_uppercase"
+                autocomplete="off"
+                :validation-messages="{
+                  required: 'パスワードを入力してください',
+                  length: '8文字以上30文字以内で入力してください',
+                  contains_numeric:
+                    '半角英小文字・大文字・数字をそれぞれ1種類以上含んでください',
+                  contains_lowercase:
+                    '半角英小文字・大文字・数字をそれぞれ1種類以上含んでください',
+                  contains_uppercase:
+                    '半角英小文字・大文字・数字をそれぞれ1種類以上含んでください',
+                }"
+              />
+            </div>
+            <div class="mb-5 text-center">
+              <FormKit
+                :classes="{
+                  input: 'border border-black py-1 px-2 rounded-md',
+                  message: 'text-red-500',
+                }"
+                type="password"
+                label=" パスワード確認用"
+                name="password_confirm"
+                validation="required|confirm"
+                autocomplete="off"
+                :validation-messages="{
+                  required: '確認用パスワードを入力してください',
+                  confirm: 'パスワードが一致しません',
+                }"
+              />
+            </div>
+            <div class="flex mb-4 justify-center">
+              <button class="btn">登録</button>
+            </div>
+          </FormKit>
         </div>
       </div>
     </div>
@@ -72,7 +65,6 @@ useHead({
   title: "パスワード再設定",
 });
 
-const isLoading = ref(true);
 const router = useRouter();
 const route = useRoute();
 const supabase = useSupabaseClient();
@@ -82,15 +74,7 @@ const password = ref("");
 const success = ref("");
 const userId = ref("");
 
-if (users.value) {
-  console.log("ログイン");
-  userId.value = users.value.id;
-  isLoading.value = false;
-} else if (users.value === null) {
-  console.log("ログアウト");
-  router.push({ path: "/passwordForget" });
-  definePageMeta({ layout: "login" });
-}
+definePageMeta({ layout: "login" });
 
 const submit = async (submit: { password: string }) => {
   if (userId.value !== "") {
