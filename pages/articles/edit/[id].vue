@@ -58,7 +58,7 @@
       </div>
     </div>
     <div class="flex justify-around mt-5">
-      <div class="block">
+      <div class="block" v-if="qiitaToken">
         <FormKit type="list" #default="{ value }">
           <FormKit
             :classes="{
@@ -140,6 +140,7 @@ const select = ref(data.value?.tag);
 const goalLike = ref(data.value?.article[0].goalLike);
 const publishDate = ref(data.value?.article[0].publishDate);
 const initialPubDate = ref(data.value?.article[0].publishDate);
+const qiitaToken = ref(null);
 const dialog = ref(false);
 const router = useRouter();
 let errorTitle = ref("");
@@ -265,6 +266,16 @@ onMounted(async () => {
       content.value = mde.value();
     }
   });
+
+  const users = useSupabaseUser();
+  const userId = users.value?.id;
+  qiitaToken.value = (
+    await useFetch("/api/user/getQiitaToken", {
+      method: "POST",
+      body: userId,
+    })
+  ).data.value;
+  console.log(qiitaToken);
 });
 </script>
 
