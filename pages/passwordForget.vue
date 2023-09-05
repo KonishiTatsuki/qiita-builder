@@ -55,6 +55,7 @@ const email = ref("");
 const message = ref("　　");
 const user = useSupabaseUser();
 const supabase = useSupabaseClient();
+const runtimeConfig = useRuntimeConfig();
 
 definePageMeta({ layout: "login" });
 
@@ -74,7 +75,7 @@ const submit = async (submit: { email: string }) => {
         const { data, error } = await supabase.auth.resetPasswordForEmail(
           submit.email,
           {
-            redirectTo: "http://localhost:3000/passwordReset",
+            redirectTo: `${runtimeConfig.public.apiUrl}/passwordReset`,
           }
         );
         message.value = "メールを送信しました。";

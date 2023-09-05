@@ -77,14 +77,12 @@ const userId = ref("");
 definePageMeta({ layout: "login" });
 
 const submit = async (submit: { password: string }) => {
-  if (userId.value !== "") {
-    const { data, error } = await supabase.auth.updateUser({
-      password: submit.password,
-    });
-    success.value = "パスワードを再設定しました。";
-    await new Promise((r) => setTimeout(r, 1500));
-    router.push({ path: "/login" });
-  }
+  const { data, error } = await supabase.auth.updateUser({
+    password: submit.password,
+  });
+  success.value = "パスワードを再設定しました。";
+  await new Promise((r) => setTimeout(r, 1500));
+  router.push({ path: "/login" });
 };
 </script>
 
