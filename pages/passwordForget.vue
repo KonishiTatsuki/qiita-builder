@@ -54,6 +54,7 @@ const client = useSupabaseClient<Database>();
 const email = ref("");
 const message = ref("　　");
 const user = useSupabaseUser();
+const supabase = useSupabaseClient();
 
 definePageMeta({ layout: "login" });
 
@@ -70,6 +71,12 @@ const submit = async (submit: { email: string }) => {
     } else {
       // エラーが発生しなかった場合の処理
       if (correctMail.length > 0) {
+        const { data, error } = await supabase.auth.resetPasswordForEmail(
+          submit.email,
+          {
+            redirectTo: "http://localhost:3000/passwordReset",
+          }
+        );
         message.value = "メールを送信しました。";
       } else {
         message.value = "そのメールアドレスは登録されていません";

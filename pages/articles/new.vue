@@ -33,7 +33,7 @@
       </div>
     </div>
     <div class="flex justify-around mt-8">
-      <div class="block">
+      <div class="block" v-if="qiitaToken">
         <label for="like">Qiita自動投稿</label>
         <br />
         <select
@@ -135,6 +135,7 @@ const publishDate = ref(date);
 const router = useRouter();
 const users = useSupabaseUser();
 const userId = users.value?.id;
+const qiitaToken = ref(null);
 let occupationId = ref(null);
 let clubId = ref(null);
 let errorTitle = ref("");
@@ -163,6 +164,10 @@ async function submitHandler() {
   } else if (content.value.length > 255) {
     errorContent.value = "内容を255字以内で入力してください";
   }
+  if (select.value.length === 0) {
+    errorTag.value = "タグを一つ以上入力してください";
+  }
+  console.log(select);
   select.value.map((tag: string) => {
     if (tag.length > 30) {
       errorTag.value = "タグは各30字以内で入力してください";
@@ -256,6 +261,13 @@ onMounted(async () => {
         body: userId,
       })
     ).data.value?.occupation.id;
+
+    qiitaToken.value = (
+      await useFetch("/api/user/getQiitaToken", {
+        method: "POST",
+        body: userId,
+      })
+    ).data.value;
   } catch (error) {
     console.log(error);
   }

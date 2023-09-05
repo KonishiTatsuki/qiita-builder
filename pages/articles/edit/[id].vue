@@ -58,7 +58,7 @@
       </div>
     </div>
     <div class="flex justify-around mt-5">
-      <div class="block">
+      <div class="block" v-if="qiitaToken">
         <FormKit type="list" #default="{ value }">
           <FormKit
             :classes="{
@@ -140,6 +140,7 @@ const select = ref(data.value?.tag);
 const goalLike = ref(data.value?.article[0].goalLike);
 const publishDate = ref(data.value?.article[0].publishDate);
 const initialPubDate = ref(data.value?.article[0].publishDate);
+const qiitaToken = ref(null);
 const dialog = ref(false);
 const router = useRouter();
 let errorTitle = ref("");
@@ -190,6 +191,9 @@ const submitHandler = async () => {
     errorContent.value = "内容を入力してください";
   } else if (content.value.length > 255) {
     errorContent.value = "内容を255字以内で入力してください";
+  }
+  if (select.value.length === 0) {
+    errorTag.value = "タグを一つ以上入力してください";
   }
   select.value?.map((tag: string) => {
     if (tag.length > 30) {
@@ -247,21 +251,34 @@ const deleteHandler = async () => {
 };
 
 onMounted(async () => {
-  const EasyMDE = (await import("easymde")).default;
-  mde = new EasyMDE({
-    element: contentArea.value!.$el,
-    spellChecker: false,
-    status: false,
-    previewRender: (markdownPlaintext) => {
-      const htmlContent = marked(markdownPlaintext);
-      return `<div class="markdown-preview">${htmlContent}</div>`;
-    },
-  });
-  mde.codemirror.on("change", () => {
-    if (mde) {
-      content.value = mde.value();
-    }
-  });
+  try {
+    const EasyMDE = (await import("easymde")).default;
+    mde = new EasyMDE({
+      element: contentArea.value!.$el,
+      spellChecker: false,
+      status: false,
+      previewRender: (markdownPlaintext) => {
+        const htmlContent = marked(markdownPlaintext);
+        return `<div class="markdown-preview">${htmlContent}</div>`;
+      },
+    });
+    mde.codemirror.on("change", () => {
+      if (mde) {
+        content.value = mde.value();
+      }
+    });
+
+    const users = useSupabaseUser();
+    const userId = users.value?.id;
+    qiitaToken.value = (
+      await useFetch("/api/user/getQiitaToken", {
+        method: "POST",
+        body: userId,
+      })
+    ).data.value;
+  } catch (error) {
+    console.log(error);
+  }
 });
 </script>
 
