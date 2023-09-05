@@ -75,7 +75,7 @@ const submit = async (submit: { email: string }) => {
         const { data, error } = await supabase.auth.resetPasswordForEmail(
           submit.email,
           {
-            redirectTo: `${runtimeConfig.public.apiUrl}/passwordReset`,
+            redirectTo: `${runtimeConfig.public.apiUrl}`,
           }
         );
         message.value = "メールを送信しました。";
