@@ -425,6 +425,7 @@ const deleteClub = async () => {
 
 //新規クラブの追加
 const addNewClub = async () => {
+  msgForaddClub.value = "";
   newclub.value = newclub.value.trim();
   if (!newclub.value) {
     msgForaddClub.value = "追加するサークル名を入力してください";

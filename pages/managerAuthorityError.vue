@@ -12,7 +12,8 @@
 
 <script>
 setTimeout(function () {
-  window.location = "http://localhost:3000/mypage";
+  const router = useRouter();
+  router.push("/mypage");
 }, 5000);
 </script>
 
